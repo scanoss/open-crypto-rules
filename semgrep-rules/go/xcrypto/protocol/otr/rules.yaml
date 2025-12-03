@@ -2,17 +2,14 @@ rules:
   - id: go.xcrypto.otr.conversation
     message: Detected OTR conversation creation, protocol=OTR
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
           - pattern: otr.NewConversation($PRIVKEY)
-          - pattern: "$CONV, $ERR := otr.NewConversation($PRIVKEY)
-
-              "
-          - pattern: "$CONV, _ := otr.NewConversation($PRIVKEY)
-
-              "
+          - pattern: |
+              $CONV, $ERR := otr.NewConversation($PRIVKEY)
+          - pattern: |
+              $CONV, _ := otr.NewConversation($PRIVKEY)
           - pattern: otr.NewConversation(...)
     metadata:
       category: security
@@ -34,17 +31,14 @@ rules:
   - id: go.xcrypto.otr.send
     message: Detected OTR message sending, protocol=OTR
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
           - pattern: $CONV.Send($MESSAGE)
-          - pattern: "$ENCRYPTED, $ERR := $CONV.Send($MESSAGE)
-
-              "
-          - pattern: "$ENCRYPTED, _ := $CONV.Send($MESSAGE)
-
-              "
+          - pattern: |
+              $ENCRYPTED, $ERR := $CONV.Send($MESSAGE)
+          - pattern: |
+              $ENCRYPTED, _ := $CONV.Send($MESSAGE)
           - pattern: $CONV.Send(...)
     metadata:
       category: security
@@ -66,17 +60,14 @@ rules:
   - id: go.xcrypto.otr.receive
     message: Detected OTR message receiving, protocol=OTR
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
           - pattern: $CONV.Receive($MESSAGE)
-          - pattern: "$DECRYPTED, $ERR := $CONV.Receive($MESSAGE)
-
-              "
-          - pattern: "$DECRYPTED, _ := $CONV.Receive($MESSAGE)
-
-              "
+          - pattern: |
+              $DECRYPTED, $ERR := $CONV.Receive($MESSAGE)
+          - pattern: |
+              $DECRYPTED, _ := $CONV.Receive($MESSAGE)
           - pattern: $CONV.Receive(...)
     metadata:
       category: security
@@ -98,17 +89,14 @@ rules:
   - id: go.xcrypto.otr.authenticate
     message: Detected OTR authentication, protocol=OTR
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
           - pattern: $CONV.Authenticate($QUESTION, $SECRET)
-          - pattern: "$TOSEND, $ERR := $CONV.Authenticate($QUESTION, $SECRET)
-
-              "
-          - pattern: "$TOSEND, _ := $CONV.Authenticate($QUESTION, $SECRET)
-
-              "
+          - pattern: |
+              $TOSEND, $ERR := $CONV.Authenticate($QUESTION, $SECRET)
+          - pattern: |
+              $TOSEND, _ := $CONV.Authenticate($QUESTION, $SECRET)
           - pattern: $CONV.Authenticate(...)
     metadata:
       category: security

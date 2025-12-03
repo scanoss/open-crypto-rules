@@ -7,9 +7,8 @@ rules:
     patterns:
       - pattern-either:
           - pattern: $PRIVKEY.Import($DATA)
-          - pattern: "$SUCCESS := $PRIVKEY.Import($DATA)
-
-              "
+          - pattern: |
+              $SUCCESS := $PRIVKEY.Import($DATA)
           - pattern: $PRIVKEY.Import(...)
     metadata:
       category: security
@@ -32,15 +31,24 @@ rules:
     languages:
       - go
     patterns:
+      - pattern-inside: |
+          import (
+            ...
+            "golang.org/x/crypto/otr"
+            ...
+          )
+          ...
       - pattern-either:
-          - pattern: $PRIVKEY.Parse($DATA)
-          - pattern: "$OUT, $SUCCESS := $PRIVKEY.Parse($DATA)
-
-              "
-          - pattern: "$OUT, _ := $PRIVKEY.Parse($DATA)
-
-              "
-          - pattern: $PRIVKEY.Parse(...)
+          - pattern: otr.PrivateKey{...}.Parse(...)
+          - patterns:
+              - pattern-inside: |
+                  func $FUNC(...) {
+                    ...
+                    var $KEY otr.PrivateKey
+                    ...
+                    $KEY.Parse(...)
+                    ...
+                  }
     metadata:
       category: security
       subcategory: cryptography
@@ -64,9 +72,8 @@ rules:
     patterns:
       - pattern-either:
           - pattern: $PRIVKEY.Serialize($DATA)
-          - pattern: "$OUT := $PRIVKEY.Serialize($DATA)
-
-              "
+          - pattern: |
+              $OUT := $PRIVKEY.Serialize($DATA)
           - pattern: $PRIVKEY.Serialize(...)
     metadata:
       category: security
@@ -88,15 +95,24 @@ rules:
     languages:
       - go
     patterns:
+      - pattern-inside: |
+          import (
+            ...
+            "golang.org/x/crypto/otr"
+            ...
+          )
+          ...
       - pattern-either:
-          - pattern: $PUBKEY.Parse($DATA)
-          - pattern: "$OUT, $SUCCESS := $PUBKEY.Parse($DATA)
-
-              "
-          - pattern: "$OUT, _ := $PUBKEY.Parse($DATA)
-
-              "
-          - pattern: $PUBKEY.Parse(...)
+          - pattern: otr.PublicKey{...}.Parse(...)
+          - patterns:
+              - pattern-inside: |
+                  func $FUNC(...) {
+                    ...
+                    var $KEY otr.PublicKey
+                    ...
+                    $KEY.Parse(...)
+                    ...
+                  }
     metadata:
       category: security
       subcategory: cryptography
@@ -120,9 +136,8 @@ rules:
     patterns:
       - pattern-either:
           - pattern: $PUBKEY.Serialize($DATA)
-          - pattern: "$OUT := $PUBKEY.Serialize($DATA)
-
-              "
+          - pattern: |
+              $OUT := $PUBKEY.Serialize($DATA)
           - pattern: $PUBKEY.Serialize(...)
     metadata:
       category: security
@@ -146,9 +161,8 @@ rules:
     patterns:
       - pattern-either:
           - pattern: $PUBKEY.Fingerprint()
-          - pattern: "$FINGERPRINT := $PUBKEY.Fingerprint()
-
-              "
+          - pattern: |
+              $FINGERPRINT := $PUBKEY.Fingerprint()
           - pattern: $PUBKEY.Fingerprint(...)
     metadata:
       category: security

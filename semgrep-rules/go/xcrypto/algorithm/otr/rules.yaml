@@ -7,9 +7,6 @@ rules:
     patterns:
       - pattern-either:
           - pattern: $PRIVKEY.Generate($RAND)
-          - pattern: "$PRIVKEY.Generate($RAND)
-
-              "
           - pattern: $PRIVKEY.Generate(...)
     metadata:
       category: security
@@ -21,7 +18,7 @@ rules:
         assetType: algorithm
         findingType: key_generation
         operation: keygen
-        primitive: signature
+        algorithmPrimitive: signature
         algorithmName: OTR
         algorithmFamily: OTR
         library: golang.org/x/crypto/otr
@@ -36,9 +33,7 @@ rules:
     patterns:
       - pattern-either:
           - pattern: $PRIVKEY.Sign($RAND, $HASHED)
-          - pattern: "$SIG := $PRIVKEY.Sign($RAND, $HASHED)
-
-              "
+          - pattern: $SIG := $PRIVKEY.Sign($RAND, $HASHED)
           - pattern: $PRIVKEY.Sign(...)
     metadata:
       category: security
@@ -50,7 +45,7 @@ rules:
         assetType: algorithm
         findingType: signature
         operation: sign
-        primitive: signature
+        algorithmPrimitive: signature
         algorithmName: OTR
         algorithmFamily: OTR
         library: golang.org/x/crypto/otr
@@ -64,12 +59,8 @@ rules:
     patterns:
       - pattern-either:
           - pattern: $PUBKEY.Verify($HASHED, $SIG)
-          - pattern: "$OUT, $VALID := $PUBKEY.Verify($HASHED, $SIG)
-
-              "
-          - pattern: "$OUT, _ := $PUBKEY.Verify($HASHED, $SIG)
-
-              "
+          - pattern: $OUT, $VALID := $PUBKEY.Verify($HASHED, $SIG)
+          - pattern: $OUT, _ := $PUBKEY.Verify($HASHED, $SIG)
           - pattern: $PUBKEY.Verify(...)
     metadata:
       category: security
@@ -81,7 +72,7 @@ rules:
         assetType: algorithm
         findingType: signature
         operation: verify
-        primitive: signature
+        algorithmPrimitive: signature
         algorithmName: OTR
         algorithmFamily: OTR
         library: golang.org/x/crypto/otr
