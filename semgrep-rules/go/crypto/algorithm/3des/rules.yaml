@@ -2,8 +2,7 @@ rules:
   - id: go.crypto.3des.key-generation
     message: Detected 3DES key generation, algorithm=3DES
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
           - patterns:
@@ -22,9 +21,7 @@ rules:
       category: security
       subcategory: cryptography
       confidence: HIGH
-      cwe:
-        - CWE-327
-        - CWE-326
+      cwe: [CWE-327, CWE-326]
       references:
         - https://pkg.go.dev/crypto/des
       crypto:
@@ -42,8 +39,7 @@ rules:
   - id: go.crypto.3des.block-cipher-mode
     message: Detected 3DES block cipher mode
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
           - pattern: |
@@ -58,9 +54,7 @@ rules:
       category: security
       subcategory: cryptography
       confidence: HIGH
-      cwe:
-        - CWE-327
-        - CWE-326
+      cwe: [CWE-327, CWE-326]
       references:
         - https://pkg.go.dev/crypto/cipher
       crypto:
