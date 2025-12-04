@@ -1,5 +1,5 @@
 // TEST-RULE: go.crypto.sha1.hash-usage
-// TEST-METADATA: assetType=algorithm, findingType=hash, operation=digest, primitive=hash, algorithmName=SHA-1, algorithmFamily=SHA-1, parameterSetIdentifier=160, library=crypto/sha1, api=sha1.New
+// TEST-METADATA: assetType=algorithm, findingType=hash, operation=digest, algorithmPrimitive=hash, algorithmName=SHA-1, algorithmFamily=SHA-1, algorithmParameterSetIdentifier=160, library=crypto/sha1, api=sha1.New
 
 package main
 
@@ -12,4 +12,3 @@ func main() {
 	hasher := sha1.New()
 	_ = hasher
 }
-

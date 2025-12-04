@@ -1,5 +1,5 @@
 // TEST-RULE: go.crypto.aes.key-generation
-// TEST-METADATA: algorithmName=AES, library=crypto/aes, api=aes.NewCipher, parameterSetIdentifier=32
+// TEST-METADATA: algorithmFamily=AES, library=crypto/aes, api=aes.NewCipher, algorithmParameterSetIdentifier=32
 
 package main
 

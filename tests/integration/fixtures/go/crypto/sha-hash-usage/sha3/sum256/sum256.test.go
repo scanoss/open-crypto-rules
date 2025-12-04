@@ -1,5 +1,5 @@
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: assetType=algorithm, findingType=hash, operation=digest, primitive=hash, algorithmName=SHA-3-256, algorithmFamily=SHA-3, parameterSetIdentifier=256, library=crypto/sha3, api=sha3.Sum256
+// TEST-METADATA: assetType=algorithm, findingType=hash, operation=digest, algorithmPrimitive=hash, algorithmName=SHA-3-256, algorithmFamily=SHA-3, algorithmParameterSetIdentifier=256, library=crypto/sha3, api=sha3.Sum256
 
 package main
 

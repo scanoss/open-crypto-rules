@@ -1,5 +1,5 @@
 // TEST-RULE: go.crypto.sha512.hash-usage
-// TEST-METADATA: assetType=algorithm, findingType=hash, operation=digest, primitive=hash, algorithmName=SHA-512, algorithmFamily=SHA-2, parameterSetIdentifier=512, library=crypto/sha512, api=sha512.New
+// TEST-METADATA: assetType=algorithm, findingType=hash, operation=digest, algorithmPrimitive=hash, algorithmName=SHA-512, algorithmFamily=SHA-2, algorithmParameterSetIdentifier=512, library=crypto/sha512, api=sha512.New
 
 package main
 

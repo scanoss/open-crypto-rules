@@ -1,5 +1,5 @@
 // TEST-RULE: go.crypto.sha3.shake-usage
-// TEST-METADATA: assetType=algorithm, findingType=hash, operation=digest, primitive=xof, algorithmName=SHAKE128, algorithmFamily=SHA-3, parameterSetIdentifier=SHAKE128, library=crypto/sha3, api=sha3.NewSHAKE128
+// TEST-METADATA: assetType=algorithm, findingType=hash, operation=digest, algorithmPrimitive=xof, algorithmName=SHAKE128, algorithmFamily=SHA-3, algorithmParameterSetIdentifier=SHAKE128, library=crypto/sha3, api=sha3.NewSHAKE128
 
 package main
 
