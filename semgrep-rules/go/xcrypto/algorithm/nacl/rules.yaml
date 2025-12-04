@@ -1,0 +1,92 @@
+rules:
+  - id: go.xcrypto.nacl.secretbox.seal
+    message: Detected NaCl secretbox seal operation, algorithm=XSalsa20-Poly1305
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: secretbox.Seal($DST, $MESSAGE, $NONCE, $KEY)
+          - pattern: "$OUT := secretbox.Seal($DST, $MESSAGE, $NONCE, $KEY)
+
+              "
+          - pattern: secretbox.Seal(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/nacl/secretbox
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: encrypt
+        primitive: ae
+        algorithmName: XSalsa20-Poly1305
+        algorithmFamily: XSalsa20
+        parameterSetIdentifier: "256"
+        library: golang.org/x/crypto/nacl/secretbox
+        api: secretbox.Seal
+
+  - id: go.xcrypto.nacl.secretbox.open
+    message: Detected NaCl secretbox open operation, algorithm=XSalsa20-Poly1305
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: secretbox.Open($DST, $CIPHERTEXT, $NONCE, $KEY)
+          - pattern:
+              "$OUT, $OK := secretbox.Open($DST, $CIPHERTEXT, $NONCE, $KEY)
+
+              "
+          - pattern: "$OUT, _ := secretbox.Open($DST, $CIPHERTEXT, $NONCE, $KEY)
+
+              "
+          - pattern: secretbox.Open(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/nacl/secretbox
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: decrypt
+        primitive: ae
+        algorithmName: XSalsa20-Poly1305
+        algorithmFamily: XSalsa20
+        parameterSetIdentifier: "256"
+        library: golang.org/x/crypto/nacl/secretbox
+        api: secretbox.Open
+
+  - id: go.xcrypto.nacl.secretbox.constants
+    message: Detected NaCl secretbox constant usage, algorithm=XSalsa20-Poly1305
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: secretbox.Overhead
+          - pattern: secretbox.KeySize
+          - pattern: secretbox.NonceSize
+          - pattern: $VAR := secretbox.Overhead
+          - pattern: $VAR := secretbox.KeySize
+          - pattern: $VAR := secretbox.NonceSize
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/nacl/secretbox
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: encrypt
+        primitive: ae
+        algorithmName: XSalsa20-Poly1305
+        algorithmFamily: XSalsa20
+        parameterSetIdentifier: "256"
+        library: golang.org/x/crypto/nacl/secretbox
+        api: secretbox.Overhead

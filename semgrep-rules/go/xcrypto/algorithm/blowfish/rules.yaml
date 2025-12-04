@@ -1,0 +1,75 @@
+rules:
+  - id: go.xcrypto.blowfish.block-cipher
+    message: Detected Blowfish block cipher usage, algorithm=Blowfish
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: blowfish.NewCipher(make([]byte, $SIZE))
+                  - pattern: |
+                      $CIPHER, $ERR := blowfish.NewCipher(make([]byte, $SIZE))
+                  - pattern: |
+                      $CIPHER, _ := blowfish.NewCipher(make([]byte, $SIZE))
+              - metavariable-regex:
+                  metavariable: $SIZE
+                  regex: '^(?<keysize>\d+)$'
+          - patterns:
+              - pattern-either:
+                  - pattern: blowfish.NewSaltedCipher(make([]byte, $SIZE), $SALT)
+                  - pattern: |
+                      $CIPHER, $ERR := blowfish.NewSaltedCipher(make([]byte, $SIZE), $SALT)
+                  - pattern: |
+                      $CIPHER, _ := blowfish.NewSaltedCipher(make([]byte, $SIZE), $SALT)
+              - metavariable-regex:
+                  metavariable: $SIZE
+                  regex: '^(?<keysize>\d+)$'
+          - pattern-either:
+              - pattern: blowfish.NewCipher($KEY)
+              - pattern: |
+                  $CIPHER, $ERR := blowfish.NewCipher($KEY)
+              - pattern: |
+                  $CIPHER, _ := blowfish.NewCipher($KEY)
+              - pattern: blowfish.NewCipher(...)
+          - pattern-either:
+              - pattern: blowfish.NewSaltedCipher($KEY, $SALT)
+              - pattern: |
+                  $CIPHER, $ERR := blowfish.NewSaltedCipher($KEY, $SALT)
+              - pattern: |
+                  $CIPHER, _ := blowfish.NewSaltedCipher($KEY, $SALT)
+              - pattern: blowfish.NewSaltedCipher(...)
+          - pattern-either:
+              - pattern: blowfish.ExpandKey($KEY, $CIPHER)
+              - pattern: |
+                  blowfish.ExpandKey($KEY, $CIPHER)
+              - pattern: blowfish.ExpandKey(...)
+          - pattern-either:
+              - pattern: $CIPHER.Encrypt($DST, $SRC)
+              - pattern: |
+                  $CIPHER.Encrypt($DST, $SRC)
+              - pattern: $CIPHER.Encrypt(...)
+          - pattern-either:
+              - pattern: $CIPHER.Decrypt($DST, $SRC)
+              - pattern: |
+                  $CIPHER.Decrypt($DST, $SRC)
+              - pattern: $CIPHER.Decrypt(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-327
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/blowfish
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: encrypt
+        primitive: block-cipher
+        algorithmName: Blowfish
+        algorithmFamily: Blowfish
+        parameterSetIdentifier: $keysize
+        library: golang.org/x/crypto/blowfish
+        api: blowfish.NewCipher

@@ -1,0 +1,66 @@
+rules:
+  - id: go.xcrypto.blake2b.hash-usage
+    message: Detected BLAKE2b hash usage, algorithm=BLAKE2b-$size
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: blake2b.$FUNC($KEY)
+                  - pattern: |
+                      $HASHER, $ERR := blake2b.$FUNC($KEY)
+                  - pattern: |
+                      $HASHER, _ := blake2b.$FUNC($KEY)
+                  - pattern: blake2b.$FUNC(...)
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^New(?<size>256|384|512)$"
+          - patterns:
+              - pattern-either:
+                  - pattern: blake2b.$FUNC($DATA)
+                  - pattern: |
+                      $HASH := blake2b.$FUNC($DATA)
+                  - pattern: blake2b.$FUNC(...)
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^Sum(?<size>256|384|512)$"
+          - patterns:
+              - pattern-either:
+                  - pattern: blake2b.New($SIZE, $KEY)
+                  - pattern: |
+                      $HASHER, $ERR := blake2b.New($SIZE, $KEY)
+                  - pattern: |
+                      $HASHER, _ := blake2b.New($SIZE, $KEY)
+                  - pattern: blake2b.New(...)
+              - metavariable-regex:
+                  metavariable: $SIZE
+                  regex: '^(?<size>\d+)$'
+          - patterns:
+              - pattern-either:
+                  - pattern: blake2b.NewXOF($SIZE, $KEY)
+                  - pattern: |
+                      $XOF, $ERR := blake2b.NewXOF($SIZE, $KEY)
+                  - pattern: |
+                      $XOF, _ := blake2b.NewXOF($SIZE, $KEY)
+                  - pattern: blake2b.NewXOF(...)
+              - metavariable-regex:
+                  metavariable: $SIZE
+                  regex: '^(?<size>\d+)$'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/blake2b
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: hash
+        algorithmName: BLAKE2b-$size
+        algorithmFamily: BLAKE2b
+        parameterSetIdentifier: $size
+        library: golang.org/x/crypto/blake2b
+        api: blake2b.New$size

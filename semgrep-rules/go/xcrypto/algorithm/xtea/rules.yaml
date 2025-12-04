@@ -1,0 +1,76 @@
+rules:
+  - id: go.xcrypto.xtea.block-cipher
+    message: Detected XTEA block cipher usage, algorithm=XTEA
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: xtea.NewCipher(make([]byte, $KEYSIZE))
+                  - pattern: |
+                      $KEY := make([]byte, $KEYSIZE)
+                      ...
+                      xtea.NewCipher($KEY)
+              - metavariable-regex:
+                  metavariable: $KEYSIZE
+                  regex: "^(?<keysize>16)$"
+          - pattern: xtea.NewCipher($KEY)
+          - pattern: |
+              $CIPHER, $ERR := xtea.NewCipher($KEY)
+          - pattern: |
+              $CIPHER, _ := xtea.NewCipher($KEY)
+          - pattern: xtea.NewCipher(...)
+          - pattern: xtea.NewCipher
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-327
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/xtea
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: encrypt
+        primitive: block-cipher
+        algorithmName: XTEA
+        algorithmFamily: XTEA
+        parameterSetIdentifier: $keysize
+        library: golang.org/x/crypto/xtea
+        api: xtea.NewCipher
+
+  - id: go.xcrypto.xtea.cipher-operation
+    message: Detected XTEA cipher operation, algorithm=XTEA, method=$method
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern-either:
+              - pattern: $CIPHER.$METHOD($DST, $SRC)
+              - pattern: |
+                  $CIPHER.$METHOD($DST, $SRC)
+              - pattern: $CIPHER.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<method>Encrypt|Decrypt)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-327
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/xtea
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: encrypt
+        primitive: block-cipher
+        algorithmName: XTEA
+        algorithmFamily: XTEA
+        library: golang.org/x/crypto/xtea
+        api: Cipher.$method

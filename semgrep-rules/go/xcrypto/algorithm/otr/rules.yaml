@@ -1,0 +1,88 @@
+rules:
+  - id: go.xcrypto.otr.privatekey-generate
+    message: Detected OTR private key generation, algorithm=OTR
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $PRIVKEY.Generate($RAND)
+          - pattern: "$PRIVKEY.Generate($RAND)
+
+              "
+          - pattern: $PRIVKEY.Generate(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: keygen
+        primitive: signature
+        algorithmName: OTR
+        algorithmFamily: OTR
+        library: golang.org/x/crypto/otr
+        api: otr.PrivateKey.Generate
+        materialSource: generated
+
+  - id: go.xcrypto.otr.privatekey-sign
+    message: Detected OTR private key signing, algorithm=OTR
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $PRIVKEY.Sign($RAND, $HASHED)
+          - pattern: "$SIG := $PRIVKEY.Sign($RAND, $HASHED)
+
+              "
+          - pattern: $PRIVKEY.Sign(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: sign
+        primitive: signature
+        algorithmName: OTR
+        algorithmFamily: OTR
+        library: golang.org/x/crypto/otr
+        api: otr.PrivateKey.Sign
+
+  - id: go.xcrypto.otr.publickey-verify
+    message: Detected OTR public key signature verification, algorithm=OTR
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $PUBKEY.Verify($HASHED, $SIG)
+          - pattern: "$OUT, $VALID := $PUBKEY.Verify($HASHED, $SIG)
+
+              "
+          - pattern: "$OUT, _ := $PUBKEY.Verify($HASHED, $SIG)
+
+              "
+          - pattern: $PUBKEY.Verify(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: verify
+        primitive: signature
+        algorithmName: OTR
+        algorithmFamily: OTR
+        library: golang.org/x/crypto/otr
+        api: otr.PublicKey.Verify

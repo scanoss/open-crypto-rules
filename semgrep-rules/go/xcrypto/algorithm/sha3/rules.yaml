@@ -1,0 +1,336 @@
+rules:
+  - id: go.xcrypto.sha3.hash-224
+    message: Detected SHA-3-224 hash usage, algorithm=SHA-3-224
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha3.New224()
+          - pattern: "$HASHER := sha3.New224()
+
+              "
+          - pattern: var $HASHER hash.Hash = sha3.New224()
+          - pattern: $HASHER := hash.Hash(sha3.New224())
+          - pattern: sha3.New224
+          - pattern: sha3.Sum224($DATA)
+          - pattern: "$HASH := sha3.Sum224($DATA)
+
+              "
+          - pattern: sha3.Sum224
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: hash
+        algorithmName: SHA-3-224
+        algorithmFamily: SHA-3
+        parameterSetIdentifier: "224"
+        library: golang.org/x/crypto/sha3
+        api: sha3.New224|sha3.Sum224
+
+  - id: go.xcrypto.sha3.hash-256
+    message: Detected SHA-3-256 hash usage, algorithm=SHA-3-256
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha3.New256()
+          - pattern: "$HASHER := sha3.New256()
+
+              "
+          - pattern: var $HASHER hash.Hash = sha3.New256()
+          - pattern: $HASHER := hash.Hash(sha3.New256())
+          - pattern: sha3.New256
+          - pattern: sha3.Sum256($DATA)
+          - pattern: "$HASH := sha3.Sum256($DATA)
+
+              "
+          - pattern: sha3.Sum256
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: hash
+        algorithmName: SHA-3-256
+        algorithmFamily: SHA-3
+        parameterSetIdentifier: "256"
+        library: golang.org/x/crypto/sha3
+        api: sha3.New256|sha3.Sum256
+
+  - id: go.xcrypto.sha3.hash-384
+    message: Detected SHA-3-384 hash usage, algorithm=SHA-3-384
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha3.New384()
+          - pattern: "$HASHER := sha3.New384()
+
+              "
+          - pattern: var $HASHER hash.Hash = sha3.New384()
+          - pattern: $HASHER := hash.Hash(sha3.New384())
+          - pattern: sha3.New384
+          - pattern: sha3.Sum384($DATA)
+          - pattern: "$HASH := sha3.Sum384($DATA)
+
+              "
+          - pattern: sha3.Sum384
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: hash
+        algorithmName: SHA-3-384
+        algorithmFamily: SHA-3
+        parameterSetIdentifier: "384"
+        library: golang.org/x/crypto/sha3
+        api: sha3.New384|sha3.Sum384
+
+  - id: go.xcrypto.sha3.hash-512
+    message: Detected SHA-3-512 hash usage, algorithm=SHA-3-512
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha3.New512()
+          - pattern: "$HASHER := sha3.New512()
+
+              "
+          - pattern: var $HASHER hash.Hash = sha3.New512()
+          - pattern: $HASHER := hash.Hash(sha3.New512())
+          - pattern: sha3.New512
+          - pattern: sha3.Sum512($DATA)
+          - pattern: "$HASH := sha3.Sum512($DATA)
+
+              "
+          - pattern: sha3.Sum512
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: hash
+        algorithmName: SHA-3-512
+        algorithmFamily: SHA-3
+        parameterSetIdentifier: "512"
+        library: golang.org/x/crypto/sha3
+        api: sha3.New512|sha3.Sum512
+
+  - id: go.xcrypto.sha3.legacy-keccak-256
+    message: Detected legacy Keccak-256 hash usage, algorithm=Keccak-256
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha3.NewLegacyKeccak256()
+          - pattern: "$HASHER := sha3.NewLegacyKeccak256()
+
+              "
+          - pattern: var $HASHER hash.Hash = sha3.NewLegacyKeccak256()
+          - pattern: $HASHER := hash.Hash(sha3.NewLegacyKeccak256())
+          - pattern: sha3.NewLegacyKeccak256
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: hash
+        algorithmName: Keccak-256
+        algorithmFamily: SHA-3
+        parameterSetIdentifier: "256"
+        library: golang.org/x/crypto/sha3
+        api: sha3.NewLegacyKeccak256
+
+  - id: go.xcrypto.sha3.legacy-keccak-512
+    message: Detected legacy Keccak-512 hash usage, algorithm=Keccak-512
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha3.NewLegacyKeccak512()
+          - pattern: "$HASHER := sha3.NewLegacyKeccak512()
+
+              "
+          - pattern: var $HASHER hash.Hash = sha3.NewLegacyKeccak512()
+          - pattern: $HASHER := hash.Hash(sha3.NewLegacyKeccak512())
+          - pattern: sha3.NewLegacyKeccak512
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: hash
+        algorithmName: Keccak-512
+        algorithmFamily: SHA-3
+        parameterSetIdentifier: "512"
+        library: golang.org/x/crypto/sha3
+        api: sha3.NewLegacyKeccak512
+
+  - id: go.xcrypto.sha3.shake-128
+    message: Detected SHAKE-128 extendable output function usage, algorithm=SHAKE-128
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha3.NewShake128()
+          - pattern: "$SHAKE := sha3.NewShake128()
+
+              "
+          - pattern: var $SHAKE sha3.ShakeHash = sha3.NewShake128()
+          - pattern: sha3.NewShake128
+          - pattern: sha3.ShakeSum128($HASH, $DATA)
+          - pattern: "sha3.ShakeSum128($HASH, $DATA)
+
+              "
+          - pattern: sha3.ShakeSum128
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: xof
+        algorithmName: SHAKE-128
+        algorithmFamily: SHA-3
+        parameterSetIdentifier: "128"
+        library: golang.org/x/crypto/sha3
+        api: sha3.NewShake128|sha3.ShakeSum128
+
+  - id: go.xcrypto.sha3.shake-256
+    message: Detected SHAKE-256 extendable output function usage, algorithm=SHAKE-256
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha3.NewShake256()
+          - pattern: "$SHAKE := sha3.NewShake256()
+
+              "
+          - pattern: var $SHAKE sha3.ShakeHash = sha3.NewShake256()
+          - pattern: sha3.NewShake256
+          - pattern: sha3.ShakeSum256($HASH, $DATA)
+          - pattern: "sha3.ShakeSum256($HASH, $DATA)
+
+              "
+          - pattern: sha3.ShakeSum256
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: xof
+        algorithmName: SHAKE-256
+        algorithmFamily: SHA-3
+        parameterSetIdentifier: "256"
+        library: golang.org/x/crypto/sha3
+        api: sha3.NewShake256|sha3.ShakeSum256
+
+  - id: go.xcrypto.sha3.cshake-128
+    message: Detected cSHAKE-128 extendable output function usage, algorithm=cSHAKE-128
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha3.NewCShake128($N, $S)
+          - pattern: "$SHAKE := sha3.NewCShake128($N, $S)
+
+              "
+          - pattern: var $SHAKE sha3.ShakeHash = sha3.NewCShake128($N, $S)
+          - pattern: sha3.NewCShake128
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: xof
+        algorithmName: cSHAKE-128
+        algorithmFamily: SHA-3
+        parameterSetIdentifier: "128"
+        library: golang.org/x/crypto/sha3
+        api: sha3.NewCShake128
+
+  - id: go.xcrypto.sha3.cshake-256
+    message: Detected cSHAKE-256 extendable output function usage, algorithm=cSHAKE-256
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha3.NewCShake256($N, $S)
+          - pattern: "$SHAKE := sha3.NewCShake256($N, $S)
+
+              "
+          - pattern: var $SHAKE sha3.ShakeHash = sha3.NewCShake256($N, $S)
+          - pattern: sha3.NewCShake256
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: xof
+        algorithmName: cSHAKE-256
+        algorithmFamily: SHA-3
+        parameterSetIdentifier: "256"
+        library: golang.org/x/crypto/sha3
+        api: sha3.NewCShake256

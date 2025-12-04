@@ -1,0 +1,85 @@
+rules:
+  - id: go.xcrypto.xts.block-cipher-mode
+    message: Detected XTS block cipher mode usage, mode=XTS
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: xts.NewCipher($CIPHERFUNC, make([]byte, $KEYSIZE))
+                  - pattern: |
+                      $CIPHER, $ERR := xts.NewCipher($CIPHERFUNC, make([]byte, $KEYSIZE))
+                  - pattern: |
+                      $CIPHER, _ := xts.NewCipher($CIPHERFUNC, make([]byte, $KEYSIZE))
+              - metavariable-regex:
+                  metavariable: $KEYSIZE
+                  regex: '^(?<keysize>\d+)$'
+          - patterns:
+              - pattern-either:
+                  - pattern: |
+                      $KEY := make([]byte, $KEYSIZE)
+                      ...
+                      xts.NewCipher($CIPHERFUNC, $KEY)
+                  - pattern: |
+                      $KEY := make([]byte, $KEYSIZE)
+                      ...
+                      $CIPHER, $ERR := xts.NewCipher($CIPHERFUNC, $KEY)
+                  - pattern: |
+                      $KEY := make([]byte, $KEYSIZE)
+                      ...
+                      $CIPHER, _ := xts.NewCipher($CIPHERFUNC, $KEY)
+              - metavariable-regex:
+                  metavariable: $KEYSIZE
+                  regex: '^(?<keysize>\d+)$'
+          - pattern-either:
+              - pattern: xts.NewCipher($CIPHERFUNC, $KEY)
+              - pattern: |
+                  $CIPHER, $ERR := xts.NewCipher($CIPHERFUNC, $KEY)
+              - pattern: |
+                  $CIPHER, _ := xts.NewCipher($CIPHERFUNC, $KEY)
+              - pattern: xts.NewCipher(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/xts
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: encrypt
+        primitive: block-cipher
+        algorithmName: XTS
+        algorithmFamily: XTS
+        parameterSetIdentifier: $keysize
+        library: golang.org/x/crypto/xts
+        api: xts.NewCipher
+
+  - id: go.xcrypto.xts.encrypt-decrypt
+    message: Detected XTS cipher operation, algorithm=XTS
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern: $CIPHER.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<method>Encrypt|Decrypt)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/xts
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: encrypt
+        primitive: block-cipher
+        algorithmName: XTS
+        algorithmFamily: XTS
+        library: golang.org/x/crypto/xts
+        api: Cipher.$method

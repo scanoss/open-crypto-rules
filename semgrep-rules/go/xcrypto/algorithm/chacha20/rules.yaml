@@ -1,0 +1,72 @@
+rules:
+  - id: go.xcrypto.chacha20.stream-cipher
+    message: Detected ChaCha20 stream cipher usage, algorithm=ChaCha20
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: chacha20.NewUnauthenticatedCipher(make([]byte, $KEYSIZE), $NONCE)
+                  - pattern: |
+                      $CIPHER, $ERR := chacha20.NewUnauthenticatedCipher(make([]byte, $KEYSIZE), $NONCE)
+                  - pattern: |
+                      $CIPHER, _ := chacha20.NewUnauthenticatedCipher(make([]byte, $KEYSIZE), $NONCE)
+                  - pattern: |
+                      $KEY := make([]byte, $KEYSIZE)
+                      ...
+                      chacha20.NewUnauthenticatedCipher($KEY, $NONCE)
+              - metavariable-regex:
+                  metavariable: $KEYSIZE
+                  regex: "^(?<keysize>32)$"
+          - pattern-either:
+              - pattern: chacha20.NewUnauthenticatedCipher($KEY, $NONCE)
+              - pattern: |
+                  $CIPHER, $ERR := chacha20.NewUnauthenticatedCipher($KEY, $NONCE)
+              - pattern: |
+                  $CIPHER, _ := chacha20.NewUnauthenticatedCipher($KEY, $NONCE)
+              - pattern: chacha20.NewUnauthenticatedCipher(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/chacha20
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: encrypt
+        primitive: stream-cipher
+        algorithmName: ChaCha20
+        algorithmFamily: ChaCha20
+        parameterSetIdentifier: $keysize
+        library: golang.org/x/crypto/chacha20
+        api: chacha20.NewUnauthenticatedCipher
+
+  - id: go.xcrypto.chacha20.hchacha20
+    message: Detected HChaCha20 hash function usage, algorithm=HChaCha20
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: chacha20.HChaCha20($OUT, $IN, $KEY)
+          - pattern: |
+              chacha20.HChaCha20($OUT, $IN, $KEY)
+          - pattern: chacha20.HChaCha20(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/chacha20
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        primitive: hash
+        algorithmName: HChaCha20
+        algorithmFamily: ChaCha20
+        library: golang.org/x/crypto/chacha20
+        api: chacha20.HChaCha20

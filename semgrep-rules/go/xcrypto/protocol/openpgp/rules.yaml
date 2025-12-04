@@ -1,0 +1,575 @@
+rules:
+  - id: go.xcrypto.openpgp.read-message
+    message: Detected OpenPGP message reading, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.ReadMessage($READER, $KEYRING, $PROMPT, $CONFIG)
+          - pattern:
+              "$MSG, $ERR := openpgp.ReadMessage($READER, $KEYRING, $PROMPT, $CONFIG)
+
+              "
+          - pattern:
+              "$MSG, _ := openpgp.ReadMessage($READER, $KEYRING, $PROMPT, $CONFIG)
+
+              "
+          - pattern: openpgp.ReadMessage(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: decrypt
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.ReadMessage
+
+  - id: go.xcrypto.openpgp.write-message
+    message: Detected OpenPGP message writing, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.WriteMessage($WRITER, $KEYRING, $SIGNER, $CONFIG)
+          - pattern:
+              "$ERR := openpgp.WriteMessage($WRITER, $KEYRING, $SIGNER, $CONFIG)
+
+              "
+          - pattern:
+              "_ := openpgp.WriteMessage($WRITER, $KEYRING, $SIGNER, $CONFIG)
+
+              "
+          - pattern: openpgp.WriteMessage(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: encrypt
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.WriteMessage
+
+  - id: go.xcrypto.openpgp.new-entity
+    message: Detected OpenPGP entity creation, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.NewEntity($NAME, $COMMENT, $EMAIL, $CONFIG)
+          - pattern:
+              "$ENTITY, $ERR := openpgp.NewEntity($NAME, $COMMENT, $EMAIL, $CONFIG)
+
+              "
+          - pattern:
+              "$ENTITY, _ := openpgp.NewEntity($NAME, $COMMENT, $EMAIL, $CONFIG)
+
+              "
+          - pattern: openpgp.NewEntity(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: key_generation
+        operation: keygen
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.NewEntity
+        materialSource: generated
+
+  - id: go.xcrypto.openpgp.read-entity
+    message: Detected OpenPGP entity reading, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.ReadEntity($READER)
+          - pattern: "$ENTITY, $ERR := openpgp.ReadEntity($READER)
+
+              "
+          - pattern: "$ENTITY, _ := openpgp.ReadEntity($READER)
+
+              "
+          - pattern: openpgp.ReadEntity(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: key_generation
+        operation: keygen
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.ReadEntity
+        materialSource: loaded
+
+  - id: go.xcrypto.openpgp.entity-serialize
+    message: Detected OpenPGP entity serialization, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $ENTITY.Serialize($WRITER)
+          - pattern: "$ERR := $ENTITY.Serialize($WRITER)
+
+              "
+          - pattern: "_ := $ENTITY.Serialize($WRITER)
+
+              "
+          - pattern: $ENTITY.Serialize(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: key_generation
+        operation: keygen
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: Entity.Serialize
+
+  - id: go.xcrypto.openpgp.entity-serialize-private
+    message: Detected OpenPGP private entity serialization, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $ENTITY.SerializePrivate($WRITER, $CONFIG)
+          - pattern: "$ERR := $ENTITY.SerializePrivate($WRITER, $CONFIG)
+
+              "
+          - pattern: "_ := $ENTITY.SerializePrivate($WRITER, $CONFIG)
+
+              "
+          - pattern: $ENTITY.SerializePrivate(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: key_generation
+        operation: keygen
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: Entity.SerializePrivate
+
+  - id: go.xcrypto.openpgp.read-armored-keyring
+    message: Detected OpenPGP armored keyring reading, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.ReadArmoredKeyRing($READER)
+          - pattern: "$KEYRING, $ERR := openpgp.ReadArmoredKeyRing($READER)
+
+              "
+          - pattern: "$KEYRING, _ := openpgp.ReadArmoredKeyRing($READER)
+
+              "
+          - pattern: openpgp.ReadArmoredKeyRing(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: key_generation
+        operation: keygen
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.ReadArmoredKeyRing
+        materialSource: loaded
+
+  - id: go.xcrypto.openpgp.read-keyring
+    message: Detected OpenPGP keyring reading, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.ReadKeyRing($READER)
+          - pattern: "$KEYRING, $ERR := openpgp.ReadKeyRing($READER)
+
+              "
+          - pattern: "$KEYRING, _ := openpgp.ReadKeyRing($READER)
+
+              "
+          - pattern: openpgp.ReadKeyRing(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: key_generation
+        operation: keygen
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.ReadKeyRing
+        materialSource: loaded
+
+  - id: go.xcrypto.openpgp.sign
+    message: Detected OpenPGP signing, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.Sign($WRITER, $SIGNER, $HINTS, $CONFIG)
+          - pattern:
+              "$INPUT, $ERR := openpgp.Sign($WRITER, $SIGNER, $HINTS, $CONFIG)
+
+              "
+          - pattern:
+              "$INPUT, _ := openpgp.Sign($WRITER, $SIGNER, $HINTS, $CONFIG)
+
+              "
+          - pattern: openpgp.Sign(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: signature
+        operation: sign
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.Sign
+
+  - id: go.xcrypto.openpgp.armored-detach-sign
+    message: Detected OpenPGP armored detached signing, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.ArmoredDetachSign($WRITER, $SIGNER, $MESSAGE, $CONFIG)
+          - pattern:
+              "$ERR := openpgp.ArmoredDetachSign($WRITER, $SIGNER, $MESSAGE, $CONFIG)
+
+              "
+          - pattern:
+              "_ := openpgp.ArmoredDetachSign($WRITER, $SIGNER, $MESSAGE, $CONFIG)
+
+              "
+          - pattern: openpgp.ArmoredDetachSign(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: signature
+        operation: sign
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.ArmoredDetachSign
+
+  - id: go.xcrypto.openpgp.armored-detach-sign-text
+    message: Detected OpenPGP armored detached text signing, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.ArmoredDetachSignText($WRITER, $SIGNER, $MESSAGE, $CONFIG)
+          - pattern:
+              "$ERR := openpgp.ArmoredDetachSignText($WRITER, $SIGNER, $MESSAGE,
+              $CONFIG)
+
+              "
+          - pattern:
+              "_ := openpgp.ArmoredDetachSignText($WRITER, $SIGNER, $MESSAGE, $CONFIG)
+
+              "
+          - pattern: openpgp.ArmoredDetachSignText(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: signature
+        operation: sign
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.ArmoredDetachSignText
+
+  - id: go.xcrypto.openpgp.detach-sign
+    message: Detected OpenPGP detached signing, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.DetachSign($WRITER, $SIGNER, $MESSAGE, $CONFIG)
+          - pattern:
+              "$ERR := openpgp.DetachSign($WRITER, $SIGNER, $MESSAGE, $CONFIG)
+
+              "
+          - pattern:
+              "_ := openpgp.DetachSign($WRITER, $SIGNER, $MESSAGE, $CONFIG)
+
+              "
+          - pattern: openpgp.DetachSign(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: signature
+        operation: sign
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.DetachSign
+
+  - id: go.xcrypto.openpgp.detach-sign-text
+    message: Detected OpenPGP detached text signing, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.DetachSignText($WRITER, $SIGNER, $MESSAGE, $CONFIG)
+          - pattern:
+              "$ERR := openpgp.DetachSignText($WRITER, $SIGNER, $MESSAGE, $CONFIG)
+
+              "
+          - pattern:
+              "_ := openpgp.DetachSignText($WRITER, $SIGNER, $MESSAGE, $CONFIG)
+
+              "
+          - pattern: openpgp.DetachSignText(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: signature
+        operation: sign
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.DetachSignText
+
+  - id: go.xcrypto.openpgp.check-armored-detached-signature
+    message: Detected OpenPGP armored detached signature verification, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.CheckArmoredDetachedSignature($KEYRING, $SIGNED, $SIGNATURE)
+          - pattern:
+              "$SIGNER, $ERR := openpgp.CheckArmoredDetachedSignature($KEYRING, $SIGNED,
+              $SIGNATURE)
+
+              "
+          - pattern:
+              "$SIGNER, _ := openpgp.CheckArmoredDetachedSignature($KEYRING, $SIGNED,
+              $SIGNATURE)
+
+              "
+          - pattern: openpgp.CheckArmoredDetachedSignature(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: signature
+        operation: verify
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.CheckArmoredDetachedSignature
+
+  - id: go.xcrypto.openpgp.check-detached-signature
+    message: Detected OpenPGP detached signature verification, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.CheckDetachedSignature($KEYRING, $SIGNED, $SIGNATURE)
+          - pattern:
+              "$SIGNER, $ERR := openpgp.CheckDetachedSignature($KEYRING, $SIGNED,
+              $SIGNATURE)
+
+              "
+          - pattern:
+              "$SIGNER, _ := openpgp.CheckDetachedSignature($KEYRING, $SIGNED, $SIGNATURE)
+
+              "
+          - pattern: openpgp.CheckDetachedSignature(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: signature
+        operation: verify
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.CheckDetachedSignature
+
+  - id: go.xcrypto.openpgp.encrypt
+    message: Detected OpenPGP encryption, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.Encrypt($WRITER, $TO, $SIGNER, $HINTS, ...)
+          - pattern:
+              "$PLAINTEXT, $ERR := openpgp.Encrypt($WRITER, $TO, $SIGNER, $HINTS,
+              ...)
+
+              "
+          - pattern:
+              "$PLAINTEXT, _ := openpgp.Encrypt($WRITER, $TO, $SIGNER, $HINTS, ...)
+
+              "
+          - pattern: openpgp.Encrypt(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: encrypt
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.Encrypt
+
+  - id: go.xcrypto.openpgp.symmetrically-encrypt
+    message: Detected OpenPGP symmetric encryption, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: openpgp.SymmetricallyEncrypt($WRITER, $PASSPHRASE, $HINTS, ...)
+          - pattern:
+              "$PLAINTEXT, $ERR := openpgp.SymmetricallyEncrypt($WRITER, $PASSPHRASE,
+              $HINTS, ...)
+
+              "
+          - pattern:
+              "$PLAINTEXT, _ := openpgp.SymmetricallyEncrypt($WRITER, $PASSPHRASE,
+              $HINTS, ...)
+
+              "
+          - pattern: openpgp.SymmetricallyEncrypt(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: encrypt
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.SymmetricallyEncrypt
+
+  - id: go.xcrypto.openpgp.entity-sign-identity
+    message: Detected OpenPGP entity identity signing, protocol=OpenPGP
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $ENTITY.SignIdentity($IDENTITY, $SIGNER, $CONFIG)
+          - pattern: "$ERR := $ENTITY.SignIdentity($IDENTITY, $SIGNER, $CONFIG)
+
+              "
+          - pattern: "_ := $ENTITY.SignIdentity($IDENTITY, $SIGNER, $CONFIG)
+
+              "
+          - pattern: $ENTITY.SignIdentity(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: signature
+        operation: sign
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: Entity.SignIdentity

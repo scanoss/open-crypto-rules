@@ -1,0 +1,128 @@
+rules:
+  - id: go.xcrypto.otr.conversation
+    message: Detected OTR conversation creation, protocol=OTR
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: otr.NewConversation($PRIVKEY)
+          - pattern: "$CONV, $ERR := otr.NewConversation($PRIVKEY)
+
+              "
+          - pattern: "$CONV, _ := otr.NewConversation($PRIVKEY)
+
+              "
+          - pattern: otr.NewConversation(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: encrypt
+        protocolType: other
+        protocolName: OTR
+        algorithmName: OTR
+        algorithmFamily: OTR
+        library: golang.org/x/crypto/otr
+        api: otr.NewConversation
+
+  - id: go.xcrypto.otr.send
+    message: Detected OTR message sending, protocol=OTR
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $CONV.Send($MESSAGE)
+          - pattern: "$ENCRYPTED, $ERR := $CONV.Send($MESSAGE)
+
+              "
+          - pattern: "$ENCRYPTED, _ := $CONV.Send($MESSAGE)
+
+              "
+          - pattern: $CONV.Send(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: encrypt
+        protocolType: other
+        protocolName: OTR
+        algorithmName: OTR
+        algorithmFamily: OTR
+        library: golang.org/x/crypto/otr
+        api: otr.Conversation.Send
+
+  - id: go.xcrypto.otr.receive
+    message: Detected OTR message receiving, protocol=OTR
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $CONV.Receive($MESSAGE)
+          - pattern: "$DECRYPTED, $ERR := $CONV.Receive($MESSAGE)
+
+              "
+          - pattern: "$DECRYPTED, _ := $CONV.Receive($MESSAGE)
+
+              "
+          - pattern: $CONV.Receive(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: decrypt
+        protocolType: other
+        protocolName: OTR
+        algorithmName: OTR
+        algorithmFamily: OTR
+        library: golang.org/x/crypto/otr
+        api: otr.Conversation.Receive
+
+  - id: go.xcrypto.otr.authenticate
+    message: Detected OTR authentication, protocol=OTR
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $CONV.Authenticate($QUESTION, $SECRET)
+          - pattern: "$TOSEND, $ERR := $CONV.Authenticate($QUESTION, $SECRET)
+
+              "
+          - pattern: "$TOSEND, _ := $CONV.Authenticate($QUESTION, $SECRET)
+
+              "
+          - pattern: $CONV.Authenticate(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: protocol
+        findingType: key_exchange
+        operation: keyexchange
+        protocolType: other
+        protocolName: OTR
+        algorithmName: OTR
+        algorithmFamily: OTR
+        library: golang.org/x/crypto/otr
+        api: otr.Conversation.Authenticate

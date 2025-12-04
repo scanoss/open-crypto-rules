@@ -1,0 +1,125 @@
+rules:
+  - id: go.xcrypto.ed25519.generatekey
+    message: Detected Ed25519 key generation, algorithm=Ed25519, curve=Ed25519
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: ed25519.GenerateKey($RAND)
+          - pattern: "$PUBKEY, $PRIVKEY, $ERR := ed25519.GenerateKey($RAND)
+
+              "
+          - pattern: "$PUBKEY, $PRIVKEY, _ := ed25519.GenerateKey($RAND)
+
+              "
+          - pattern: ed25519.GenerateKey(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ed25519
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: keygen
+        primitive: signature
+        algorithmName: Ed25519
+        algorithmFamily: EdDSA
+        parameterSetIdentifier: Ed25519
+        library: golang.org/x/crypto/ed25519
+        api: ed25519.GenerateKey
+        ellipticCurve: Ed25519
+        materialSource: generated
+
+  - id: go.xcrypto.ed25519.newkey-from-seed
+    message: Detected Ed25519 key generation from seed, algorithm=Ed25519, curve=Ed25519
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: ed25519.NewKeyFromSeed($SEED)
+          - pattern: "$PRIVKEY := ed25519.NewKeyFromSeed($SEED)
+
+              "
+          - pattern: ed25519.NewKeyFromSeed(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ed25519
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: keygen
+        primitive: signature
+        algorithmName: Ed25519
+        algorithmFamily: EdDSA
+        parameterSetIdentifier: Ed25519
+        library: golang.org/x/crypto/ed25519
+        api: ed25519.NewKeyFromSeed
+        ellipticCurve: Ed25519
+        materialSource: derived
+
+  - id: go.xcrypto.ed25519.sign
+    message: Detected Ed25519 signature operation, algorithm=Ed25519
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: ed25519.Sign($PRIVKEY, $MESSAGE)
+          - pattern: "$SIG := ed25519.Sign($PRIVKEY, $MESSAGE)
+
+              "
+          - pattern: ed25519.Sign(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ed25519
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: sign
+        primitive: signature
+        algorithmName: Ed25519
+        algorithmFamily: EdDSA
+        parameterSetIdentifier: Ed25519
+        library: golang.org/x/crypto/ed25519
+        api: ed25519.Sign
+        ellipticCurve: Ed25519
+
+  - id: go.xcrypto.ed25519.verify
+    message: Detected Ed25519 signature verification, algorithm=Ed25519
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: ed25519.Verify($PUBKEY, $MESSAGE, $SIG)
+          - pattern: "$VALID := ed25519.Verify($PUBKEY, $MESSAGE, $SIG)
+
+              "
+          - pattern: ed25519.Verify(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ed25519
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: verify
+        primitive: signature
+        algorithmName: Ed25519
+        algorithmFamily: EdDSA
+        parameterSetIdentifier: Ed25519
+        library: golang.org/x/crypto/ed25519
+        api: ed25519.Verify
+        ellipticCurve: Ed25519

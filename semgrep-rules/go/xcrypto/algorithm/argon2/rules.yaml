@@ -1,0 +1,35 @@
+rules:
+  - id: go.xcrypto.argon2.key-derivation
+    message: Detected Argon2 key derivation with output length=$keylen bytes, algorithm=Argon2
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: argon2.IDKey($PASSWORD, $SALT, $TIME, $MEMORY, $THREADS, $KEY_LENGTH)
+              - metavariable-regex:
+                  metavariable: $KEY_LENGTH
+                  regex: "^(?<keylen>16|24|32|64)$"
+          - patterns:
+              - pattern: argon2.Key($PASSWORD, $SALT, $TIME, $MEMORY, $THREADS, $KEY_LENGTH)
+              - metavariable-regex:
+                  metavariable: $KEY_LENGTH
+                  regex: "^(?<keylen>16|24|32|64)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/argon2
+      crypto:
+        assetType: algorithm
+        findingType: kdf
+        operation: keyderive
+        primitive: kdf
+        algorithmName: Argon2
+        algorithmFamily: Argon2
+        parameterSetIdentifier: $keylen
+        library: golang.org/x/crypto/argon2
+        api: argon2.IDKey
+        materialSource: derived

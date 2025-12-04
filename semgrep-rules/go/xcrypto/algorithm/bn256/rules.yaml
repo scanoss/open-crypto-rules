@@ -1,0 +1,29 @@
+rules:
+  - id: go.xcrypto.bn256.pairing
+    message: Detected BN256 pairing operation, algorithm=BN256
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: bn256.Pair($G1, $G2)
+          - pattern: "$GT := bn256.Pair($G1, $G2)
+
+              "
+          - pattern: bn256.Pair(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/bn256
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: keyexchange
+        primitive: key-agree
+        algorithmName: BN256
+        algorithmFamily: BN256
+        parameterSetIdentifier: BN256
+        library: golang.org/x/crypto/bn256
+        api: bn256.Pair
