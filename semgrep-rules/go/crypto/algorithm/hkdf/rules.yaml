@@ -1,0 +1,93 @@
+rules:
+  - id: go.crypto.hkdf.key
+    message: Detected HKDF key derivation, algorithm=HKDF
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: hkdf.Key($HASH, $SECRET, $SALT, $INFO, $KEY_LENGTH)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.New'
+          - pattern: hkdf.Key($HASH, $SECRET, $SALT, $INFO, $KEY_LENGTH)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/hkdf
+      crypto:
+        assetType: algorithm
+        findingType: kdf
+        operation: keyderive
+        algorithmName: HKDF-$1
+        algorithmFamily: HKDF
+        library: crypto/hkdf
+        api: hkdf.Key
+        materialSource: derived
+        algorithmPrimitive: kdf
+        algorithmParameterSetIdentifier: HKDF-$1
+
+  - id: go.crypto.hkdf.extract
+    message: Detected HKDF extract operation, algorithm=HKDF
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: hkdf.Extract($HASH, $SECRET, $SALT)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.New'
+          - pattern: hkdf.Extract($HASH, $SECRET, $SALT)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/hkdf
+      crypto:
+        assetType: algorithm
+        findingType: kdf
+        operation: keyderive
+        algorithmName: HKDF-$1
+        algorithmFamily: HKDF
+        library: crypto/hkdf
+        api: hkdf.Extract
+        materialSource: derived
+        algorithmPrimitive: kdf
+        algorithmParameterSetIdentifier: HKDF-$1
+
+  - id: go.crypto.hkdf.expand
+    message: Detected HKDF expand operation, algorithm=HKDF
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: hkdf.Expand($HASH, $PRK, $INFO, $KEY_LENGTH)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.New'
+          - pattern: hkdf.Expand($HASH, $PRK, $INFO, $KEY_LENGTH)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/hkdf
+      crypto:
+        assetType: algorithm
+        findingType: kdf
+        operation: keyderive
+        algorithmName: HKDF-$1
+        algorithmFamily: HKDF
+        library: crypto/hkdf
+        api: hkdf.Expand
+        materialSource: derived
+        algorithmPrimitive: kdf
+        algorithmParameterSetIdentifier: HKDF-$1

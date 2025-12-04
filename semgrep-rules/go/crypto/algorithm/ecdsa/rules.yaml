@@ -1,0 +1,273 @@
+rules:
+  - id: go.crypto.ecdsa.key-generation
+    message: Detected ECDSA key generation, algorithm=ECDSA
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: ecdsa.GenerateKey(elliptic.$CURVE(), $RAND)
+              - metavariable-regex:
+                  metavariable: $CURVE
+                  regex: "^P(?<curve>224|256|384|521)$"
+          - pattern: ecdsa.GenerateKey($CURVE, $RAND)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-326
+      references:
+        - https://pkg.go.dev/crypto/ecdsa
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: keygen
+        algorithmName: ECDSA-$1
+        algorithmFamily: ECDSA
+        library: crypto/ecdsa
+        api: ecdsa.GenerateKey
+        curve: $1
+        materialSource: generated
+        algorithmPrimitive: signature
+        algorithmParameterSetIdentifier: $1
+
+  - id: go.crypto.ecdsa.sign-with-curve
+    message: Detected ECDSA signature operation, algorithm=ECDSA
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              $KEY, $ERR := ecdsa.GenerateKey(elliptic.$CURVE(), $RAND)
+              ...
+              ecdsa.$FUNC($RANDOM, $KEY, $HASH)
+          - pattern-inside: |
+              $KEY := ecdsa.GenerateKey(elliptic.$CURVE(), $RAND)
+              ...
+              ecdsa.$FUNC($RANDOM, $KEY, $HASH)
+      - metavariable-regex:
+          metavariable: $CURVE
+          regex: "^P(?<curve>224|256|384|521)$"
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>Sign|SignASN1)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ecdsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: sign
+        algorithmName: ECDSA-$1
+        algorithmFamily: ECDSA
+        library: crypto/ecdsa
+        api: ecdsa.$func
+        curve: $1
+        algorithmPrimitive: signature
+        algorithmParameterSetIdentifier: $1
+
+  - id: go.crypto.ecdsa.sign
+    message: Detected ECDSA signature operation, algorithm=ECDSA
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern: ecdsa.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>Sign|SignASN1)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ecdsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: sign
+        algorithmName: ECDSA
+        algorithmFamily: ECDSA
+        library: crypto/ecdsa
+        api: ecdsa.$func
+        algorithmPrimitive: signature
+
+  - id: go.crypto.ecdsa.verify-with-curve
+    message: Detected ECDSA signature verification, algorithm=ECDSA
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              $KEY, $ERR := ecdsa.GenerateKey(elliptic.$CURVE(), $RAND)
+              ...
+              ecdsa.$FUNC($PUBLIC_KEY, $HASH, ...)
+          - pattern-inside: |
+              $KEY := ecdsa.GenerateKey(elliptic.$CURVE(), $RAND)
+              ...
+              ecdsa.$FUNC($PUBLIC_KEY, $HASH, ...)
+      - metavariable-regex:
+          metavariable: $CURVE
+          regex: "^P(?<curve>224|256|384|521)$"
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>Verify|VerifyASN1)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ecdsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: verify
+        algorithmName: ECDSA-$1
+        algorithmFamily: ECDSA
+        library: crypto/ecdsa
+        api: ecdsa.$func
+        curve: $1
+        algorithmPrimitive: signature
+        algorithmParameterSetIdentifier: $1
+
+  - id: go.crypto.ecdsa.verify
+    message: Detected ECDSA signature verification, algorithm=ECDSA
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern: ecdsa.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>Verify|VerifyASN1)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ecdsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: verify
+        algorithmName: ECDSA
+        algorithmFamily: ECDSA
+        library: crypto/ecdsa
+        api: ecdsa.$func
+        algorithmPrimitive: signature
+
+  - id: go.crypto.ecdsa.key-type
+    message: Detected ECDSA key type declaration, algorithm=ECDSA
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern-either:
+              - pattern: var $VAR *ecdsa.$KEY_TYPE
+              - pattern: var $VAR ecdsa.$KEY_TYPE
+              - pattern: $VAR := &ecdsa.$KEY_TYPE{...}
+              - pattern: var $VAR = &ecdsa.$KEY_TYPE{...}
+              - pattern: var $VAR = new(ecdsa.$KEY_TYPE)
+              - pattern: $VAR := new(ecdsa.$KEY_TYPE)
+              - pattern: var $VAR = ecdsa.$KEY_TYPE{...}
+              - pattern: $VAR := ecdsa.$KEY_TYPE{...}
+          - metavariable-regex:
+              metavariable: $KEY_TYPE
+              regex: "^(?<keytype>Private|Public)Key$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      cwe:
+        - CWE-326
+      references:
+        - https://pkg.go.dev/crypto/ecdsa
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: keygen
+        algorithmName: ECDSA
+        algorithmFamily: ECDSA
+        library: crypto/ecdsa
+        api: ecdsa.$keytype
+        algorithm: ECDSA
+        algorithmPrimitive: signature
+
+  - id: go.crypto.ecdsa.parse-key
+    message: Detected ECDSA key parsing, algorithm=ECDSA
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern: ecdsa.$FUNC($CURVE, $DATA)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>Parse(?:RawPrivate|UncompressedPublic)Key)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-326
+      references:
+        - https://pkg.go.dev/crypto/ecdsa
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: keygen
+        algorithmName: ECDSA
+        algorithmFamily: ECDSA
+        library: crypto/ecdsa
+        api: ecdsa.$func
+        algorithm: ECDSA
+        materialSource: loaded
+        algorithmPrimitive: signature
+
+  - id: go.crypto.ecdsa.key-bytes
+    message: Detected ECDSA key serialization from function call, algorithm=ECDSA
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $KEY, $ERR := $KEYGEN
+              ...
+              $KEY.Bytes()
+          - pattern: |
+              $KEY := $KEYGEN
+              ...
+              $KEY.Bytes()
+      - metavariable-regex:
+          metavariable: $KEYGEN
+          regex: '(?:ecdsa\.(?:GenerateKey|Parse(?:RawPrivate|UncompressedPublic)Key)|x509\.ParseECPrivateKey)'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-326
+      references:
+        - https://pkg.go.dev/crypto/ecdsa
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: keygen
+        algorithmName: ECDSA
+        algorithmFamily: ECDSA
+        library: crypto/ecdsa
+        api: ecdsa.Bytes
+        algorithm: ECDSA
+        materialSource: generated
+        algorithmPrimitive: signature

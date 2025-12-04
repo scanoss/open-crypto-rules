@@ -1,0 +1,57 @@
+rules:
+  - id: go.crypto.sha1.hash-usage
+    message: Detected SHA-1 hash usage
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha1.$FUNC(...)
+          - pattern: sha1.$FUNC
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-327
+      references:
+        - https://pkg.go.dev/crypto/sha1
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        algorithmName: SHA-1
+        algorithmFamily: SHA-1
+        library: crypto/sha1
+        api: sha1.$FUNC
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "160"
+
+  - id: go.crypto.sha1.hash-usage-crypto-const
+    message: Detected SHA-1 hash usage via crypto constant
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: crypto.SHA1.New(...)
+          - pattern: crypto.SHA1.New
+          - pattern: crypto.SHA1
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-327
+      references:
+        - https://pkg.go.dev/crypto/sha1
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        algorithmName: SHA-1
+        algorithmFamily: SHA-1
+        library: crypto/sha1
+        api: crypto.SHA1.New
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "160"

@@ -1,0 +1,247 @@
+rules:
+  - id: go.crypto.ecdh.key-generation
+    message: Detected ECDH key generation, algorithm=ECDH
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: ecdh.$CURVE().GenerateKey($RAND)
+              - metavariable-regex:
+                  metavariable: $CURVE
+                  regex: "^(?<curve>P256|P384|P521|X25519)$"
+          - pattern: $CURVE.GenerateKey($RAND)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ecdh
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: keyexchange
+        algorithmName: ECDH-$1
+        algorithmFamily: ECDH
+        library: crypto/ecdh
+        api: ecdh.GenerateKey
+        algorithmCurve: $curve
+        materialSource: generated
+        algorithmPrimitive: key-agree
+        algorithmParameterSetIdentifier: $curve
+
+  - id: go.crypto.ecdh.new-private-key
+    message: Detected ECDH private key creation from bytes, algorithm=ECDH
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: ecdh.$CURVE().NewPrivateKey($KEY_DATA)
+              - metavariable-regex:
+                  metavariable: $CURVE
+                  regex: "^(?<curve>P256|P384|P521|X25519)$"
+          - pattern: $CURVE.NewPrivateKey($KEY_DATA)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ecdh
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: keyexchange
+        algorithmName: ECDH-$1
+        algorithmFamily: ECDH
+        library: crypto/ecdh
+        api: ecdh.NewPrivateKey
+        materialSource: loaded
+        algorithmPrimitive: key-agree
+
+  - id: go.crypto.ecdh.new-public-key
+    message: Detected ECDH public key creation from bytes, algorithm=ECDH
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: ecdh.$CURVE().NewPublicKey($KEY_DATA)
+              - metavariable-regex:
+                  metavariable: $CURVE
+                  regex: "^(?<curve>P256|P384|P521|X25519)$"
+          - pattern: $CURVE.NewPublicKey($KEY_DATA)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ecdh
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: keyexchange
+        algorithmName: ECDH
+        algorithmFamily: ECDH
+        library: crypto/ecdh
+        api: ecdh.NewPublicKey
+        materialSource: loaded
+        algorithmPrimitive: key-agree
+
+  - id: go.crypto.ecdh.compute-secret-with-curve
+    message: Detected ECDH shared secret computation, algorithm=ECDH
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              $PRIVATE_KEY, $ERR := ecdh.$CURVE().GenerateKey($RAND)
+              ...
+              $PRIVATE_KEY.ECDH($PUBLIC_KEY)
+          - pattern-inside: |
+              $PRIVATE_KEY := ecdh.$CURVE().GenerateKey($RAND)
+              ...
+              $PRIVATE_KEY.ECDH($PUBLIC_KEY)
+      - metavariable-regex:
+          metavariable: $CURVE
+          regex: "^(?<curve>P256|P384|P521|X25519)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ecdh
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: keyexchange
+        algorithmName: ECDH-$1
+        algorithmFamily: ECDH
+        library: crypto/ecdh
+        api: ecdh.ECDH
+        curve: $curve
+        algorithmPrimitive: key-agree
+        algorithmParameterSetIdentifier: $curve
+
+  - id: go.crypto.ecdh.compute-secret
+    message: Detected ECDH shared secret computation, algorithm=ECDH
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern: $PRIVATE_KEY.ECDH($PUBLIC_KEY)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ecdh
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: keyexchange
+        algorithmName: ECDH
+        algorithmFamily: ECDH
+        library: crypto/ecdh
+        api: ecdh.ECDH
+        algorithmPrimitive: key-agree
+
+  - id: go.crypto.ecdh.key-type
+    message: Detected ECDH key type declaration, algorithm=ECDH
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern-either:
+              - pattern: var $VAR *ecdh.$KEY_TYPE
+              - pattern: var $VAR ecdh.$KEY_TYPE
+              - pattern: $VAR := &ecdh.$KEY_TYPE{...}
+              - pattern: var $VAR = &ecdh.$KEY_TYPE{...}
+              - pattern: var $VAR = new(ecdh.$KEY_TYPE)
+              - pattern: $VAR := new(ecdh.$KEY_TYPE)
+              - pattern: var $VAR = ecdh.$KEY_TYPE{...}
+              - pattern: $VAR := ecdh.$KEY_TYPE{...}
+          - metavariable-regex:
+              metavariable: $KEY_TYPE
+              regex: "^(?<keytype>Private|Public)Key$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      references:
+        - https://pkg.go.dev/crypto/ecdh
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: keyexchange
+        algorithmName: ECDH
+        algorithmFamily: ECDH
+        library: crypto/ecdh
+        api: ecdh.$keytype
+        algorithmPrimitive: key-agree
+
+  - id: go.crypto.ecdh.public-key
+    message: Detected ECDH public key extraction, algorithm=ECDH
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern: $PRIVATE_KEY.PublicKey()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ecdh
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: keyexchange
+        algorithmName: ECDH
+        algorithmFamily: ECDH
+        library: crypto/ecdh
+        api: ecdh.PublicKey
+        algorithmPrimitive: key-agree
+
+  - id: go.crypto.ecdh.bytes
+    message: Detected ECDH key serialization, algorithm=ECDH
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $KEY, $ERR := $KEYGEN
+              ...
+              $KEY.Bytes()
+          - pattern: |
+              $KEY := $KEYGEN
+              ...
+              $KEY.Bytes()
+          - pattern: |
+              $PRIVATE_KEY.PublicKey()
+              ...
+              $PUBLIC_KEY.Bytes()
+      - metavariable-regex:
+          metavariable: $KEYGEN
+          regex: '(?:ecdh\.(?:P256|P384|P521|X25519)\(\)\.(?:GenerateKey|NewPrivateKey|NewPublicKey)|ecdh\.(?:P256|P384|P521|X25519)\(\)\.GenerateKey|$CURVE\.(?:GenerateKey|NewPrivateKey|NewPublicKey))'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ecdh
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: keyexchange
+        algorithmName: ECDH
+        algorithmFamily: ECDH
+        library: crypto/ecdh
+        api: ecdh.Bytes
+        algorithmPrimitive: key-agree

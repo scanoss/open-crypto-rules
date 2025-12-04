@@ -1,0 +1,91 @@
+rules:
+  - id: go.crypto.sha256.hash-usage
+    message: Detected SHA-2 hash usage
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-either:
+              - pattern: sha256.New(...)
+              - pattern: sha256.New
+          - pattern-either:
+              - pattern: crypto.SHA256.New(...)
+              - pattern: crypto.SHA256.New
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/sha256
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        algorithmName: SHA-256
+        algorithmFamily: SHA-2
+        library: crypto/sha256
+        api: sha256.New
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "256"
+
+  - id: go.crypto.sha256.hash-usage-variant
+    message: Detected SHA-2 hash usage with variant
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha256.$FUNC(...)
+          - pattern: sha256.$FUNC
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?:New|Sum)(?<variant>224|256)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/sha256
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        algorithmName: SHA-$variant
+        algorithmFamily: SHA-2
+        library: crypto/sha256
+        api: sha256.$FUNC
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: $variant
+
+  - id: go.crypto.sha256.hash-usage-crypto-const
+    message: Detected SHA-2 hash usage via crypto constant
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: crypto.$CONST.$FUNC(...)
+          - pattern: crypto.$CONST.$FUNC
+      - metavariable-regex:
+          metavariable: $CONST
+          regex: "^SHA(?<variant>224|256)$"
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^New$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/sha256
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        algorithmName: SHA-$variant
+        algorithmFamily: SHA-2
+        library: crypto/sha256
+        api: crypto.$CONST.$FUNC
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: $variant

@@ -1,0 +1,165 @@
+rules:
+  - id: go.xcrypto.otr.privatekey-import
+    message: Detected OTR private key import, materialType=private-key
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $PRIVKEY.Import($DATA)
+          - pattern: "$SUCCESS := $PRIVKEY.Import($DATA)
+
+              "
+          - pattern: $PRIVKEY.Import(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: key_generation
+        operation: other
+        materialType: private-key
+        library: golang.org/x/crypto/otr
+        api: otr.PrivateKey.Import
+        materialSource: imported
+
+  - id: go.xcrypto.otr.privatekey-parse
+    message: Detected OTR private key parsing, materialType=private-key
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $PRIVKEY.Parse($DATA)
+          - pattern: "$OUT, $SUCCESS := $PRIVKEY.Parse($DATA)
+
+              "
+          - pattern: "$OUT, _ := $PRIVKEY.Parse($DATA)
+
+              "
+          - pattern: $PRIVKEY.Parse(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: key_generation
+        operation: other
+        materialType: private-key
+        library: golang.org/x/crypto/otr
+        api: otr.PrivateKey.Parse
+        materialSource: loaded
+
+  - id: go.xcrypto.otr.privatekey-serialize
+    message: Detected OTR private key serialization, materialType=private-key
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $PRIVKEY.Serialize($DATA)
+          - pattern: "$OUT := $PRIVKEY.Serialize($DATA)
+
+              "
+          - pattern: $PRIVKEY.Serialize(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: key_generation
+        operation: other
+        materialType: private-key
+        library: golang.org/x/crypto/otr
+        api: otr.PrivateKey.Serialize
+
+  - id: go.xcrypto.otr.publickey-parse
+    message: Detected OTR public key parsing, materialType=public-key
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $PUBKEY.Parse($DATA)
+          - pattern: "$OUT, $SUCCESS := $PUBKEY.Parse($DATA)
+
+              "
+          - pattern: "$OUT, _ := $PUBKEY.Parse($DATA)
+
+              "
+          - pattern: $PUBKEY.Parse(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: key_generation
+        operation: other
+        materialType: public-key
+        library: golang.org/x/crypto/otr
+        api: otr.PublicKey.Parse
+        materialSource: loaded
+
+  - id: go.xcrypto.otr.publickey-serialize
+    message: Detected OTR public key serialization, materialType=public-key
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $PUBKEY.Serialize($DATA)
+          - pattern: "$OUT := $PUBKEY.Serialize($DATA)
+
+              "
+          - pattern: $PUBKEY.Serialize(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: key_generation
+        operation: other
+        materialType: public-key
+        library: golang.org/x/crypto/otr
+        api: otr.PublicKey.Serialize
+
+  - id: go.xcrypto.otr.publickey-fingerprint
+    message: Detected OTR public key fingerprint generation, materialType=digest
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $PUBKEY.Fingerprint()
+          - pattern: "$FINGERPRINT := $PUBKEY.Fingerprint()
+
+              "
+          - pattern: $PUBKEY.Fingerprint(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: hash
+        operation: digest
+        materialType: digest
+        library: golang.org/x/crypto/otr
+        api: otr.PublicKey.Fingerprint

@@ -1,0 +1,39 @@
+rules:
+  - id: go.crypto.rand.usage
+    message: Detected cryptographically secure random number generation, algorithm=CSPRNG
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: rand.$FUNC(...)
+                  - pattern: rand.$FUNC
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^(?<func>Read|Reader|Int|Prime)$"
+          - pattern: io.ReadFull(rand.Reader, ...)
+          - pattern: $VAR := rand.Reader
+          - pattern: var $VAR = rand.Reader
+          - pattern: var $VAR io.Reader = rand.Reader
+          - pattern: rand.$FUNC(...)
+          - pattern: rand.$FUNC
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-330
+      references:
+        - https://pkg.go.dev/crypto/rand
+      crypto:
+        assetType: algorithm
+        findingType: rng
+        operation: other
+        algorithmName: CSPRNG
+        algorithmFamily: CSPRNG
+        library: crypto/rand
+        api: rand.$func
+        materialSource: generated
+        algorithmPrimitive: drbg

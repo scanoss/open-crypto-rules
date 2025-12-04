@@ -1,0 +1,57 @@
+rules:
+  - id: go.xcrypto.curve25519.key-exchange
+    message: Detected X25519 key exchange operation, algorithm=X25519, curve=Curve25519
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern-either:
+              - pattern: curve25519.$FUNC($DST, $SCALAR, $POINT)
+              - pattern: curve25519.$FUNC($SCALAR, $POINT)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(ScalarMult|X25519)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/curve25519
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: keyexchange
+        primitive: key-agree
+        algorithmName: X25519
+        algorithmFamily: X25519
+        parameterSetIdentifier: X25519
+        library: golang.org/x/crypto/curve25519
+        api: curve25519.$FUNC
+        ellipticCurve: Curve25519
+
+  - id: go.xcrypto.curve25519.public-key-derivation
+    message: Detected X25519 public key derivation, algorithm=X25519, curve=Curve25519
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern: curve25519.ScalarBaseMult($DST, $SCALAR)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/curve25519
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: keygen
+        primitive: key-agree
+        algorithmName: X25519
+        algorithmFamily: X25519
+        parameterSetIdentifier: X25519
+        library: golang.org/x/crypto/curve25519
+        api: curve25519.ScalarBaseMult
+        ellipticCurve: Curve25519
+        materialSource: generated

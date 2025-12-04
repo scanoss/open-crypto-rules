@@ -1,0 +1,450 @@
+rules:
+  - id: go.xcrypto.acme.client-creation
+    message: Detected ACME client creation, protocol=ACME
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: "$CLIENT := &acme.Client{...}
+
+              "
+          - pattern: "$CLIENT := acme.Client{...}
+
+              "
+          - pattern: "var $CLIENT = &acme.Client{...}
+
+              "
+          - pattern: "var $CLIENT = acme.Client{...}
+
+              "
+          - pattern: "$CLIENT := &acme.Client{\n    $FIELD: $VALUE,\n    ...\n}\n"
+          - pattern: "$CLIENT := acme.Client{\n    $FIELD: $VALUE,\n    ...\n}\n"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        algorithmName: ACME
+        algorithmFamily: ACME
+        library: golang.org/x/crypto/acme
+        api: acme.Client
+
+  - id: go.xcrypto.acme.discover
+    message: Detected ACME directory discovery, protocol=ACME
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $CLIENT.Discover($CTX)
+          - pattern: "$DIR, $ERR := $CLIENT.Discover($CTX)
+
+              "
+          - pattern: "$DIR, _ := $CLIENT.Discover($CTX)
+
+              "
+          - pattern: $CLIENT.Discover(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        algorithmName: ACME
+        algorithmFamily: ACME
+        library: golang.org/x/crypto/acme
+        api: acme.Client.Discover
+
+  - id: go.xcrypto.acme.register
+    message: Detected ACME account registration, protocol=ACME
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $CLIENT.Register($CTX, $ACCOUNT, $PROMPT)
+          - pattern: "$REG, $ERR := $CLIENT.Register($CTX, $ACCOUNT, $PROMPT)
+
+              "
+          - pattern: "$REG, _ := $CLIENT.Register($CTX, $ACCOUNT, $PROMPT)
+
+              "
+          - pattern: $CLIENT.Register(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        algorithmName: ACME
+        algorithmFamily: ACME
+        library: golang.org/x/crypto/acme
+        api: acme.Client.Register
+
+  - id: go.xcrypto.acme.account-management
+    message: Detected ACME account management, protocol=ACME
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $CLIENT.GetReg($CTX, $URL)
+          - pattern: "$ACCT, $ERR := $CLIENT.GetReg($CTX, $URL)
+
+              "
+          - pattern: "$ACCT, _ := $CLIENT.GetReg($CTX, $URL)
+
+              "
+          - pattern: $CLIENT.GetReg(...)
+          - pattern: $CLIENT.UpdateReg($CTX, $ACCOUNT)
+          - pattern: "$ACCT, $ERR := $CLIENT.UpdateReg($CTX, $ACCOUNT)
+
+              "
+          - pattern: "$ACCT, _ := $CLIENT.UpdateReg($CTX, $ACCOUNT)
+
+              "
+          - pattern: $CLIENT.UpdateReg(...)
+          - pattern: $CLIENT.DeactivateReg($CTX)
+          - pattern: "$ERR := $CLIENT.DeactivateReg($CTX)
+
+              "
+          - pattern: "_ := $CLIENT.DeactivateReg($CTX)
+
+              "
+          - pattern: $CLIENT.DeactivateReg(...)
+          - pattern: $CLIENT.AccountKeyRollover($CTX, $NEWKEY)
+          - pattern: "$ERR := $CLIENT.AccountKeyRollover($CTX, $NEWKEY)
+
+              "
+          - pattern: "_ := $CLIENT.AccountKeyRollover($CTX, $NEWKEY)
+
+              "
+          - pattern: $CLIENT.AccountKeyRollover(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        algorithmName: ACME
+        algorithmFamily: ACME
+        library: golang.org/x/crypto/acme
+        api: acme.Client.GetReg
+
+  - id: go.xcrypto.acme.authorize
+    message: Detected ACME authorization, protocol=ACME
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $CLIENT.Authorize($CTX, $DOMAIN)
+          - pattern: "$AUTH, $ERR := $CLIENT.Authorize($CTX, $DOMAIN)
+
+              "
+          - pattern: "$AUTH, _ := $CLIENT.Authorize($CTX, $DOMAIN)
+
+              "
+          - pattern: $CLIENT.Authorize(...)
+          - pattern: $CLIENT.AuthorizeIP($CTX, $IPADDR)
+          - pattern: "$AUTH, $ERR := $CLIENT.AuthorizeIP($CTX, $IPADDR)
+
+              "
+          - pattern: "$AUTH, _ := $CLIENT.AuthorizeIP($CTX, $IPADDR)
+
+              "
+          - pattern: $CLIENT.AuthorizeIP(...)
+          - pattern: $CLIENT.AuthorizeOrder($CTX, $ID, ...)
+          - pattern: "$ORDER, $ERR := $CLIENT.AuthorizeOrder($CTX, $ID, ...)
+
+              "
+          - pattern: "$ORDER, _ := $CLIENT.AuthorizeOrder($CTX, $ID, ...)
+
+              "
+          - pattern: $CLIENT.AuthorizeOrder(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        algorithmName: ACME
+        algorithmFamily: ACME
+        library: golang.org/x/crypto/acme
+        api: acme.Client.Authorize
+
+  - id: go.xcrypto.acme.authorization-management
+    message: Detected ACME authorization management, protocol=ACME
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $CLIENT.GetAuthorization($CTX, $URL)
+          - pattern: "$AUTH, $ERR := $CLIENT.GetAuthorization($CTX, $URL)
+
+              "
+          - pattern: "$AUTH, _ := $CLIENT.GetAuthorization($CTX, $URL)
+
+              "
+          - pattern: $CLIENT.GetAuthorization(...)
+          - pattern: $CLIENT.WaitAuthorization($CTX, $URL)
+          - pattern: "$AUTH, $ERR := $CLIENT.WaitAuthorization($CTX, $URL)
+
+              "
+          - pattern: "$AUTH, _ := $CLIENT.WaitAuthorization($CTX, $URL)
+
+              "
+          - pattern: $CLIENT.WaitAuthorization(...)
+          - pattern: $CLIENT.RevokeAuthorization($CTX, $URL)
+          - pattern: "$ERR := $CLIENT.RevokeAuthorization($CTX, $URL)
+
+              "
+          - pattern: "_ := $CLIENT.RevokeAuthorization($CTX, $URL)
+
+              "
+          - pattern: $CLIENT.RevokeAuthorization(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        algorithmName: ACME
+        algorithmFamily: ACME
+        library: golang.org/x/crypto/acme
+        api: acme.Client.GetAuthorization
+
+  - id: go.xcrypto.acme.challenge
+    message: Detected ACME challenge operations, protocol=ACME
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $CLIENT.GetChallenge($CTX, $URL)
+          - pattern: "$CHAL, $ERR := $CLIENT.GetChallenge($CTX, $URL)
+
+              "
+          - pattern: "$CHAL, _ := $CLIENT.GetChallenge($CTX, $URL)
+
+              "
+          - pattern: $CLIENT.GetChallenge(...)
+          - pattern: $CLIENT.Accept($CTX, $CHALLENGE)
+          - pattern: "$CHAL, $ERR := $CLIENT.Accept($CTX, $CHALLENGE)
+
+              "
+          - pattern: "$CHAL, _ := $CLIENT.Accept($CTX, $CHALLENGE)
+
+              "
+          - pattern: $CLIENT.Accept(...)
+          - pattern: $CLIENT.DNS01ChallengeRecord($TOKEN)
+          - pattern: "$RECORD, $ERR := $CLIENT.DNS01ChallengeRecord($TOKEN)
+
+              "
+          - pattern: "$RECORD, _ := $CLIENT.DNS01ChallengeRecord($TOKEN)
+
+              "
+          - pattern: $CLIENT.DNS01ChallengeRecord(...)
+          - pattern: $CLIENT.HTTP01ChallengeResponse($TOKEN)
+          - pattern: "$RESPONSE, $ERR := $CLIENT.HTTP01ChallengeResponse($TOKEN)
+
+              "
+          - pattern: "$RESPONSE, _ := $CLIENT.HTTP01ChallengeResponse($TOKEN)
+
+              "
+          - pattern: $CLIENT.HTTP01ChallengeResponse(...)
+          - pattern: $CLIENT.HTTP01ChallengePath($TOKEN)
+          - pattern: "$PATH := $CLIENT.HTTP01ChallengePath($TOKEN)
+
+              "
+          - pattern: $CLIENT.HTTP01ChallengePath(...)
+          - pattern: $CLIENT.TLSALPN01ChallengeCert($TOKEN, $IDENTIFIER, ...)
+          - pattern:
+              "$CERT, $ERR := $CLIENT.TLSALPN01ChallengeCert($TOKEN, $IDENTIFIER,
+              ...)
+
+              "
+          - pattern:
+              "$CERT, _ := $CLIENT.TLSALPN01ChallengeCert($TOKEN, $IDENTIFIER, ...)
+
+              "
+          - pattern: $CLIENT.TLSALPN01ChallengeCert(...)
+          - pattern: $CLIENT.TLSSNI01ChallengeCert($TOKEN, ...)
+          - pattern: "$CERT, $ERR := $CLIENT.TLSSNI01ChallengeCert($TOKEN, ...)
+
+              "
+          - pattern: "$CERT, _ := $CLIENT.TLSSNI01ChallengeCert($TOKEN, ...)
+
+              "
+          - pattern: $CLIENT.TLSSNI01ChallengeCert(...)
+          - pattern: $CLIENT.TLSSNI02ChallengeCert($TOKEN, ...)
+          - pattern: "$CERT, $ERR := $CLIENT.TLSSNI02ChallengeCert($TOKEN, ...)
+
+              "
+          - pattern: "$CERT, _ := $CLIENT.TLSSNI02ChallengeCert($TOKEN, ...)
+
+              "
+          - pattern: $CLIENT.TLSSNI02ChallengeCert(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        algorithmName: ACME
+        algorithmFamily: ACME
+        library: golang.org/x/crypto/acme
+        api: acme.Client.Accept
+
+  - id: go.xcrypto.acme.order-management
+    message: Detected ACME order management, protocol=ACME
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $CLIENT.GetOrder($CTX, $URL)
+          - pattern: "$ORDER, $ERR := $CLIENT.GetOrder($CTX, $URL)
+
+              "
+          - pattern: "$ORDER, _ := $CLIENT.GetOrder($CTX, $URL)
+
+              "
+          - pattern: $CLIENT.GetOrder(...)
+          - pattern: $CLIENT.WaitOrder($CTX, $URL)
+          - pattern: "$ORDER, $ERR := $CLIENT.WaitOrder($CTX, $URL)
+
+              "
+          - pattern: "$ORDER, _ := $CLIENT.WaitOrder($CTX, $URL)
+
+              "
+          - pattern: $CLIENT.WaitOrder(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        algorithmName: ACME
+        algorithmFamily: ACME
+        library: golang.org/x/crypto/acme
+        api: acme.Client.GetOrder
+
+  - id: go.xcrypto.acme.certificate-management
+    message: Detected ACME certificate management, protocol=ACME
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $CLIENT.CreateCert($CTX, $CSR, $EXPIRY, $BUNDLE)
+          - pattern:
+              "$CERT, $ERR := $CLIENT.CreateCert($CTX, $CSR, $EXPIRY, $BUNDLE)
+
+              "
+          - pattern:
+              "$CERT, _ := $CLIENT.CreateCert($CTX, $CSR, $EXPIRY, $BUNDLE)
+
+              "
+          - pattern: $CLIENT.CreateCert(...)
+          - pattern: $CLIENT.CreateOrderCert($CTX, $URL, $CSR, $BUNDLE)
+          - pattern:
+              "$CERT, $ERR := $CLIENT.CreateOrderCert($CTX, $URL, $CSR, $BUNDLE)
+
+              "
+          - pattern:
+              "$CERT, _ := $CLIENT.CreateOrderCert($CTX, $URL, $CSR, $BUNDLE)
+
+              "
+          - pattern: $CLIENT.CreateOrderCert(...)
+          - pattern: $CLIENT.FetchCert($CTX, $URL, $BUNDLE)
+          - pattern: "$CERT, $ERR := $CLIENT.FetchCert($CTX, $URL, $BUNDLE)
+
+              "
+          - pattern: "$CERT, _ := $CLIENT.FetchCert($CTX, $URL, $BUNDLE)
+
+              "
+          - pattern: $CLIENT.FetchCert(...)
+          - pattern: $CLIENT.RevokeCert($CTX, $KEY, $CERT, $REASON)
+          - pattern: "$ERR := $CLIENT.RevokeCert($CTX, $KEY, $CERT, $REASON)
+
+              "
+          - pattern: "_ := $CLIENT.RevokeCert($CTX, $KEY, $CERT, $REASON)
+
+              "
+          - pattern: $CLIENT.RevokeCert(...)
+          - pattern: $CLIENT.ListCertAlternates($CTX, $URL)
+          - pattern: "$ALTS, $ERR := $CLIENT.ListCertAlternates($CTX, $URL)
+
+              "
+          - pattern: "$ALTS, _ := $CLIENT.ListCertAlternates($CTX, $URL)
+
+              "
+          - pattern: $CLIENT.ListCertAlternates(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        algorithmName: ACME
+        algorithmFamily: ACME
+        library: golang.org/x/crypto/acme
+        api: acme.Client.CreateCert
