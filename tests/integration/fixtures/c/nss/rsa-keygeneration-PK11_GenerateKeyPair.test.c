@@ -1,5 +1,5 @@
 // TEST-RULE: c.crypto.nss.algorithm-pke-rsa-keygeneration
-// TEST-METADATA: algorithmName=RSA, library=NSS, api=PK11_GenerateKeyPair
+// TEST-METADATA: algorithmName=RSA, library=NSS, algorithmPrimitive=pke, api=PK11_GenerateKeyPair
 // TODO: parameterSetIdentifier=1024
 PK11RSAGenParams rsaParams;
 rsaParams.keySizeInBits = 1024;
