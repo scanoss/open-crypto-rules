@@ -2,8 +2,7 @@ rules:
   - id: go.crypto.aes.key-generation
     message: Detected AES key generation, algorithm=AES
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
           - patterns:
@@ -22,27 +21,25 @@ rules:
       category: security
       subcategory: cryptography
       confidence: HIGH
-      cwe:
-        - CWE-326
+      cwe: [CWE-326]
       references:
         - https://pkg.go.dev/crypto/aes
       crypto:
         assetType: algorithm
         findingType: key_generation
         operation: keygen
+        algorithmPrimitive: block-cipher
         algorithmName: AES
         algorithmFamily: AES
+        algorithmParameterSetIdentifier: $bytesize
         library: crypto/aes
         api: aes.NewCipher
         materialSource: generated
-        algorithmPrimitive: block-cipher
-        algorithmParameterSetIdentifier: $bytesize
 
   - id: go.crypto.aes.gcm-mode
     message: Detected AES-GCM mode (AEAD), algorithm=AES-GCM, cipher=AES, mode=GCM
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
           - pattern: |
@@ -63,19 +60,18 @@ rules:
         assetType: algorithm
         findingType: cipher
         operation: encrypt
+        algorithmPrimitive: ae
         algorithmName: AES-GCM
         algorithmFamily: AES
         library: crypto/cipher
         api: cipher.$func
         cipher: AES
         algorithmMode: gcm
-        algorithmPrimitive: ae
 
-  - id: go.crypto.aes.block-cipher-mode
+  - id: go.crypto.aes.block-cipher-mode-encrypt
     message: Detected AES block cipher mode
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
           - pattern: |
@@ -85,7 +81,7 @@ rules:
           - pattern: cipher.$FUNC(aes.NewCipher($KEY), ...)
       - metavariable-regex:
           metavariable: $FUNC
-          regex: "^New(?<mode>CBC|CTR|OFB|CFB)(Encrypter|Decrypter)?$"
+          regex: "^New(?<mode>CBC|CTR|OFB|CFB)(Encrypter)?$"
     metadata:
       category: security
       subcategory: cryptography
@@ -96,10 +92,42 @@ rules:
         assetType: algorithm
         findingType: cipher
         operation: encrypt
-        algorithmName: AES-$1
+        algorithmPrimitive: block-cipher
+        algorithmName: AES-$mode
         algorithmFamily: AES
         library: crypto/cipher
-        api: cipher.New$1
+        api: cipher.$FUNC
         cipher: AES
-        algorithmMode: $1
+        algorithmMode: $mode
+
+  - id: go.crypto.aes.block-cipher-mode-decrypt
+    message: Detected AES block cipher mode decryption
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $BLOCK, $ERR := aes.NewCipher($KEY)
+              ...
+              cipher.$FUNC($BLOCK, ...)
+          - pattern: cipher.$FUNC(aes.NewCipher($KEY), ...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^New(?<mode>CBC|CFB)Decrypter$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/cipher
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: decrypt
         algorithmPrimitive: block-cipher
+        algorithmName: AES-$mode
+        algorithmFamily: AES
+        library: crypto/cipher
+        api: cipher.$FUNC
+        cipher: AES
+        algorithmMode: $mode
