@@ -5,9 +5,7 @@ rules:
     languages:
       - go
     patterns:
-      - pattern-either:
-          - pattern: $PRIVKEY.Generate($RAND)
-          - pattern: $PRIVKEY.Generate(...)
+      - pattern: $PRIVKEY.Generate(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -31,10 +29,7 @@ rules:
     languages:
       - go
     patterns:
-      - pattern-either:
-          - pattern: $PRIVKEY.Sign($RAND, $HASHED)
-          - pattern: $SIG := $PRIVKEY.Sign($RAND, $HASHED)
-          - pattern: $PRIVKEY.Sign(...)
+      - pattern: $PRIVKEY.Sign(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -57,11 +52,7 @@ rules:
     languages:
       - go
     patterns:
-      - pattern-either:
-          - pattern: $PUBKEY.Verify($HASHED, $SIG)
-          - pattern: $OUT, $VALID := $PUBKEY.Verify($HASHED, $SIG)
-          - pattern: $OUT, _ := $PUBKEY.Verify($HASHED, $SIG)
-          - pattern: $PUBKEY.Verify(...)
+      - pattern: $PUBKEY.Verify(...)
     metadata:
       category: security
       subcategory: cryptography

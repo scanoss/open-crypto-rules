@@ -1,32 +1,34 @@
 rules:
-  - id: go.xcrypto.chacha20poly1305.new
-    message: Detected ChaCha20-Poly1305 AEAD usage, algorithm=ChaCha20-Poly1305
+  - id: go.xcrypto.chacha20poly1305.aead
+    message: Detected ChaCha20-Poly1305 AEAD usage
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/chacha20poly1305"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/chacha20poly1305"
+              ...
+      - pattern-either:
           - patterns:
-              - pattern-either:
-                  - pattern: chacha20poly1305.New(make([]byte, $KEYSIZE))
-                  - pattern: |
-                      $AEAD, $ERR := chacha20poly1305.New(make([]byte, $KEYSIZE))
-                  - pattern: |
-                      $AEAD, _ := chacha20poly1305.New(make([]byte, $KEYSIZE))
-                  - pattern: |
-                      $KEY := make([]byte, $KEYSIZE)
-                      ...
-                      chacha20poly1305.New($KEY)
+              - pattern: chacha20poly1305.$FUNC(make([]byte, $KEYSIZE))
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^New(?<variant>X?)$"
               - metavariable-regex:
                   metavariable: $KEYSIZE
                   regex: "^(?<keysize>32)$"
-          - pattern-either:
-              - pattern: chacha20poly1305.New($KEY)
-              - pattern: |
-                  $AEAD, $ERR := chacha20poly1305.New($KEY)
-              - pattern: |
-                  $AEAD, _ := chacha20poly1305.New($KEY)
-              - pattern: chacha20poly1305.New(...)
+          - patterns:
+              - pattern: chacha20poly1305.$FUNC(...)
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^New(?<variant>X?)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -37,73 +39,34 @@ rules:
         assetType: algorithm
         findingType: cipher
         operation: encrypt
-        primitive: ae
-        algorithmName: ChaCha20-Poly1305
+        algorithmPrimitive: ae
+        algorithmName: $variantChaCha20-Poly1305
         algorithmFamily: ChaCha20
-        parameterSetIdentifier: $keysize
+        algorithmParameterSetIdentifier: $keysize
         library: golang.org/x/crypto/chacha20poly1305
-        api: chacha20poly1305.New
-
-  - id: go.xcrypto.chacha20poly1305.newx
-    message: Detected XChaCha20-Poly1305 AEAD usage, algorithm=XChaCha20-Poly1305
-    severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - patterns:
-              - pattern-either:
-                  - pattern: chacha20poly1305.NewX(make([]byte, $KEYSIZE))
-                  - pattern: |
-                      $AEAD, $ERR := chacha20poly1305.NewX(make([]byte, $KEYSIZE))
-                  - pattern: |
-                      $AEAD, _ := chacha20poly1305.NewX(make([]byte, $KEYSIZE))
-                  - pattern: |
-                      $KEY := make([]byte, $KEYSIZE)
-                      ...
-                      chacha20poly1305.NewX($KEY)
-              - metavariable-regex:
-                  metavariable: $KEYSIZE
-                  regex: "^(?<keysize>32)$"
-          - pattern-either:
-              - pattern: chacha20poly1305.NewX($KEY)
-              - pattern: |
-                  $AEAD, $ERR := chacha20poly1305.NewX($KEY)
-              - pattern: |
-                  $AEAD, _ := chacha20poly1305.NewX($KEY)
-              - pattern: chacha20poly1305.NewX(...)
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      references:
-        - https://pkg.go.dev/golang.org/x/crypto/chacha20poly1305
-      crypto:
-        assetType: algorithm
-        findingType: cipher
-        operation: encrypt
-        primitive: ae
-        algorithmName: XChaCha20-Poly1305
-        algorithmFamily: ChaCha20
-        parameterSetIdentifier: $keysize
-        library: golang.org/x/crypto/chacha20poly1305
-        api: chacha20poly1305.NewX
+        api: chacha20poly1305.$FUNC
 
   - id: go.xcrypto.chacha20poly1305.constants
     message: Detected ChaCha20-Poly1305 constant usage, algorithm=ChaCha20-Poly1305
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/chacha20poly1305"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/chacha20poly1305"
+              ...
       - pattern-either:
           - pattern: chacha20poly1305.KeySize
           - pattern: chacha20poly1305.NonceSize
           - pattern: chacha20poly1305.NonceSizeX
           - pattern: chacha20poly1305.Overhead
-          - pattern: $VAR := chacha20poly1305.KeySize
-          - pattern: $VAR := chacha20poly1305.NonceSize
-          - pattern: $VAR := chacha20poly1305.NonceSizeX
-          - pattern: $VAR := chacha20poly1305.Overhead
     metadata:
       category: security
       subcategory: cryptography
@@ -114,9 +77,9 @@ rules:
         assetType: algorithm
         findingType: cipher
         operation: encrypt
-        primitive: ae
+        algorithmPrimitive: ae
         algorithmName: ChaCha20-Poly1305
         algorithmFamily: ChaCha20
-        parameterSetIdentifier: "256"
+        algorithmParameterSetIdentifier: "256"
         library: golang.org/x/crypto/chacha20poly1305
         api: chacha20poly1305.KeySize

@@ -2,28 +2,37 @@ rules:
   - id: go.xcrypto.bcrypt.password-hash
     message: Detected bcrypt password hashing, algorithm=bcrypt
     severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - patterns:
-              - pattern-either:
-                  - pattern: bcrypt.GenerateFromPassword($PASSWORD, $COST)
-                  - pattern: |
-                      $HASH, $ERR := bcrypt.GenerateFromPassword($PASSWORD, $COST)
-                  - pattern: |
-                      $HASH, _ := bcrypt.GenerateFromPassword($PASSWORD, $COST)
-                  - pattern: bcrypt.GenerateFromPassword(...)
-              - metavariable-regex:
-                  metavariable: $COST
-                  regex: '^(?<cost>\d+)$'
+    languages: [go]
+    pattern-either:
+      - patterns:
           - pattern-either:
-              - pattern: bcrypt.GenerateFromPassword($PASSWORD, $COST)
-              - pattern: |
-                  $HASH, $ERR := bcrypt.GenerateFromPassword($PASSWORD, $COST)
-              - pattern: |
-                  $HASH, _ := bcrypt.GenerateFromPassword($PASSWORD, $COST)
-              - pattern: bcrypt.GenerateFromPassword(...)
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/bcrypt"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/bcrypt"
+                  ...
+          - pattern: bcrypt.GenerateFromPassword($PASSWORD, $COST)
+          - metavariable-regex:
+              metavariable: $COST
+              regex: '^(?<cost>\d+)$'
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/bcrypt"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/bcrypt"
+                  ...
+          - pattern: bcrypt.GenerateFromPassword(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -34,10 +43,10 @@ rules:
         assetType: algorithm
         findingType: kdf
         operation: keyderive
-        primitive: kdf
+        algorithmPrimitive: kdf
         algorithmName: bcrypt
         algorithmFamily: bcrypt
-        parameterSetIdentifier: $cost
+        algorithmParameterSetIdentifier: $cost
         library: golang.org/x/crypto/bcrypt
         api: bcrypt.GenerateFromPassword
         materialSource: derived
@@ -45,16 +54,20 @@ rules:
   - id: go.xcrypto.bcrypt.password-verify
     message: Detected bcrypt password verification, algorithm=bcrypt
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: bcrypt.CompareHashAndPassword($HASH, $PASSWORD)
-          - pattern: |
-              $ERR := bcrypt.CompareHashAndPassword($HASH, $PASSWORD)
-          - pattern: |
-              _ := bcrypt.CompareHashAndPassword($HASH, $PASSWORD)
-          - pattern: bcrypt.CompareHashAndPassword(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/bcrypt"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/bcrypt"
+              ...
+      - pattern: bcrypt.CompareHashAndPassword(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -65,7 +78,7 @@ rules:
         assetType: algorithm
         findingType: kdf
         operation: verify
-        primitive: kdf
+        algorithmPrimitive: kdf
         algorithmName: bcrypt
         algorithmFamily: bcrypt
         library: golang.org/x/crypto/bcrypt
@@ -74,16 +87,20 @@ rules:
   - id: go.xcrypto.bcrypt.cost-extraction
     message: Detected bcrypt cost extraction, algorithm=bcrypt
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: bcrypt.Cost($HASH)
-          - pattern: |
-              $COST, $ERR := bcrypt.Cost($HASH)
-          - pattern: |
-              $COST, _ := bcrypt.Cost($HASH)
-          - pattern: bcrypt.Cost(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/bcrypt"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/bcrypt"
+              ...
+      - pattern: bcrypt.Cost(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -94,7 +111,7 @@ rules:
         assetType: algorithm
         findingType: kdf
         operation: other
-        primitive: kdf
+        algorithmPrimitive: kdf
         algorithmName: bcrypt
         algorithmFamily: bcrypt
         library: golang.org/x/crypto/bcrypt

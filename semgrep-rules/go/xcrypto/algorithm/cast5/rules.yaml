@@ -2,27 +2,37 @@ rules:
   - id: go.xcrypto.cast5.block-cipher
     message: Detected CAST5 block cipher usage, algorithm=CAST5
     severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - patterns:
-              - pattern-either:
-                  - pattern: cast5.NewCipher(make([]byte, $SIZE))
-                  - pattern: |
-                      $CIPHER, $ERR := cast5.NewCipher(make([]byte, $SIZE))
-                  - pattern: |
-                      $CIPHER, _ := cast5.NewCipher(make([]byte, $SIZE))
-              - metavariable-regex:
-                  metavariable: $SIZE
-                  regex: '^(?<keysize>\d+)$'
+    languages: [go]
+    pattern-either:
+      - patterns:
           - pattern-either:
-              - pattern: cast5.NewCipher($KEY)
-              - pattern: |
-                  $CIPHER, $ERR := cast5.NewCipher($KEY)
-              - pattern: |
-                  $CIPHER, _ := cast5.NewCipher($KEY)
-              - pattern: cast5.NewCipher(...)
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/cast5"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/cast5"
+                  ...
+          - pattern: cast5.NewCipher(make([]byte, $SIZE))
+          - metavariable-regex:
+              metavariable: $SIZE
+              regex: '^(?<keysize>\d+)$'
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/cast5"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/cast5"
+                  ...
+          - pattern: cast5.NewCipher(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -33,9 +43,9 @@ rules:
         assetType: algorithm
         findingType: cipher
         operation: encrypt
-        primitive: block-cipher
+        algorithmPrimitive: block-cipher
         algorithmName: CAST5
         algorithmFamily: CAST5
-        parameterSetIdentifier: $keysize
+        algorithmParameterSetIdentifier: $keysize
         library: golang.org/x/crypto/cast5
         api: cast5.NewCipher

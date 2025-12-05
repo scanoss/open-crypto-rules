@@ -2,15 +2,20 @@ rules:
   - id: go.xcrypto.poly1305.mac
     message: Detected Poly1305 MAC usage, algorithm=Poly1305
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: poly1305.New($KEY)
-          - pattern: "$MAC := poly1305.New($KEY)
-
-              "
-          - pattern: poly1305.New(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/poly1305"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/poly1305"
+              ...
+      - pattern: poly1305.New(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -21,7 +26,7 @@ rules:
         assetType: algorithm
         findingType: mac
         operation: sign
-        primitive: mac
+        algorithmPrimitive: mac
         algorithmName: Poly1305
         algorithmFamily: Poly1305
         library: golang.org/x/crypto/poly1305
@@ -30,12 +35,20 @@ rules:
   - id: go.xcrypto.poly1305.sum
     message: Detected Poly1305 Sum MAC computation, algorithm=Poly1305
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: poly1305.Sum($OUT, $MESSAGE, $KEY)
-          - pattern: poly1305.Sum(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/poly1305"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/poly1305"
+              ...
+      - pattern: poly1305.Sum(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -46,7 +59,7 @@ rules:
         assetType: algorithm
         findingType: mac
         operation: sign
-        primitive: mac
+        algorithmPrimitive: mac
         algorithmName: Poly1305
         algorithmFamily: Poly1305
         library: golang.org/x/crypto/poly1305
@@ -55,15 +68,20 @@ rules:
   - id: go.xcrypto.poly1305.verify
     message: Detected Poly1305 MAC verification, algorithm=Poly1305
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: poly1305.Verify($MAC, $MESSAGE, $KEY)
-          - pattern: "$VALID := poly1305.Verify($MAC, $MESSAGE, $KEY)
-
-              "
-          - pattern: poly1305.Verify(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/poly1305"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/poly1305"
+              ...
+      - pattern: poly1305.Verify(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -74,7 +92,7 @@ rules:
         assetType: algorithm
         findingType: mac
         operation: verify
-        primitive: mac
+        algorithmPrimitive: mac
         algorithmName: Poly1305
         algorithmFamily: Poly1305
         library: golang.org/x/crypto/poly1305

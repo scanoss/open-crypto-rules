@@ -1,16 +1,56 @@
 rules:
-  - id: go.xcrypto.otr.conversation
-    message: Detected OTR conversation creation, protocol=OTR
+  - id: go.xcrypto.otr.encrypt
+    message: Detected OTR encryption operations
     severity: INFO
     languages: [go]
-    patterns:
-      - pattern-either:
-          - pattern: otr.NewConversation($PRIVKEY)
-          - pattern: |
-              $CONV, $ERR := otr.NewConversation($PRIVKEY)
-          - pattern: |
-              $CONV, _ := otr.NewConversation($PRIVKEY)
-          - pattern: otr.NewConversation(...)
+    mode: taint
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/otr"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/otr"
+                  ...
+          - pattern-either:
+              - pattern: |
+                  &otr.Conversation{...}
+              - pattern: |
+                  otr.Conversation{...}
+              - pattern: |
+                  ($CONV : *otr.Conversation)
+              - pattern: |
+                  ($CONV : otr.Conversation)
+              - pattern: |
+                  var $CONV otr.Conversation
+              - pattern: |
+                  var $CONV *otr.Conversation
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Conversation: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Conversation
+        from: $OBJ
+        to: $OBJ.Conversation
+      - pattern: |
+          &$TYPE{..., Conv: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Conv
+        from: $OBJ
+        to: $OBJ.Conv
+    pattern-sinks:
+      - patterns:
+          - pattern: $CONV.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>Send)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -23,52 +63,61 @@ rules:
         operation: encrypt
         protocolType: other
         protocolName: OTR
-        algorithmName: OTR
-        algorithmFamily: OTR
         library: golang.org/x/crypto/otr
-        api: otr.NewConversation
+        api: otr.Conversation.$func
 
-  - id: go.xcrypto.otr.send
-    message: Detected OTR message sending, protocol=OTR
+  - id: go.xcrypto.otr.decrypt
+    message: Detected OTR decryption operations
     severity: INFO
     languages: [go]
-    patterns:
-      - pattern-either:
-          - pattern: $CONV.Send($MESSAGE)
-          - pattern: |
-              $ENCRYPTED, $ERR := $CONV.Send($MESSAGE)
-          - pattern: |
-              $ENCRYPTED, _ := $CONV.Send($MESSAGE)
-          - pattern: $CONV.Send(...)
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      references:
-        - https://pkg.go.dev/golang.org/x/crypto/otr
-      crypto:
-        assetType: protocol
-        findingType: cipher
-        operation: encrypt
-        protocolType: other
-        protocolName: OTR
-        algorithmName: OTR
-        algorithmFamily: OTR
-        library: golang.org/x/crypto/otr
-        api: otr.Conversation.Send
-
-  - id: go.xcrypto.otr.receive
-    message: Detected OTR message receiving, protocol=OTR
-    severity: INFO
-    languages: [go]
-    patterns:
-      - pattern-either:
-          - pattern: $CONV.Receive($MESSAGE)
-          - pattern: |
-              $DECRYPTED, $ERR := $CONV.Receive($MESSAGE)
-          - pattern: |
-              $DECRYPTED, _ := $CONV.Receive($MESSAGE)
-          - pattern: $CONV.Receive(...)
+    mode: taint
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/otr"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/otr"
+                  ...
+          - pattern-either:
+              - pattern: |
+                  &otr.Conversation{...}
+              - pattern: |
+                  otr.Conversation{...}
+              - pattern: |
+                  ($CONV : *otr.Conversation)
+              - pattern: |
+                  ($CONV : otr.Conversation)
+              - pattern: |
+                  var $CONV otr.Conversation
+              - pattern: |
+                  var $CONV *otr.Conversation
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Conversation: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Conversation
+        from: $OBJ
+        to: $OBJ.Conversation
+      - pattern: |
+          &$TYPE{..., Conv: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Conv
+        from: $OBJ
+        to: $OBJ.Conv
+    pattern-sinks:
+      - patterns:
+          - pattern: $CONV.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>Receive)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -81,23 +130,61 @@ rules:
         operation: decrypt
         protocolType: other
         protocolName: OTR
-        algorithmName: OTR
-        algorithmFamily: OTR
         library: golang.org/x/crypto/otr
-        api: otr.Conversation.Receive
+        api: otr.Conversation.$func
 
-  - id: go.xcrypto.otr.authenticate
-    message: Detected OTR authentication, protocol=OTR
+  - id: go.xcrypto.otr.keyexchange
+    message: Detected OTR authentication
     severity: INFO
     languages: [go]
-    patterns:
-      - pattern-either:
-          - pattern: $CONV.Authenticate($QUESTION, $SECRET)
-          - pattern: |
-              $TOSEND, $ERR := $CONV.Authenticate($QUESTION, $SECRET)
-          - pattern: |
-              $TOSEND, _ := $CONV.Authenticate($QUESTION, $SECRET)
-          - pattern: $CONV.Authenticate(...)
+    mode: taint
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/otr"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/otr"
+                  ...
+          - pattern-either:
+              - pattern: |
+                  &otr.Conversation{...}
+              - pattern: |
+                  otr.Conversation{...}
+              - pattern: |
+                  ($CONV : *otr.Conversation)
+              - pattern: |
+                  ($CONV : otr.Conversation)
+              - pattern: |
+                  var $CONV otr.Conversation
+              - pattern: |
+                  var $CONV *otr.Conversation
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Conversation: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Conversation
+        from: $OBJ
+        to: $OBJ.Conversation
+      - pattern: |
+          &$TYPE{..., Conv: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Conv
+        from: $OBJ
+        to: $OBJ.Conv
+    pattern-sinks:
+      - patterns:
+          - pattern: $CONV.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>Authenticate)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -110,7 +197,72 @@ rules:
         operation: keyexchange
         protocolType: other
         protocolName: OTR
-        algorithmName: OTR
-        algorithmFamily: OTR
         library: golang.org/x/crypto/otr
-        api: otr.Conversation.Authenticate
+        api: otr.Conversation.$func
+
+  - id: go.xcrypto.otr.conversation-operations
+    message: Detected OTR conversation operations
+    severity: INFO
+    languages: [go]
+    mode: taint
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/otr"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/otr"
+                  ...
+          - pattern-either:
+              - pattern: |
+                  &otr.Conversation{...}
+              - pattern: |
+                  otr.Conversation{...}
+              - pattern: |
+                  ($CONV : *otr.Conversation)
+              - pattern: |
+                  ($CONV : otr.Conversation)
+              - pattern: |
+                  var $CONV otr.Conversation
+              - pattern: |
+                  var $CONV *otr.Conversation
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Conversation: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Conversation
+        from: $OBJ
+        to: $OBJ.Conversation
+      - pattern: |
+          &$TYPE{..., Conv: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Conv
+        from: $OBJ
+        to: $OBJ.Conv
+    pattern-sinks:
+      - patterns:
+          - pattern: $CONV.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>End|IsEncrypted|SMPQuestion)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: other
+        protocolType: other
+        protocolName: OTR
+        library: golang.org/x/crypto/otr
+        api: otr.Conversation.$func

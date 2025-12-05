@@ -2,32 +2,34 @@ rules:
   - id: go.xcrypto.md4.hash-usage
     message: Detected MD4 hash usage with algorithm=MD4, hash_algorithm=MD4
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: md4.New()
-          - pattern: "$HASHER := md4.New()
-
-              "
-          - pattern: var $HASHER hash.Hash = md4.New()
-          - pattern: $HASHER := hash.Hash(md4.New())
-          - pattern: md4.New
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/md4"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/md4"
+              ...
+      - pattern: md4.New(...)
     metadata:
       category: security
       subcategory: cryptography
       confidence: HIGH
-      cwe:
-        - CWE-327
+      cwe: [CWE-327]
       references:
         - https://pkg.go.dev/golang.org/x/crypto/md4
       crypto:
         assetType: algorithm
         findingType: hash
         operation: digest
-        primitive: hash
+        algorithmPrimitive: hash
         algorithmName: MD4
         algorithmFamily: MD4
-        parameterSetIdentifier: "128"
+        algorithmParameterSetIdentifier: "128"
         library: golang.org/x/crypto/md4
         api: md4.New

@@ -2,19 +2,21 @@ rules:
   - id: go.xcrypto.x509roots.fallback-import
     message: Detected X.509 fallback root certificates import, library=x509roots/fallback
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern-inside:
-              "import (\n    ...\n    _ \"golang.org/x/crypto/x509roots/fallback\"\
-              \n    ...\n)\n"
-          - pattern-inside:
-              "import (\n    _ \"golang.org/x/crypto/x509roots/fallback\"\n\
-              )\n"
-          - pattern: 'import _ "golang.org/x/crypto/x509roots/fallback"
-
-              '
+          - pattern-inside: |
+              import (
+                  ...
+                  _ "golang.org/x/crypto/x509roots/fallback"
+                  ...
+              )
+          - pattern-inside: |
+              import (
+                  _ "golang.org/x/crypto/x509roots/fallback"
+              )
+          - pattern: |
+              import _ "golang.org/x/crypto/x509roots/fallback"
     metadata:
       category: security
       subcategory: cryptography

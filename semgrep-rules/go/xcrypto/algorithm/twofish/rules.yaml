@@ -2,48 +2,37 @@ rules:
   - id: go.xcrypto.twofish.block-cipher
     message: Detected Twofish block cipher usage, algorithm=Twofish
     severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - patterns:
-              - pattern-either:
-                  - pattern: twofish.NewCipher(make([]byte, $SIZE))
-                  - pattern: |
-                      $CIPHER, $ERR := twofish.NewCipher(make([]byte, $SIZE))
-                  - pattern: |
-                      $CIPHER, _ := twofish.NewCipher(make([]byte, $SIZE))
-              - metavariable-regex:
-                  metavariable: $SIZE
-                  regex: "^(?<keysize>16|24|32)$"
-          - patterns:
-              - pattern-either:
-                  - pattern: |
-                      $KEY := make([]byte, $SIZE)
-                      ...
-                      twofish.NewCipher($KEY)
-                  - pattern: |
-                      $KEY := make([]byte, $SIZE)
-                      ...
-                      $CIPHER, $ERR := twofish.NewCipher($KEY)
-                  - pattern: |
-                      $KEY := make([]byte, $SIZE)
-                      ...
-                      $CIPHER, _ := twofish.NewCipher($KEY)
-              - metavariable-regex:
-                  metavariable: $SIZE
-                  regex: "^(?<keysize>16|24|32)$"
+    languages: [go]
+    pattern-either:
+      - patterns:
           - pattern-either:
-              - pattern: twofish.NewCipher($KEY)
-              - pattern: |
-                  $CIPHER, $ERR := twofish.NewCipher($KEY)
-              - pattern: |
-                  $CIPHER, _ := twofish.NewCipher($KEY)
-              - pattern: twofish.NewCipher(...)
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/twofish"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/twofish"
+                  ...
+          - pattern: twofish.NewCipher(make([]byte, $SIZE))
+          - metavariable-regex:
+              metavariable: $SIZE
+              regex: "^(?<keysize>16|24|32)$"
+      - patterns:
           - pattern-either:
-              - pattern: $VAR = twofish.NewCipher
-              - pattern: _ = twofish.NewCipher
-              - pattern: twofish.NewCipher
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/twofish"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/twofish"
+                  ...
+          - pattern: twofish.NewCipher(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -54,9 +43,9 @@ rules:
         assetType: algorithm
         findingType: cipher
         operation: encrypt
-        primitive: block-cipher
+        algorithmPrimitive: block-cipher
         algorithmName: Twofish
         algorithmFamily: Twofish
-        parameterSetIdentifier: $keysize
+        algorithmParameterSetIdentifier: $keysize
         library: golang.org/x/crypto/twofish
         api: twofish.NewCipher

@@ -1,26 +1,24 @@
 rules:
   - id: go.xcrypto.cryptobyte.usage
-    message:
-      Detected cryptobyte usage for encoding/decoding cryptographic data structures,
-      library=golang.org/x/crypto/cryptobyte
+    message: Detected cryptobyte usage for encoding/decoding cryptographic data structures
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: cryptobyte.NewBuilder($OUT)
-          - pattern: cryptobyte.String($DATA)
-          - pattern: "$BUILDER := cryptobyte.NewBuilder($OUT)
-
-              "
-          - pattern: "$STRING := cryptobyte.String($DATA)
-
-              "
-          - pattern: "var $STRING cryptobyte.String
-
-              "
-          - pattern: cryptobyte.NewBuilder(...)
-          - pattern: cryptobyte.String(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/cryptobyte"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/cryptobyte"
+              ...
+      - pattern: cryptobyte.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>NewBuilder|String)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -31,7 +29,5 @@ rules:
         assetType: other
         findingType: other
         operation: other
-        algorithmName: cryptobyte
-        algorithmFamily: cryptobyte
         library: golang.org/x/crypto/cryptobyte
-        api: cryptobyte.NewBuilder
+        api: cryptobyte.$func
