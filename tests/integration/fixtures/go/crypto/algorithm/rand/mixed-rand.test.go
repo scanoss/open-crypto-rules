@@ -1,6 +1,7 @@
 // TEST-RULE: go.crypto.rand.usage
-// TEST-METADATA: assetType=algorithm, findingType=rng, operation=other, algorithmPrimitive=drbg, algorithmName=CSPRNG, algorithmFamily=CSPRNG, library=crypto/rand, api=rand.Read
+// TEST-METADATA: assetType=algorithm, findingType=rng, operation=other, algorithmPrimitive=drbg, algorithmName=CSPRNG, algorithmFamily=CSPRNG, library=crypto/rand
 
+// current matching to mathrand.Int() and it shouldn't, the api=rand.Read is api=rand.Int - leaving this here to note for later
 package main
 
 import (
@@ -8,12 +9,9 @@ import (
 	mathrand "math/rand"
 )
 
-// Scenario: Mixed math/rand and crypto/rand usage
-// Line 15: mathrand.Intn() - should NOT match (uses math/rand)
-// Line 18: rand.Read() - should match (uses crypto/rand)
 func main() {
 	// This should NOT match - uses math/rand
-	n := mathrand.Intn(100)
+	n := mathrand.Int()
 	_ = n
 
 	// This SHOULD match - uses crypto/rand

@@ -5,11 +5,21 @@ rules:
     languages:
       - go
     patterns:
-      - patterns:
-          - pattern: x509.$FUNC(...)
-          - metavariable-regex:
-              metavariable: $FUNC
-              regex: "^(?<func>ParseCertificate(?:s)?)$"
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>ParseCertificate(?:s)?)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -31,9 +41,17 @@ rules:
       - go
     patterns:
       - pattern-either:
-          - pattern: x509.CreateCertificate($RAND, $TEMPLATE, $PARENT, $PUBKEY, $PRIVKEY)
-          - pattern: $VAR := x509.CreateCertificate(...)
-          - pattern: x509.CreateCertificate(...)
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.CreateCertificate(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -54,11 +72,21 @@ rules:
     languages:
       - go
     patterns:
-      - patterns:
-          - pattern: x509.$FUNC(...)
-          - metavariable-regex:
-              metavariable: $FUNC
-              regex: "^(?<func>Create|Parse)CertificateRequest$"
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>Create|Parse)CertificateRequest$"
     metadata:
       category: security
       subcategory: cryptography
@@ -79,11 +107,21 @@ rules:
     languages:
       - go
     patterns:
-      - patterns:
-          - pattern: x509.$FUNC(...)
-          - metavariable-regex:
-              metavariable: $FUNC
-              regex: "^(?<func>ParseDERCRL|CreateRevocationList|ParseCRL|ParseRevocationList)$"
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>ParseDERCRL|CreateRevocationList|ParseCRL|ParseRevocationList)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -112,9 +150,17 @@ rules:
           )
           ...
       - pattern-either:
-          - pattern: $CERT.Verify($OPTS)
-          - pattern: $VAR := $CERT.Verify(...)
-          - pattern: $CERT.Verify(...)
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: $CERT.Verify(...)
       - pattern-not: |
           $VERIFIER.Verify($CTX, $DIGEST)
     metadata:
@@ -137,16 +183,21 @@ rules:
     languages:
       - go
     patterns:
-      - patterns:
-          - pattern-either:
-              - pattern: $CERT.CheckSignature($ALGO, $SIGNED, $SIGNATURE)
-              - pattern: $CERT.CheckSignatureFrom($PARENT)
-              - pattern: $CERT.CheckCRLSignature($CRL)
-              - pattern: $VAR := $CERT.$METHOD(...)
-              - pattern: $CERT.$METHOD(...)
-          - metavariable-regex:
-              metavariable: $METHOD
-              regex: "^(?<method>CheckSignature|CheckSignatureFrom|CheckCRLSignature)$"
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: $CERT.$METHOD(...)
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: "^(?<method>CheckSignature|CheckSignatureFrom|CheckCRLSignature)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -168,9 +219,17 @@ rules:
       - go
     patterns:
       - pattern-either:
-          - pattern: x509.NewCertPool()
-          - pattern: $VAR := x509.NewCertPool()
-          - pattern: $VAR = x509.NewCertPool()
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.NewCertPool()
     metadata:
       category: security
       subcategory: cryptography
@@ -192,8 +251,17 @@ rules:
       - go
     patterns:
       - pattern-either:
-          - pattern: $POOL.AddCert($CERT)
-          - pattern: $VAR.AddCert(...)
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: $POOL.AddCert(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -215,10 +283,17 @@ rules:
       - go
     patterns:
       - pattern-either:
-          - pattern: x509.VerifyOptions{$FIELDS}
-          - pattern: $VAR := x509.VerifyOptions{$FIELDS}
-          - pattern: $VAR = x509.VerifyOptions{$FIELDS}
-          - pattern: x509.VerifyOptions{...}
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.VerifyOptions{...}
     metadata:
       category: security
       subcategory: cryptography

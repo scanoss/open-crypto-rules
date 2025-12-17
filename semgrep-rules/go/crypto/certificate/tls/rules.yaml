@@ -6,10 +6,8 @@ rules:
       - go
     patterns:
       - pattern-either:
-          - pattern: tls.LoadX509KeyPair($CERTFILE, $KEYFILE)
-          - pattern: tls.X509KeyPair($CERTPEM, $KEYPEM)
-          - pattern: $VAR := tls.LoadX509KeyPair(...)
-          - pattern: $VAR := tls.X509KeyPair(...)
+          - pattern: tls.LoadX509KeyPair(...)
+          - pattern: tls.X509KeyPair(...)
     metadata:
       category: security
       subcategory: cryptography
