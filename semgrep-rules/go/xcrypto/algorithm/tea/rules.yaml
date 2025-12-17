@@ -2,91 +2,109 @@ rules:
   - id: go.xcrypto.tea.block-cipher
     message: Detected TEA block cipher usage, algorithm=TEA
     severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - patterns:
-              - pattern-either:
-                  - pattern: tea.NewCipher(make([]byte, $KEYSIZE))
-                  - pattern: |
-                      $KEY := make([]byte, $KEYSIZE)
-                      ...
-                      tea.NewCipher($KEY)
-              - metavariable-regex:
-                  metavariable: $KEYSIZE
-                  regex: "^(?<keysize>16)$"
-          - pattern: tea.NewCipher($KEY)
-          - pattern: |
-              $CIPHER, $ERR := tea.NewCipher($KEY)
-          - pattern: |
-              $CIPHER, _ := tea.NewCipher($KEY)
+    languages: [go]
+    pattern-either:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/tea"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/tea"
+                  ...
+          - pattern: tea.NewCipher(make([]byte, $KEYSIZE))
+          - metavariable-regex:
+              metavariable: $KEYSIZE
+              regex: "^(?<keysize>16)$"
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/tea"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/tea"
+                  ...
           - pattern: tea.NewCipher(...)
     metadata:
       category: security
       subcategory: cryptography
       confidence: HIGH
-      cwe:
-        - CWE-327
+      cwe: [CWE-327]
       references:
         - https://pkg.go.dev/golang.org/x/crypto/tea
       crypto:
         assetType: algorithm
         findingType: cipher
         operation: encrypt
-        primitive: block-cipher
+        algorithmPrimitive: block-cipher
         algorithmName: TEA
         algorithmFamily: TEA
-        parameterSetIdentifier: $keysize
+        algorithmParameterSetIdentifier: $keysize
         library: golang.org/x/crypto/tea
         api: tea.NewCipher
 
   - id: go.xcrypto.tea.block-cipher-with-rounds
     message: Detected TEA block cipher usage with rounds=$rounds, algorithm=TEA
     severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - patterns:
-              - pattern-either:
-                  - pattern: tea.NewCipherWithRounds(make([]byte, $KEYSIZE), $ROUNDS)
-                  - pattern: |
-                      $KEY := make([]byte, $KEYSIZE)
-                      ...
-                      tea.NewCipherWithRounds($KEY, $ROUNDS)
-              - metavariable-regex:
-                  metavariable: $KEYSIZE
-                  regex: "^(?<keysize>16)$"
-              - metavariable-regex:
-                  metavariable: $ROUNDS
-                  regex: '^(?<rounds>\d+)$'
-          - patterns:
-              - pattern-either:
-                  - pattern: tea.NewCipherWithRounds($KEY, $ROUNDS)
-                  - pattern: |
-                      $CIPHER, $ERR := tea.NewCipherWithRounds($KEY, $ROUNDS)
-                  - pattern: |
-                      $CIPHER, _ := tea.NewCipherWithRounds($KEY, $ROUNDS)
-                  - pattern: tea.NewCipherWithRounds(...)
-              - metavariable-regex:
-                  metavariable: $ROUNDS
-                  regex: '^(?<rounds>\d+)$'
+    languages: [go]
+    pattern-either:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/tea"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/tea"
+                  ...
+          - pattern: tea.NewCipherWithRounds(make([]byte, $KEYSIZE), $ROUNDS)
+          - metavariable-regex:
+              metavariable: $KEYSIZE
+              regex: "^(?<keysize>16)$"
+          - metavariable-regex:
+              metavariable: $ROUNDS
+              regex: '^(?<rounds>\d+)$'
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/tea"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/tea"
+                  ...
+          - pattern: tea.NewCipherWithRounds($KEY, $ROUNDS)
+          - metavariable-regex:
+              metavariable: $ROUNDS
+              regex: '^(?<rounds>\d+)$'
     metadata:
       category: security
       subcategory: cryptography
       confidence: HIGH
-      cwe:
-        - CWE-327
+      cwe: [CWE-327]
       references:
         - https://pkg.go.dev/golang.org/x/crypto/tea
       crypto:
         assetType: algorithm
         findingType: cipher
         operation: encrypt
-        primitive: block-cipher
+        algorithmPrimitive: block-cipher
         algorithmName: TEA
         algorithmFamily: TEA
-        parameterSetIdentifier: $rounds
+        algorithmParameterSetIdentifier: $rounds
         library: golang.org/x/crypto/tea
         api: tea.NewCipherWithRounds

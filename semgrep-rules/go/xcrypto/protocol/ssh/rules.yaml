@@ -1,55 +1,24 @@
 rules:
-  - id: go.xcrypto.ssh.parse-private-key
-    message: Detected SSH private key parsing, protocol=SSH
+  - id: go.xcrypto.ssh.key-parsing
+    message: Detected SSH key parsing operations
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: ssh.ParsePrivateKey($KEY_DATA)
-          - pattern: ssh.ParsePrivateKeyWithPassphrase($KEY_DATA, $PASSPHRASE)
-          - pattern: ssh.ParseRawPrivateKey($KEY_DATA)
-          - pattern: ssh.ParseRawPrivateKeyWithPassphrase($KEY_DATA, $PASSPHRASE)
-          - pattern: ssh.ParseDSAPrivateKey($DER_DATA)
-          - pattern: "$RESULT, $ERR := ssh.ParsePrivateKey($KEY_DATA)
-
-              "
-          - pattern: "$RESULT, _ := ssh.ParsePrivateKey($KEY_DATA)
-
-              "
-          - pattern:
-              "$RESULT, $ERR := ssh.ParsePrivateKeyWithPassphrase($KEY_DATA, $PASSPHRASE)
-
-              "
-          - pattern:
-              "$RESULT, _ := ssh.ParsePrivateKeyWithPassphrase($KEY_DATA, $PASSPHRASE)
-
-              "
-          - pattern: "$RESULT, $ERR := ssh.ParseRawPrivateKey($KEY_DATA)
-
-              "
-          - pattern: "$RESULT, _ := ssh.ParseRawPrivateKey($KEY_DATA)
-
-              "
-          - pattern:
-              "$RESULT, $ERR := ssh.ParseRawPrivateKeyWithPassphrase($KEY_DATA, $PASSPHRASE)
-
-              "
-          - pattern:
-              "$RESULT, _ := ssh.ParseRawPrivateKeyWithPassphrase($KEY_DATA, $PASSPHRASE)
-
-              "
-          - pattern: "$RESULT, $ERR := ssh.ParseDSAPrivateKey($DER_DATA)
-
-              "
-          - pattern: "$RESULT, _ := ssh.ParseDSAPrivateKey($DER_DATA)
-
-              "
-          - pattern: ssh.ParsePrivateKey(...)
-          - pattern: ssh.ParsePrivateKeyWithPassphrase(...)
-          - pattern: ssh.ParseRawPrivateKey(...)
-          - pattern: ssh.ParseRawPrivateKeyWithPassphrase(...)
-          - pattern: ssh.ParseDSAPrivateKey(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ssh"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ssh"
+              ...
+      - pattern: ssh.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>ParsePrivateKey|ParsePrivateKeyWithPassphrase|ParseRawPrivateKey|ParseRawPrivateKeyWithPassphrase|ParseDSAPrivateKey|ParsePublicKey|ParseAuthorizedKey|ParseKnownHosts)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -62,43 +31,30 @@ rules:
         protocolName: SSH
         findingType: key_generation
         operation: keygen
-        algorithmName: SSH
-        algorithmFamily: SSH
         library: golang.org/x/crypto/ssh
-        api: ssh.ParsePrivateKey
+        api: ssh.$func
         materialSource: imported
 
-  - id: go.xcrypto.ssh.parse-public-key
-    message: Detected SSH public key parsing, protocol=SSH
+  - id: go.xcrypto.ssh.key-marshaling
+    message: Detected SSH key marshaling operations
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: ssh.ParsePublicKey($KEY_DATA)
-          - pattern: ssh.ParseAuthorizedKey($KEY_DATA)
-          - pattern: ssh.ParseKnownHosts($HOST_DATA)
-          - pattern: "$RESULT, $ERR := ssh.ParsePublicKey($KEY_DATA)
-
-              "
-          - pattern: "$RESULT, _ := ssh.ParsePublicKey($KEY_DATA)
-
-              "
-          - pattern: "$RESULT, $ERR := ssh.ParseAuthorizedKey($KEY_DATA)
-
-              "
-          - pattern: "$RESULT, _ := ssh.ParseAuthorizedKey($KEY_DATA)
-
-              "
-          - pattern: "$RESULT, $ERR := ssh.ParseKnownHosts($HOST_DATA)
-
-              "
-          - pattern: "$RESULT, _ := ssh.ParseKnownHosts($HOST_DATA)
-
-              "
-          - pattern: ssh.ParsePublicKey(...)
-          - pattern: ssh.ParseAuthorizedKey(...)
-          - pattern: ssh.ParseKnownHosts(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ssh"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ssh"
+              ...
+      - pattern: ssh.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>MarshalPrivateKey|MarshalPrivateKeyWithPassphrase|MarshalAuthorizedKey|NewPublicKey)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -111,96 +67,30 @@ rules:
         protocolName: SSH
         findingType: key_generation
         operation: keygen
-        algorithmName: SSH
-        algorithmFamily: SSH
         library: golang.org/x/crypto/ssh
-        api: ssh.ParsePublicKey
-        materialSource: imported
-
-  - id: go.xcrypto.ssh.marshal-key
-    message: Detected SSH key marshaling, protocol=SSH
-    severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - pattern: ssh.MarshalPrivateKey($KEY, $COMMENT)
-          - pattern: ssh.MarshalPrivateKeyWithPassphrase($KEY, $COMMENT, $PASSPHRASE)
-          - pattern: ssh.MarshalAuthorizedKey($KEY)
-          - pattern: "$RESULT, $ERR := ssh.MarshalPrivateKey($KEY, $COMMENT)
-
-              "
-          - pattern: "$RESULT, _ := ssh.MarshalPrivateKey($KEY, $COMMENT)
-
-              "
-          - pattern:
-              "$RESULT, $ERR := ssh.MarshalPrivateKeyWithPassphrase($KEY, $COMMENT,
-              $PASSPHRASE)
-
-              "
-          - pattern:
-              "$RESULT, _ := ssh.MarshalPrivateKeyWithPassphrase($KEY, $COMMENT,
-              $PASSPHRASE)
-
-              "
-          - pattern: "$RESULT := ssh.MarshalAuthorizedKey($KEY)
-
-              "
-          - pattern: ssh.MarshalPrivateKey(...)
-          - pattern: ssh.MarshalPrivateKeyWithPassphrase(...)
-          - pattern: ssh.MarshalAuthorizedKey(...)
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      references:
-        - https://pkg.go.dev/golang.org/x/crypto/ssh
-      crypto:
-        assetType: protocol
-        protocolType: ssh
-        protocolName: SSH
-        findingType: key_generation
-        operation: keygen
-        algorithmName: SSH
-        algorithmFamily: SSH
-        library: golang.org/x/crypto/ssh
-        api: ssh.MarshalPrivateKey
+        api: ssh.$func
         materialSource: generated
 
-  - id: go.xcrypto.ssh.new-signer
-    message: Detected SSH signer creation, protocol=SSH
+  - id: go.xcrypto.ssh.signing
+    message: Detected SSH signer creation
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: ssh.NewSignerFromKey($KEY)
-          - pattern: ssh.NewSignerFromSigner($SIGNER)
-          - pattern: ssh.NewCertSigner($CERT, $SIGNER)
-          - pattern: "$RESULT, $ERR := ssh.NewSignerFromKey($KEY)
-
-              "
-          - pattern: "$RESULT, _ := ssh.NewSignerFromKey($KEY)
-
-              "
-          - pattern: "$RESULT, $ERR := ssh.NewSignerFromSigner($SIGNER)
-
-              "
-          - pattern: "$RESULT, _ := ssh.NewSignerFromSigner($SIGNER)
-
-              "
-          - pattern: "$RESULT, $ERR := ssh.NewCertSigner($CERT, $SIGNER)
-
-              "
-          - pattern: "$RESULT, _ := ssh.NewCertSigner($CERT, $SIGNER)
-
-              "
-          - pattern: "$VAR = ssh.NewSignerFromSigner
-
-              "
-          - pattern: ssh.NewSignerFromKey(...)
-          - pattern: ssh.NewSignerFromSigner(...)
-          - pattern: ssh.NewCertSigner(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ssh"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ssh"
+              ...
+      - pattern: ssh.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>NewSignerFromKey|NewSignerFromSigner|NewCertSigner)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -213,28 +103,29 @@ rules:
         protocolName: SSH
         findingType: signature
         operation: sign
-        algorithmName: SSH
-        algorithmFamily: SSH
         library: golang.org/x/crypto/ssh
-        api: ssh.NewSignerFromKey
+        api: ssh.$func
 
   - id: go.xcrypto.ssh.fingerprint
-    message: Detected SSH fingerprint generation, protocol=SSH
+    message: Detected SSH fingerprint generation
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: ssh.FingerprintSHA256($PUBKEY)
-          - pattern: ssh.FingerprintLegacyMD5($PUBKEY)
-          - pattern: "$RESULT := ssh.FingerprintSHA256($PUBKEY)
-
-              "
-          - pattern: "$RESULT := ssh.FingerprintLegacyMD5($PUBKEY)
-
-              "
-          - pattern: ssh.FingerprintSHA256(...)
-          - pattern: ssh.FingerprintLegacyMD5(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ssh"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ssh"
+              ...
+      - pattern: ssh.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>FingerprintSHA256|FingerprintLegacyMD5)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -247,84 +138,29 @@ rules:
         protocolName: SSH
         findingType: key_generation
         operation: keygen
-        algorithmName: SHA256
-        algorithmFamily: SHA2
         library: golang.org/x/crypto/ssh
-        api: ssh.FingerprintSHA256
-
-  - id: go.xcrypto.ssh.new-public-key
-    message: Detected SSH public key creation, protocol=SSH
-    severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - pattern: ssh.NewPublicKey($PUBKEY)
-          - pattern: "$SSHKEY, $ERR := ssh.NewPublicKey($PUBKEY)
-
-              "
-          - pattern: "$SSHKEY, _ := ssh.NewPublicKey($PUBKEY)
-
-              "
-          - pattern: ssh.NewPublicKey(...)
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      references:
-        - https://pkg.go.dev/golang.org/x/crypto/ssh
-      crypto:
-        assetType: protocol
-        protocolType: ssh
-        protocolName: SSH
-        findingType: key_generation
-        operation: keygen
-        algorithmName: SSH
-        algorithmFamily: SSH
-        library: golang.org/x/crypto/ssh
-        api: ssh.NewPublicKey
-        materialSource: generated
+        api: ssh.$func
 
   - id: go.xcrypto.ssh.connection
-    message: Detected SSH connection, protocol=SSH
+    message: Detected SSH connection operations
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: ssh.Dial($NETWORK, $ADDRESS, $CONFIG)
-          - pattern: ssh.NewClientConn($CONN, $ADDRESS, $CONFIG)
-          - pattern: ssh.NewClient($CONN, $CHANS, $REQS)
-          - pattern: ssh.NewServerConn($CONN, $CONFIG)
-          - pattern: "$CLIENT, $ERR := ssh.Dial($NETWORK, $ADDRESS, $CONFIG)
-
-              "
-          - pattern: "$CLIENT, _ := ssh.Dial($NETWORK, $ADDRESS, $CONFIG)
-
-              "
-          - pattern:
-              "$CLIENT, $CHANS, $REQS, $ERR := ssh.NewClientConn($CONN, $ADDRESS,
-              $CONFIG)
-
-              "
-          - pattern:
-              "$CLIENT, _, _, _ := ssh.NewClientConn($CONN, $ADDRESS, $CONFIG)
-
-              "
-          - pattern: "$CLIENT := ssh.NewClient($CONN, $CHANS, $REQS)
-
-              "
-          - pattern:
-              "$SERVER, $CHANS, $REQS, $ERR := ssh.NewServerConn($CONN, $CONFIG)
-
-              "
-          - pattern: "$SERVER, _, _, _ := ssh.NewServerConn($CONN, $CONFIG)
-
-              "
-          - pattern: ssh.Dial(...)
-          - pattern: ssh.NewClient(...)
-          - pattern: ssh.NewClientConn(...)
-          - pattern: ssh.NewServerConn(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ssh"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ssh"
+              ...
+      - pattern: ssh.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>Dial|NewClientConn|NewClient|NewServerConn)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -337,7 +173,5 @@ rules:
         protocolName: SSH
         findingType: key_exchange
         operation: keyexchange
-        algorithmName: SSH
-        algorithmFamily: SSH
         library: golang.org/x/crypto/ssh
-        api: ssh.Dial
+        api: ssh.$func

@@ -2,19 +2,20 @@ rules:
   - id: go.xcrypto.pkcs12.decode
     message: Detected PKCS#12 decoding, protocol=PKCS#12
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: pkcs12.Decode($PFX, $PASSWORD)
-          - pattern:
-              "$PRIVATE_KEY, $CERT, $ERR := pkcs12.Decode($PFX, $PASSWORD)
-
-              "
-          - pattern: "$PRIVATE_KEY, $CERT, _ := pkcs12.Decode($PFX, $PASSWORD)
-
-              "
-          - pattern: pkcs12.Decode(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/pkcs12"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/pkcs12"
+              ...
+      - pattern: pkcs12.Decode(...)
     metadata:
       category: security
       subcategory: cryptography

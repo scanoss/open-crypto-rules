@@ -1,42 +1,32 @@
 rules:
   - id: go.xcrypto.blake2s.hash-usage
-    message: Detected BLAKE2s hash usage, algorithm=BLAKE2s-$size
+    message: Detected BLAKE2s hash usage
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/blake2s"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/blake2s"
+              ...
+      - pattern-either:
           - patterns:
-              - pattern-either:
-                  - pattern: blake2s.$FUNC($KEY)
-                  - pattern: |
-                      $HASHER, $ERR := blake2s.$FUNC($KEY)
-                  - pattern: |
-                      $HASHER, _ := blake2s.$FUNC($KEY)
-                  - pattern: blake2s.$FUNC(...)
+              - pattern: blake2s.$FUNC
               - metavariable-regex:
                   metavariable: $FUNC
-                  regex: "^New(?<size>128|256)$"
+                  regex: "^(?:New|Sum)(?<size>128|256)$"
           - patterns:
-              - pattern-either:
-                  - pattern: blake2s.$FUNC($DATA)
-                  - pattern: |
-                      $HASH := blake2s.$FUNC($DATA)
-                  - pattern: blake2s.$FUNC(...)
-              - metavariable-regex:
-                  metavariable: $FUNC
-                  regex: "^Sum(?<size>256)$"
-          - patterns:
-              - pattern-either:
-                  - pattern: blake2s.NewXOF($SIZE, $KEY)
-                  - pattern: |
-                      $XOF, $ERR := blake2s.NewXOF($SIZE, $KEY)
-                  - pattern: |
-                      $XOF, _ := blake2s.NewXOF($SIZE, $KEY)
-                  - pattern: blake2s.NewXOF(...)
+              - pattern: blake2s.NewXOF($SIZE, ...)
               - metavariable-regex:
                   metavariable: $SIZE
                   regex: '^(?<size>\d+)$'
+          - pattern: blake2s.NewXOF(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -47,9 +37,9 @@ rules:
         assetType: algorithm
         findingType: hash
         operation: digest
-        primitive: hash
+        algorithmPrimitive: hash
         algorithmName: BLAKE2s-$size
         algorithmFamily: BLAKE2s
-        parameterSetIdentifier: $size
+        algorithmParameterSetIdentifier: $size
         library: golang.org/x/crypto/blake2s
-        api: blake2s.New$size
+        api: blake2s.$FUNC

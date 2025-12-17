@@ -1,53 +1,38 @@
 rules:
   - id: go.xcrypto.blake2b.hash-usage
-    message: Detected BLAKE2b hash usage, algorithm=BLAKE2b-$size
+    message: Detected BLAKE2b hash usage
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/blake2b"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/blake2b"
+              ...
+      - pattern-either:
           - patterns:
-              - pattern-either:
-                  - pattern: blake2b.$FUNC($KEY)
-                  - pattern: |
-                      $HASHER, $ERR := blake2b.$FUNC($KEY)
-                  - pattern: |
-                      $HASHER, _ := blake2b.$FUNC($KEY)
-                  - pattern: blake2b.$FUNC(...)
+              - pattern: blake2b.$FUNC
               - metavariable-regex:
                   metavariable: $FUNC
-                  regex: "^New(?<size>256|384|512)$"
+                  regex: "^(?:New|Sum)(?<size>256|384|512)$"
           - patterns:
-              - pattern-either:
-                  - pattern: blake2b.$FUNC($DATA)
-                  - pattern: |
-                      $HASH := blake2b.$FUNC($DATA)
-                  - pattern: blake2b.$FUNC(...)
-              - metavariable-regex:
-                  metavariable: $FUNC
-                  regex: "^Sum(?<size>256|384|512)$"
-          - patterns:
-              - pattern-either:
-                  - pattern: blake2b.New($SIZE, $KEY)
-                  - pattern: |
-                      $HASHER, $ERR := blake2b.New($SIZE, $KEY)
-                  - pattern: |
-                      $HASHER, _ := blake2b.New($SIZE, $KEY)
-                  - pattern: blake2b.New(...)
+              - pattern: blake2b.New($SIZE, ...)
               - metavariable-regex:
                   metavariable: $SIZE
                   regex: '^(?<size>\d+)$'
           - patterns:
-              - pattern-either:
-                  - pattern: blake2b.NewXOF($SIZE, $KEY)
-                  - pattern: |
-                      $XOF, $ERR := blake2b.NewXOF($SIZE, $KEY)
-                  - pattern: |
-                      $XOF, _ := blake2b.NewXOF($SIZE, $KEY)
-                  - pattern: blake2b.NewXOF(...)
+              - pattern: blake2b.NewXOF($SIZE, ...)
               - metavariable-regex:
                   metavariable: $SIZE
                   regex: '^(?<size>\d+)$'
+          - pattern: blake2b.New(...)
+          - pattern: blake2b.NewXOF(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -58,9 +43,9 @@ rules:
         assetType: algorithm
         findingType: hash
         operation: digest
-        primitive: hash
+        algorithmPrimitive: hash
         algorithmName: BLAKE2b-$size
         algorithmFamily: BLAKE2b
-        parameterSetIdentifier: $size
+        algorithmParameterSetIdentifier: $size
         library: golang.org/x/crypto/blake2b
-        api: blake2b.New$size
+        api: blake2b.$FUNC

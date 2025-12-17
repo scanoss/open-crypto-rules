@@ -2,16 +2,25 @@ rules:
   - id: go.xcrypto.curve25519.key-exchange
     message: Detected X25519 key exchange operation, algorithm=X25519, curve=Curve25519
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
-      - patterns:
-          - pattern-either:
-              - pattern: curve25519.$FUNC($DST, $SCALAR, $POINT)
-              - pattern: curve25519.$FUNC($SCALAR, $POINT)
-          - metavariable-regex:
-              metavariable: $FUNC
-              regex: "^(ScalarMult|X25519)$"
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/curve25519"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/curve25519"
+              ...
+      - pattern-either:
+          - pattern: curve25519.$FUNC($DST, $SCALAR, $POINT)
+          - pattern: curve25519.$FUNC($SCALAR, $POINT)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>ScalarMult|X25519)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -22,20 +31,30 @@ rules:
         assetType: algorithm
         findingType: key_exchange
         operation: keyexchange
-        primitive: key-agree
+        algorithmPrimitive: key-agree
         algorithmName: X25519
         algorithmFamily: X25519
-        parameterSetIdentifier: X25519
+        algorithmParameterSetIdentifier: X25519
         library: golang.org/x/crypto/curve25519
-        api: curve25519.$FUNC
+        api: curve25519.$func
         ellipticCurve: Curve25519
 
   - id: go.xcrypto.curve25519.public-key-derivation
     message: Detected X25519 public key derivation, algorithm=X25519, curve=Curve25519
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/curve25519"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/curve25519"
+              ...
       - pattern: curve25519.ScalarBaseMult($DST, $SCALAR)
     metadata:
       category: security
@@ -47,10 +66,10 @@ rules:
         assetType: algorithm
         findingType: key_generation
         operation: keygen
-        primitive: key-agree
+        algorithmPrimitive: key-agree
         algorithmName: X25519
         algorithmFamily: X25519
-        parameterSetIdentifier: X25519
+        algorithmParameterSetIdentifier: X25519
         library: golang.org/x/crypto/curve25519
         api: curve25519.ScalarBaseMult
         ellipticCurve: Curve25519

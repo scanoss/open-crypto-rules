@@ -1,10 +1,16 @@
 rules:
-  - id: go.xcrypto.xtea.block-cipher
-    message: Detected XTEA block cipher usage, algorithm=XTEA
+  - id: go.xcrypto.xtea.key-generation
+    message: Detected XTEA key generation
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
+      - pattern-inside: |
+          import (
+            ...
+            "golang.org/x/crypto/xtea"
+            ...
+          )
+          ...
       - pattern-either:
           - patterns:
               - pattern-either:
@@ -17,60 +23,126 @@ rules:
                   metavariable: $KEYSIZE
                   regex: "^(?<keysize>16)$"
           - pattern: xtea.NewCipher($KEY)
-          - pattern: |
-              $CIPHER, $ERR := xtea.NewCipher($KEY)
-          - pattern: |
-              $CIPHER, _ := xtea.NewCipher($KEY)
-          - pattern: xtea.NewCipher(...)
-          - pattern: xtea.NewCipher
     metadata:
       category: security
       subcategory: cryptography
       confidence: HIGH
-      cwe:
-        - CWE-327
+      cwe: [CWE-327]
       references:
         - https://pkg.go.dev/golang.org/x/crypto/xtea
       crypto:
         assetType: algorithm
-        findingType: cipher
-        operation: encrypt
-        primitive: block-cipher
+        findingType: key_generation
+        operation: keygen
+        algorithmPrimitive: block-cipher
         algorithmName: XTEA
         algorithmFamily: XTEA
-        parameterSetIdentifier: $keysize
+        algorithmParameterSetIdentifier: $keysize
         library: golang.org/x/crypto/xtea
         api: xtea.NewCipher
 
-  - id: go.xcrypto.xtea.cipher-operation
-    message: Detected XTEA cipher operation, algorithm=XTEA, method=$method
+  - id: go.xcrypto.xtea.encrypt
+    message: Detected XTEA encryption
     severity: INFO
-    languages:
-      - go
-    patterns:
+    languages: [go]
+    mode: taint
+    pattern-sources:
       - patterns:
           - pattern-either:
-              - pattern: $CIPHER.$METHOD($DST, $SRC)
-              - pattern: |
-                  $CIPHER.$METHOD($DST, $SRC)
-              - pattern: $CIPHER.$METHOD(...)
-          - metavariable-regex:
-              metavariable: $METHOD
-              regex: "^(?<method>Encrypt|Decrypt)$"
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/xtea"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/xtea"
+                  ...
+          - pattern: xtea.NewCipher(...)
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Cipher: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Cipher
+        from: $OBJ
+        to: $OBJ.Cipher
+      - pattern: |
+          &$TYPE{..., XTEA: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.XTEA
+        from: $OBJ
+        to: $OBJ.XTEA
+    pattern-sinks:
+      - pattern: $CIPHER.Encrypt(...)
     metadata:
       category: security
       subcategory: cryptography
       confidence: HIGH
-      cwe:
-        - CWE-327
+      cwe: [CWE-327]
       references:
         - https://pkg.go.dev/golang.org/x/crypto/xtea
       crypto:
         assetType: algorithm
         findingType: cipher
         operation: encrypt
-        primitive: block-cipher
+        algorithmPrimitive: block-cipher
         algorithmName: XTEA
         algorithmFamily: XTEA
         library: golang.org/x/crypto/xtea
-        api: Cipher.$method
+        api: Cipher.Encrypt
+
+  - id: go.xcrypto.xtea.decrypt
+    message: Detected XTEA decryption
+    severity: INFO
+    languages: [go]
+    mode: taint
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/xtea"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/xtea"
+                  ...
+          - pattern: xtea.NewCipher(...)
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Cipher: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Cipher
+        from: $OBJ
+        to: $OBJ.Cipher
+      - pattern: |
+          &$TYPE{..., XTEA: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.XTEA
+        from: $OBJ
+        to: $OBJ.XTEA
+    pattern-sinks:
+      - pattern: $CIPHER.Decrypt(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327]
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/xtea
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: decrypt
+        algorithmPrimitive: block-cipher
+        algorithmName: XTEA
+        algorithmFamily: XTEA
+        library: golang.org/x/crypto/xtea
+        api: Cipher.Decrypt

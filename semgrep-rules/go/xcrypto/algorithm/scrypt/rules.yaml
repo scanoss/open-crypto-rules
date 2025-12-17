@@ -1,17 +1,27 @@
 rules:
   - id: go.xcrypto.scrypt.key-derivation
-    message: Detected scrypt key derivation with output length=$keylen bytes, algorithm=scrypt
+    message: Detected scrypt key derivation
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/scrypt"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/scrypt"
+              ...
       - pattern-either:
           - patterns:
               - pattern: scrypt.Key($PASSWORD, $SALT, $N, $R, $P, $KEY_LENGTH)
               - metavariable-regex:
                   metavariable: $KEY_LENGTH
                   regex: "^(?<keylen>16|24|32|64)$"
-          - pattern: scrypt.Key($PASSWORD, $SALT, $N, $R, $P, $KEY_LENGTH)
+          - pattern: scrypt.Key(...)
     metadata:
       category: security
       subcategory: cryptography
@@ -22,10 +32,10 @@ rules:
         assetType: algorithm
         findingType: kdf
         operation: keyderive
-        primitive: kdf
+        algorithmPrimitive: kdf
         algorithmName: scrypt
         algorithmFamily: scrypt
-        parameterSetIdentifier: $keylen
+        algorithmParameterSetIdentifier: $keylen
         library: golang.org/x/crypto/scrypt
         api: scrypt.Key
         materialSource: derived

@@ -1,19 +1,24 @@
 rules:
-  - id: go.xcrypto.ocsp.create-request
-    message: Detected OCSP request creation, protocol=OCSP
+  - id: go.xcrypto.ocsp.operations
+    message: Detected OCSP operations
     severity: INFO
-    languages:
-      - go
+    languages: [go]
     patterns:
       - pattern-either:
-          - pattern: ocsp.CreateRequest($CERT, $ISSUER, $OPTIONS)
-          - pattern: "$REQ, $ERR := ocsp.CreateRequest($CERT, $ISSUER, $OPTIONS)
-
-              "
-          - pattern: "$REQ, _ := ocsp.CreateRequest($CERT, $ISSUER, $OPTIONS)
-
-              "
-          - pattern: ocsp.CreateRequest(...)
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ocsp"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ocsp"
+              ...
+      - pattern: ocsp.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>CreateRequest|ParseRequest|CreateResponse|ParseResponse|ParseResponseForCert)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -27,23 +32,57 @@ rules:
         protocolName: OCSP
         protocolType: other
         library: golang.org/x/crypto/ocsp
-        api: ocsp.CreateRequest
+        api: ocsp.$func
 
-  - id: go.xcrypto.ocsp.parse-request
-    message: Detected OCSP request parsing, protocol=OCSP
+  - id: go.xcrypto.ocsp.verify
+    message: Detected OCSP response signature verification
     severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - pattern: ocsp.ParseRequest($REQ)
-          - pattern: "$REQOBJ, $ERR := ocsp.ParseRequest($REQ)
-
-              "
-          - pattern: "$REQOBJ, _ := ocsp.ParseRequest($REQ)
-
-              "
-          - pattern: ocsp.ParseRequest(...)
+    languages: [go]
+    mode: taint
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/ocsp"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/ocsp"
+                  ...
+          - pattern-either:
+              - pattern: ocsp.ParseResponse(...)
+              - pattern: ocsp.ParseResponseForCert(...)
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Response: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Response
+        from: $OBJ
+        to: $OBJ.Response
+      - pattern: |
+          &$TYPE{..., Resp: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Resp
+        from: $OBJ
+        to: $OBJ.Resp
+      - pattern: |
+          &$TYPE{..., OCSPResponse: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.OCSPResponse
+        from: $OBJ
+        to: $OBJ.OCSPResponse
+    pattern-sinks:
+      - patterns:
+          - pattern: $RESP.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>CheckSignatureFrom)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -57,130 +96,4 @@ rules:
         protocolName: OCSP
         protocolType: other
         library: golang.org/x/crypto/ocsp
-        api: ocsp.ParseRequest
-
-  - id: go.xcrypto.ocsp.create-response
-    message: Detected OCSP response creation, protocol=OCSP
-    severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - pattern: ocsp.CreateResponse($ISSUER, $RESPONDERCERT, $TEMPLATE, $SIGNER)
-          - pattern:
-              "$RESP, $ERR := ocsp.CreateResponse($ISSUER, $RESPONDERCERT, $TEMPLATE,
-              $SIGNER)
-
-              "
-          - pattern:
-              "$RESP, _ := ocsp.CreateResponse($ISSUER, $RESPONDERCERT, $TEMPLATE,
-              $SIGNER)
-
-              "
-          - pattern: ocsp.CreateResponse(...)
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      references:
-        - https://pkg.go.dev/golang.org/x/crypto/ocsp
-      crypto:
-        assetType: protocol
-        findingType: certificate_handling
-        operation: verify
-        protocolName: OCSP
-        protocolType: other
-        library: golang.org/x/crypto/ocsp
-        api: ocsp.CreateResponse
-
-  - id: go.xcrypto.ocsp.parse-response
-    message: Detected OCSP response parsing, protocol=OCSP
-    severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - pattern: ocsp.ParseResponse($RESP, $ISSUER)
-          - pattern: "$RESPOBJ, $ERR := ocsp.ParseResponse($RESP, $ISSUER)
-
-              "
-          - pattern: "$RESPOBJ, _ := ocsp.ParseResponse($RESP, $ISSUER)
-
-              "
-          - pattern: ocsp.ParseResponse(...)
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      references:
-        - https://pkg.go.dev/golang.org/x/crypto/ocsp
-      crypto:
-        assetType: protocol
-        findingType: certificate_handling
-        operation: verify
-        protocolName: OCSP
-        protocolType: other
-        library: golang.org/x/crypto/ocsp
-        api: ocsp.ParseResponse
-
-  - id: go.xcrypto.ocsp.parse-response-for-cert
-    message: Detected OCSP response parsing for specific certificate, protocol=OCSP
-    severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - pattern: ocsp.ParseResponseForCert($RESP, $CERT, $ISSUER)
-          - pattern:
-              "$RESPOBJ, $ERR := ocsp.ParseResponseForCert($RESP, $CERT, $ISSUER)
-
-              "
-          - pattern:
-              "$RESPOBJ, _ := ocsp.ParseResponseForCert($RESP, $CERT, $ISSUER)
-
-              "
-          - pattern: ocsp.ParseResponseForCert(...)
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      references:
-        - https://pkg.go.dev/golang.org/x/crypto/ocsp
-      crypto:
-        assetType: protocol
-        findingType: certificate_handling
-        operation: verify
-        protocolName: OCSP
-        protocolType: other
-        library: golang.org/x/crypto/ocsp
-        api: ocsp.ParseResponseForCert
-
-  - id: go.xcrypto.ocsp.check-signature
-    message: Detected OCSP response signature verification, protocol=OCSP
-    severity: INFO
-    languages:
-      - go
-    patterns:
-      - pattern-either:
-          - pattern: $RESPOBJ.CheckSignatureFrom($ISSUER)
-          - pattern: "$ERR := $RESPOBJ.CheckSignatureFrom($ISSUER)
-
-              "
-          - pattern: "_ = $RESPOBJ.CheckSignatureFrom($ISSUER)
-
-              "
-          - pattern: $RESPOBJ.CheckSignatureFrom(...)
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      references:
-        - https://pkg.go.dev/golang.org/x/crypto/ocsp
-      crypto:
-        assetType: protocol
-        findingType: certificate_handling
-        operation: verify
-        protocolName: OCSP
-        protocolType: other
-        library: golang.org/x/crypto/ocsp
-        api: Response.CheckSignatureFrom
+        api: ocsp.Response.$func
