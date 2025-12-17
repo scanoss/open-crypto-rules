@@ -104,10 +104,19 @@ rules:
     languages:
       - go
     patterns:
+      - pattern-inside: |
+          import (
+            ...
+            "crypto/x509"
+            ...
+          )
+          ...
       - pattern-either:
           - pattern: $CERT.Verify($OPTS)
           - pattern: $VAR := $CERT.Verify(...)
           - pattern: $CERT.Verify(...)
+      - pattern-not: |
+          $VERIFIER.Verify($CTX, $DIGEST)
     metadata:
       category: security
       subcategory: cryptography
