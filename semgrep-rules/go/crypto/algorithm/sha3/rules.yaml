@@ -5,13 +5,17 @@ rules:
     languages:
       - go
     patterns:
-      - patterns:
-          - pattern-either:
-              - pattern: sha3.$FUNC(...)
+      - pattern-either:
+          - patterns:
               - pattern: sha3.$FUNC
-          - metavariable-regex:
-              metavariable: $FUNC
-              regex: "^(?:New|Sum)(?<variant>224|256|384|512)$"
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^(?:New|Sum)(?<variant>224|256|384|512)$"
+          - patterns:
+              - pattern: crypto.$CONST
+              - metavariable-regex:
+                  metavariable: $CONST
+                  regex: "^SHA3_(?<variant>224|256|384|512)$"
     metadata:
       category: security
       subcategory: cryptography
@@ -25,7 +29,7 @@ rules:
         algorithmName: SHA-3-$variant
         algorithmFamily: SHA-3
         library: crypto/sha3
-        api: sha3.$FUNC
+        api: crypto.SHA3_$variant
         algorithmPrimitive: hash
         algorithmParameterSetIdentifier: $variant
 
@@ -35,13 +39,10 @@ rules:
     languages:
       - go
     patterns:
-      - patterns:
-          - pattern-either:
-              - pattern: sha3.$FUNC(...)
-              - pattern: sha3.$FUNC
-          - metavariable-regex:
-              metavariable: $FUNC
-              regex: "^(?:New|Sum)(?<shakevariant>SHAKE128|SHAKE256|CSHAKE128|CSHAKE256)$"
+      - pattern: sha3.$FUNC
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?:New|Sum)(?<shakevariant>(?:C?)SHAKE(?<variant>128|256))$"
     metadata:
       category: security
       subcategory: cryptography
@@ -55,6 +56,6 @@ rules:
         algorithmName: $shakevariant
         algorithmFamily: SHA-3
         library: crypto/sha3
-        api: sha3.$FUNC
+        api: $shakevariant
         algorithmPrimitive: xof
-        algorithmParameterSetIdentifier: $shakevariant
+        algorithmParameterSetIdentifier: $variant

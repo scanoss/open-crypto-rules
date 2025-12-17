@@ -6,30 +6,9 @@ rules:
       - go
     patterns:
       - pattern-either:
-          - pattern: md5.New()
-          - pattern: "$HASHER := md5.New()
-
-              "
-          - pattern: var $HASHER hash.Hash = md5.New()
-          - pattern: $HASHER := hash.Hash(md5.New())
-          - pattern: crypto.MD5.New()
-          - pattern: "$HASH_CONST := crypto.MD5
-
-              ...
-
-              $HASH_CONST.New()
-
-              "
-          - pattern: md5.Sum($DATA)
-          - pattern: "$HASH := md5.Sum($DATA)
-
-              "
           - pattern: md5.New
-          - pattern: crypto.MD5.New
-          - pattern: md5.Sum(...)
+          - pattern: md5.Sum
           - pattern: crypto.MD5
-          - pattern: $VAR := md5.Sum(...)
-          - pattern: $VAR := crypto.MD5
     metadata:
       category: security
       subcategory: cryptography
@@ -45,6 +24,6 @@ rules:
         algorithmName: MD5
         algorithmFamily: MD5
         library: crypto/md5
-        api: md5.New
+        api: crypto.MD5
         algorithmPrimitive: hash
         algorithmParameterSetIdentifier: "128"
