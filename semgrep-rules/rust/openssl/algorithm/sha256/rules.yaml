@@ -1,0 +1,44 @@
+rules:
+  - id: rust.openssl.sha256.hash-usage
+    message: Detected SHA-256 hash usage
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: sha::Sha256::new()
+                  - pattern: sha256(...)
+                  - pattern: MessageDigest::sha256()
+                  - pattern: Md::sha256()
+                  - pattern: md::Md::sha256()
+                  - pattern: MessageDigest::from_nid(Nid::SHA256)
+                  - pattern: Md::from_nid(Nid::SHA256)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+          - pattern: openssl::sha::sha256(...)
+          - pattern: openssl::sha::Sha256::new()
+          - pattern: openssl::hash::MessageDigest::sha256()
+          - pattern: openssl::md::Md::sha256()
+          - pattern: openssl::hash::MessageDigest::from_nid(openssl::nid::Nid::SHA256)
+          - pattern: openssl::md::Md::from_nid(openssl::nid::Nid::SHA256)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        algorithmName: SHA-256
+        algorithmFamily: SHA-2
+        library: openssl
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "256"
+

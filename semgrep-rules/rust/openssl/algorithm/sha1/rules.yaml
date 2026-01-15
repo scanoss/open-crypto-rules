@@ -1,0 +1,44 @@
+rules:
+  - id: rust.openssl.sha1.hash-usage
+    message: Detected SHA-1 hash usage
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: sha::Sha1::new()
+                  - pattern: sha1(...)
+                  - pattern: MessageDigest::sha1()
+                  - pattern: Md::sha1()
+                  - pattern: md::Md::sha1()
+                  - pattern: MessageDigest::from_nid(Nid::SHA1)
+                  - pattern: Md::from_nid(Nid::SHA1)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+          - pattern: openssl::sha::sha1(...)
+          - pattern: openssl::sha::Sha1::new()
+          - pattern: openssl::hash::MessageDigest::sha1()
+          - pattern: openssl::md::Md::sha1()
+          - pattern: openssl::hash::MessageDigest::from_nid(openssl::nid::Nid::SHA1)
+          - pattern: openssl::md::Md::from_nid(openssl::nid::Nid::SHA1)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: digest
+        algorithmName: SHA-1
+        algorithmFamily: SHA-1
+        library: openssl
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "160"
+

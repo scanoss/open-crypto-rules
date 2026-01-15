@@ -1,0 +1,55 @@
+rules:
+  - id: rust.native-tls.tls.add-root-certificate
+    message: Detected root certificate loading for TLS
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: $BUILDER.add_root_certificate($CERT)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: "native_tls"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/native-tls/
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: other
+        library: native-tls
+        materialSource: loaded
+
+  - id: rust.native-tls.tls.identity
+    message: Detected TLS identity (certificate and key) loading
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: $BUILDER.identity($IDENTITY)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: "native_tls"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/native-tls/
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: other
+        library: native-tls
+        materialSource: loaded
+
