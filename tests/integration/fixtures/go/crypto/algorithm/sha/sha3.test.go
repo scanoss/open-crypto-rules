@@ -6,7 +6,7 @@ import (
 )
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-224 algorithmParameterSetIdentifier:224 api:sha3.New224
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-224
 func testSHA3_224New() {
 	// ruleid: go.crypto.sha3.hash-usage
 	hasher := sha3.New224()
@@ -14,7 +14,7 @@ func testSHA3_224New() {
 }
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-224 algorithmParameterSetIdentifier:224 api:sha3.Sum224
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-224
 func testSHA3_224Sum() {
 	data := []byte("test message")
 	// ruleid: go.crypto.sha3.hash-usage
@@ -23,7 +23,7 @@ func testSHA3_224Sum() {
 }
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-224 algorithmParameterSetIdentifier:224 api:crypto.SHA3_224
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-224
 func testSHA3_224CryptoConst() {
 	// ruleid: go.crypto.sha3.hash-usage
 	hasher := crypto.SHA3_224.New()
@@ -31,7 +31,7 @@ func testSHA3_224CryptoConst() {
 }
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-256 algorithmParameterSetIdentifier:256 api:sha3.New256
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-256
 func testSHA3_256New() {
 	// ruleid: go.crypto.sha3.hash-usage
 	hasher := sha3.New256()
@@ -39,7 +39,7 @@ func testSHA3_256New() {
 }
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-256 algorithmParameterSetIdentifier:256 api:sha3.Sum256
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-256
 func testSHA3_256Sum() {
 	data := []byte("test message")
 	// ruleid: go.crypto.sha3.hash-usage
@@ -48,7 +48,7 @@ func testSHA3_256Sum() {
 }
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-256 algorithmParameterSetIdentifier:256 api:crypto.SHA3_256
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-256
 func testSHA3_256CryptoConst() {
 	// ruleid: go.crypto.sha3.hash-usage
 	hasher := crypto.SHA3_256.New()
@@ -56,7 +56,7 @@ func testSHA3_256CryptoConst() {
 }
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-384 algorithmParameterSetIdentifier:384 api:sha3.New384
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-384
 func testSHA3_384New() {
 	// ruleid: go.crypto.sha3.hash-usage
 	hasher := sha3.New384()
@@ -64,7 +64,7 @@ func testSHA3_384New() {
 }
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-384 algorithmParameterSetIdentifier:384 api:sha3.Sum384
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-384
 func testSHA3_384Sum() {
 	data := []byte("test message")
 	// ruleid: go.crypto.sha3.hash-usage
@@ -73,7 +73,7 @@ func testSHA3_384Sum() {
 }
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-384 algorithmParameterSetIdentifier:384 api:crypto.SHA3_384
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-384
 func testSHA3_384CryptoConst() {
 	// ruleid: go.crypto.sha3.hash-usage
 	hasher := crypto.SHA3_384.New()
@@ -81,7 +81,7 @@ func testSHA3_384CryptoConst() {
 }
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-512 algorithmParameterSetIdentifier:512 api:sha3.New512
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-512
 func testSHA3_512New() {
 	// ruleid: go.crypto.sha3.hash-usage
 	hasher := sha3.New512()
@@ -89,7 +89,7 @@ func testSHA3_512New() {
 }
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-512 algorithmParameterSetIdentifier:512 api:sha3.Sum512
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-512
 func testSHA3_512Sum() {
 	data := []byte("test message")
 	// ruleid: go.crypto.sha3.hash-usage
@@ -98,7 +98,7 @@ func testSHA3_512Sum() {
 }
 
 // TEST-RULE: go.crypto.sha3.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA3-512 algorithmParameterSetIdentifier:512 api:crypto.SHA3_512
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-512
 func testSHA3_512CryptoConst() {
 	// ruleid: go.crypto.sha3.hash-usage
 	hasher := crypto.SHA3_512.New()

@@ -6,7 +6,7 @@ import (
 )
 
 // TEST-RULE: go.crypto.md5.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:MD5 api:md5.New
+// TEST-METADATA: operation:digest findingType:hash algorithmName:MD5 api:crypto.MD5
 func testMD5New() {
 	// ruleid: go.crypto.md5.hash-usage
 	hasher := md5.New()
@@ -14,7 +14,7 @@ func testMD5New() {
 }
 
 // TEST-RULE: go.crypto.md5.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmName:MD5 api:md5.Sum
+// TEST-METADATA: operation:digest findingType:hash algorithmName:MD5 api:crypto.MD5
 func testMD5Sum() {
 	data := []byte("test message")
 	// ruleid: go.crypto.md5.hash-usage

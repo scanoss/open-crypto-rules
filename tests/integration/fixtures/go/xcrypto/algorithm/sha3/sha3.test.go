@@ -5,7 +5,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.sha3.hash
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-224 algorithmParameterSetIdentifier:224 api:sha3.New224
+// TEST-METADATA: operation:digest findingType:hash
 func testSHA3_224_New() {
 	// ruleid: go.xcrypto.sha3.hash
 	hasher := sha3.New224()
@@ -13,7 +13,7 @@ func testSHA3_224_New() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.hash
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-224 algorithmParameterSetIdentifier:224 api:sha3.Sum224
+// TEST-METADATA: operation:digest findingType:hash
 func testSHA3_224_Sum() {
 	data := []byte("test")
 	// ruleid: go.xcrypto.sha3.hash
@@ -22,7 +22,7 @@ func testSHA3_224_Sum() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.hash
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-256 algorithmParameterSetIdentifier:256 api:sha3.New256
+// TEST-METADATA: operation:digest findingType:hash
 func testSHA3_256_New() {
 	// ruleid: go.xcrypto.sha3.hash
 	hasher := sha3.New256()
@@ -30,7 +30,7 @@ func testSHA3_256_New() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.hash
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-256 algorithmParameterSetIdentifier:256 api:sha3.Sum256
+// TEST-METADATA: operation:digest findingType:hash
 func testSHA3_256_Sum() {
 	data := []byte("test")
 	// ruleid: go.xcrypto.sha3.hash
@@ -39,7 +39,7 @@ func testSHA3_256_Sum() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.hash
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-384 algorithmParameterSetIdentifier:384 api:sha3.New384
+// TEST-METADATA: operation:digest findingType:hash
 func testSHA3_384_New() {
 	// ruleid: go.xcrypto.sha3.hash
 	hasher := sha3.New384()
@@ -47,7 +47,7 @@ func testSHA3_384_New() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.hash
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-384 algorithmParameterSetIdentifier:384 api:sha3.Sum384
+// TEST-METADATA: operation:digest findingType:hash
 func testSHA3_384_Sum() {
 	data := []byte("test")
 	// ruleid: go.xcrypto.sha3.hash
@@ -56,7 +56,7 @@ func testSHA3_384_Sum() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.hash
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-512 algorithmParameterSetIdentifier:512 api:sha3.New512
+// TEST-METADATA: operation:digest findingType:hash
 func testSHA3_512_New() {
 	// ruleid: go.xcrypto.sha3.hash
 	hasher := sha3.New512()
@@ -64,7 +64,7 @@ func testSHA3_512_New() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.hash
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-3-512 algorithmParameterSetIdentifier:512 api:sha3.Sum512
+// TEST-METADATA: operation:digest findingType:hash
 func testSHA3_512_Sum() {
 	data := []byte("test")
 	// ruleid: go.xcrypto.sha3.hash
@@ -73,7 +73,7 @@ func testSHA3_512_Sum() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.legacy-keccak
-// TEST-METADATA: operation:digest findingType:hash algorithmName:Keccak-256 algorithmParameterSetIdentifier:256 api:sha3.NewLegacyKeccak256
+// TEST-METADATA: operation:digest findingType:hash
 func testLegacyKeccak256() {
 	// ruleid: go.xcrypto.sha3.legacy-keccak
 	hasher := sha3.NewLegacyKeccak256()
@@ -81,7 +81,7 @@ func testLegacyKeccak256() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.legacy-keccak
-// TEST-METADATA: operation:digest findingType:hash algorithmName:Keccak-512 algorithmParameterSetIdentifier:512 api:sha3.NewLegacyKeccak512
+// TEST-METADATA: operation:digest findingType:hash
 func testLegacyKeccak512() {
 	// ruleid: go.xcrypto.sha3.legacy-keccak
 	hasher := sha3.NewLegacyKeccak512()
@@ -89,7 +89,7 @@ func testLegacyKeccak512() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.shake
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHAKE-128 algorithmParameterSetIdentifier:128 api:sha3.NewShake128
+// TEST-METADATA: operation:digest findingType:hash
 func testSHAKE128_New() {
 	// ruleid: go.xcrypto.sha3.shake
 	shake := sha3.NewShake128()
@@ -97,7 +97,7 @@ func testSHAKE128_New() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.shake
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHAKE-128 algorithmParameterSetIdentifier:128 api:sha3.ShakeSum128
+// TEST-METADATA: operation:digest findingType:hash
 func testSHAKE128_Sum() {
 	var hash [32]byte
 	data := []byte("test")
@@ -106,7 +106,7 @@ func testSHAKE128_Sum() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.shake
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHAKE-256 algorithmParameterSetIdentifier:256 api:sha3.NewShake256
+// TEST-METADATA: operation:digest findingType:hash
 func testSHAKE256_New() {
 	// ruleid: go.xcrypto.sha3.shake
 	shake := sha3.NewShake256()
@@ -114,7 +114,7 @@ func testSHAKE256_New() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.shake
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHAKE-256 algorithmParameterSetIdentifier:256 api:sha3.ShakeSum256
+// TEST-METADATA: operation:digest findingType:hash
 func testSHAKE256_Sum() {
 	var hash [64]byte
 	data := []byte("test")
@@ -123,7 +123,7 @@ func testSHAKE256_Sum() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.cshake
-// TEST-METADATA: operation:digest findingType:hash algorithmName:cSHAKE-128 algorithmParameterSetIdentifier:128 api:sha3.NewCShake128
+// TEST-METADATA: operation:digest findingType:hash
 func testcSHAKE128() {
 	n := []byte("name")
 	s := []byte("customization")
@@ -134,7 +134,7 @@ func testcSHAKE128() {
 }
 
 // TEST-RULE: go.xcrypto.sha3.cshake
-// TEST-METADATA: operation:digest findingType:hash algorithmName:cSHAKE-256 algorithmParameterSetIdentifier:256 api:sha3.NewCShake256
+// TEST-METADATA: operation:digest findingType:hash
 func testcSHAKE256() {
 	n := []byte("name")
 	s := []byte("customization")

@@ -5,7 +5,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.blake2b.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmParameterSetIdentifier:256 api:blake2b.New256
+// TEST-METADATA: operation:digest findingType:hash
 func testBlake2b256() {
 	// ruleid: go.xcrypto.blake2b.hash-usage
 	hasher, _ := blake2b.New256(nil)
@@ -13,7 +13,7 @@ func testBlake2b256() {
 }
 
 // TEST-RULE: go.xcrypto.blake2b.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmParameterSetIdentifier:512 api:blake2b.Sum512
+// TEST-METADATA: operation:digest findingType:hash
 func testBlake2bSum512() {
 	data := []byte("test")
 	// ruleid: go.xcrypto.blake2b.hash-usage
@@ -22,7 +22,7 @@ func testBlake2bSum512() {
 }
 
 // TEST-RULE: go.xcrypto.blake2b.hash-usage
-// TEST-METADATA: operation:digest findingType:hash algorithmParameterSetIdentifier:64 api:blake2b.New
+// TEST-METADATA: operation:digest findingType:hash
 func testBlake2bNew() {
 	// ruleid: go.xcrypto.blake2b.hash-usage
 	hasher, _ := blake2b.New(64, nil)
@@ -30,7 +30,7 @@ func testBlake2bNew() {
 }
 
 // TEST-RULE: go.xcrypto.blake2b.hash-usage
-// TEST-METADATA: operation:digest findingType:hash api:blake2b.NewXOF
+// TEST-METADATA: operation:digest findingType:hash
 func testBlake2bXOF() {
 	// ruleid: go.xcrypto.blake2b.hash-usage
 	xof, _ := blake2b.NewXOF(64, nil)

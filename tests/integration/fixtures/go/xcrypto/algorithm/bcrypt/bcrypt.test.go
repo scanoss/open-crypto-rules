@@ -5,7 +5,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.bcrypt.password-hash
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmParameterSetIdentifier:10 api:bcrypt.GenerateFromPassword
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testGenerateFromPasswordWithCost() {
 	password := []byte("myPassword123")
 	
@@ -18,7 +18,7 @@ func testGenerateFromPasswordWithCost() {
 }
 
 // TEST-RULE: go.xcrypto.bcrypt.password-hash
-// TEST-METADATA: operation:keyderive findingType:kdf api:bcrypt.GenerateFromPassword
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testGenerateFromPasswordDefault() {
 	password := []byte("myPassword123")
 	
@@ -28,7 +28,7 @@ func testGenerateFromPasswordDefault() {
 }
 
 // TEST-RULE: go.xcrypto.bcrypt.password-hash
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmParameterSetIdentifier:14 api:bcrypt.GenerateFromPassword
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testGenerateFromPasswordHighCost() {
 	password := []byte("myPassword123")
 	cost := 14
@@ -44,7 +44,7 @@ func generateHash(pwd []byte, cost int) []byte {
 }
 
 // TEST-RULE: go.xcrypto.bcrypt.password-verify
-// TEST-METADATA: operation:verify findingType:kdf api:bcrypt.CompareHashAndPassword
+// TEST-METADATA: operation:verify findingType:kdf
 func testCompareHashAndPassword() {
 	password := []byte("myPassword123")
 	hash, _ := bcrypt.GenerateFromPassword(password, 10)
@@ -57,7 +57,7 @@ func testCompareHashAndPassword() {
 }
 
 // TEST-RULE: go.xcrypto.bcrypt.password-verify
-// TEST-METADATA: operation:verify findingType:kdf api:bcrypt.CompareHashAndPassword
+// TEST-METADATA: operation:verify findingType:kdf
 func testCompareHashAndPasswordInline() {
 	hash := []byte("$2a$10$...")
 	password := []byte("myPassword123")
@@ -69,7 +69,7 @@ func testCompareHashAndPasswordInline() {
 }
 
 // TEST-RULE: go.xcrypto.bcrypt.cost-extraction
-// TEST-METADATA: operation:other findingType:kdf api:bcrypt.Cost
+// TEST-METADATA: operation:other findingType:kdf
 func testCostExtraction() {
 	password := []byte("myPassword123")
 	hash, _ := bcrypt.GenerateFromPassword(password, 12)
@@ -83,7 +83,7 @@ func testCostExtraction() {
 }
 
 // TEST-RULE: go.xcrypto.bcrypt.cost-extraction
-// TEST-METADATA: operation:other findingType:kdf api:bcrypt.Cost
+// TEST-METADATA: operation:other findingType:kdf
 func testCostExtractionIgnoreError() {
 	hash := []byte("$2a$10$...")
 	

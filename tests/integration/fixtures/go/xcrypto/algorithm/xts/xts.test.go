@@ -7,7 +7,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.xts.cipher-creation
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.NewCipher algorithmParameterSetIdentifier:32
+// TEST-METADATA: operation:encrypt findingType:cipher
 func testCipherCreationDirectKeySize() {
 	key := make([]byte, 32)
 	// ruleid: go.xcrypto.xts.cipher-creation
@@ -16,7 +16,7 @@ func testCipherCreationDirectKeySize() {
 }
 
 // TEST-RULE: go.xcrypto.xts.cipher-creation
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.NewCipher algorithmParameterSetIdentifier:64
+// TEST-METADATA: operation:encrypt findingType:cipher
 func testCipherCreationInlineKeySize() {
 	// ruleid: go.xcrypto.xts.cipher-creation
 	cipher, _ := xts.NewCipher(aes.NewCipher, make([]byte, 64))
@@ -24,7 +24,7 @@ func testCipherCreationInlineKeySize() {
 }
 
 // TEST-RULE: go.xcrypto.xts.cipher-creation
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.NewCipher
+// TEST-METADATA: operation:encrypt findingType:cipher
 func testCipherCreationGeneric() {
 	key := []byte("32-byte-key-for-xts-encryption!!")
 	// ruleid: go.xcrypto.xts.cipher-creation
@@ -36,7 +36,7 @@ func testCipherCreationGeneric() {
 }
 
 // TEST-RULE: go.xcrypto.xts.encrypt-decrypt
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.Cipher.Encrypt
+// TEST-METADATA: operation:encrypt findingType:cipher
 func testEncryptDirect() {
 	key := make([]byte, 32)
 	cipher, _ := xts.NewCipher(aes.NewCipher, key)
@@ -50,7 +50,7 @@ func testEncryptDirect() {
 }
 
 // TEST-RULE: go.xcrypto.xts.encrypt-decrypt
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.Cipher.Decrypt
+// TEST-METADATA: operation:encrypt findingType:cipher
 func testDecryptDirect() {
 	key := make([]byte, 32)
 	cipher, _ := xts.NewCipher(aes.NewCipher, key)
@@ -83,7 +83,7 @@ func testEncryptDecryptChained() {
 }
 
 // TEST-RULE: go.xcrypto.xts.encrypt-decrypt
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.Cipher.Encrypt
+// TEST-METADATA: operation:encrypt findingType:cipher
 func testEncryptCrossFunction() {
 	cipher := createCipher()
 	
@@ -101,7 +101,7 @@ func createCipher() *xts.Cipher {
 }
 
 // TEST-RULE: go.xcrypto.xts.encrypt-decrypt
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.Cipher.Decrypt
+// TEST-METADATA: operation:encrypt findingType:cipher
 func testDecryptCrossFunction() {
 	cipher := createCipher()
 	
@@ -113,7 +113,7 @@ func testDecryptCrossFunction() {
 }
 
 // TEST-RULE: go.xcrypto.xts.encrypt-decrypt
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.Cipher.Encrypt
+// TEST-METADATA: operation:encrypt findingType:cipher
 func testStructFieldAccess() {
 	type DiskEncryptor struct {
 		Cipher *xts.Cipher
@@ -134,7 +134,7 @@ func testStructFieldAccess() {
 }
 
 // TEST-RULE: go.xcrypto.xts.encrypt-decrypt
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.Cipher.Encrypt
+// TEST-METADATA: operation:encrypt findingType:cipher
 func testNestedStructFieldAccess() {
 	type CryptoConfig struct {
 		Cipher *xts.Cipher

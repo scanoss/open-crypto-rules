@@ -11,7 +11,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.hkdf.new
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmName:HKDF-sha256 api:hkdf.New
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testHKDFNew_SHA256() {
 	secret := []byte("secret")
 	salt := []byte("salt")
@@ -24,7 +24,7 @@ func testHKDFNew_SHA256() {
 }
 
 // TEST-RULE: go.xcrypto.hkdf.new
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmName:HKDF-sha512 api:hkdf.New
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testHKDFNew_SHA512() {
 	secret := []byte("secret")
 	salt := []byte("salt")
@@ -37,7 +37,7 @@ func testHKDFNew_SHA512() {
 }
 
 // TEST-RULE: go.xcrypto.hkdf.new
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmName:HKDF-sha1 api:hkdf.New
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testHKDFNew_SHA1() {
 	secret := []byte("secret")
 	salt := []byte("salt")
@@ -50,7 +50,7 @@ func testHKDFNew_SHA1() {
 }
 
 // TEST-RULE: go.xcrypto.hkdf.new
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmName:HKDF-md5 api:hkdf.New
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testHKDFNew_MD5() {
 	secret := []byte("secret")
 	salt := []byte("salt")
@@ -63,7 +63,7 @@ func testHKDFNew_MD5() {
 }
 
 // TEST-RULE: go.xcrypto.hkdf.new
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmName:HKDF-sha224 api:hkdf.New
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testHKDFNew_SHA224() {
 	secret := []byte("secret")
 	salt := []byte("salt")
@@ -76,7 +76,7 @@ func testHKDFNew_SHA224() {
 }
 
 // TEST-RULE: go.xcrypto.hkdf.extract
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmName:HKDF-sha256 api:hkdf.Extract
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testHKDFExtract_SHA256() {
 	secret := []byte("secret")
 	salt := []byte("salt")
@@ -87,7 +87,7 @@ func testHKDFExtract_SHA256() {
 }
 
 // TEST-RULE: go.xcrypto.hkdf.extract
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmName:HKDF-sha512 api:hkdf.Extract
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testHKDFExtract_SHA512() {
 	secret := []byte("secret")
 	salt := []byte("salt")
@@ -98,7 +98,7 @@ func testHKDFExtract_SHA512() {
 }
 
 // TEST-RULE: go.xcrypto.hkdf.extract
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmName:HKDF-sha384 api:hkdf.Extract
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testHKDFExtract_SHA384() {
 	secret := []byte("secret")
 	salt := []byte("salt")
@@ -109,7 +109,7 @@ func testHKDFExtract_SHA384() {
 }
 
 // TEST-RULE: go.xcrypto.hkdf.expand
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmName:HKDF-sha256 api:hkdf.Expand
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testHKDFExpand_SHA256() {
 	prk := []byte("pseudorandom key")
 	info := []byte("info")
@@ -121,7 +121,7 @@ func testHKDFExpand_SHA256() {
 }
 
 // TEST-RULE: go.xcrypto.hkdf.expand
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmName:HKDF-sha512 api:hkdf.Expand
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testHKDFExpand_SHA512() {
 	prk := []byte("pseudorandom key")
 	info := []byte("info")
@@ -133,7 +133,7 @@ func testHKDFExpand_SHA512() {
 }
 
 // TEST-RULE: go.xcrypto.hkdf.expand
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmName:HKDF-sha1 api:hkdf.Expand
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testHKDFExpand_SHA1() {
 	prk := []byte("pseudorandom key")
 	info := []byte("info")

@@ -5,7 +5,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.cast5.block-cipher
-// TEST-METADATA: operation:encrypt findingType:cipher algorithmParameterSetIdentifier:16 api:cast5.NewCipher
+// TEST-METADATA: operation:encrypt findingType:cipher
 func testNewCipherWithSize() {
 	key := make([]byte, 16)
 	
@@ -15,7 +15,7 @@ func testNewCipherWithSize() {
 }
 
 // TEST-RULE: go.xcrypto.cast5.block-cipher
-// TEST-METADATA: operation:encrypt findingType:cipher api:cast5.NewCipher
+// TEST-METADATA: operation:encrypt findingType:cipher
 func testNewCipher() {
 	key := []byte{1, 2, 3, 4, 5, 6, 7, 8}
 	

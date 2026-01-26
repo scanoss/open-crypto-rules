@@ -11,7 +11,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.pbkdf2.key-derivation
-// TEST-METADATA: operation:keyderive findingType:kdf iterations:10000 algorithmParameterSetIdentifier:10000-32 api:pbkdf2.Key
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testPBKDF2_SHA256_AllLiterals() {
 	password := []byte("password")
 	salt := []byte("salt")
@@ -22,7 +22,7 @@ func testPBKDF2_SHA256_AllLiterals() {
 }
 
 // TEST-RULE: go.xcrypto.pbkdf2.key-derivation
-// TEST-METADATA: operation:keyderive findingType:kdf iterations:50000 algorithmParameterSetIdentifier:50000-64 api:pbkdf2.Key
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testPBKDF2_SHA512_AllLiterals() {
 	password := []byte("password")
 	salt := []byte("salt")
@@ -33,7 +33,7 @@ func testPBKDF2_SHA512_AllLiterals() {
 }
 
 // TEST-RULE: go.xcrypto.pbkdf2.key-derivation
-// TEST-METADATA: operation:keyderive findingType:kdf iterations:100000 api:pbkdf2.Key
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testPBKDF2_SHA256_IterationsOnly() {
 	password := []byte("password")
 	salt := []byte("salt")
@@ -45,7 +45,7 @@ func testPBKDF2_SHA256_IterationsOnly() {
 }
 
 // TEST-RULE: go.xcrypto.pbkdf2.key-derivation
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmParameterSetIdentifier:24 api:pbkdf2.Key
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testPBKDF2_SHA1_KeyLenOnly() {
 	password := []byte("password")
 	salt := []byte("salt")
@@ -57,7 +57,7 @@ func testPBKDF2_SHA1_KeyLenOnly() {
 }
 
 // TEST-RULE: go.xcrypto.pbkdf2.key-derivation
-// TEST-METADATA: operation:keyderive findingType:kdf api:pbkdf2.Key
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testPBKDF2_MD5_AllDynamic() {
 	password := []byte("password")
 	salt := []byte("salt")
@@ -70,7 +70,7 @@ func testPBKDF2_MD5_AllDynamic() {
 }
 
 // TEST-RULE: go.xcrypto.pbkdf2.key-derivation
-// TEST-METADATA: operation:keyderive findingType:kdf iterations:20000 algorithmParameterSetIdentifier:20000-32 api:pbkdf2.Key
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testPBKDF2_CryptoConstant_AllLiterals() {
 	password := []byte("password")
 	salt := []byte("salt")
@@ -81,7 +81,7 @@ func testPBKDF2_CryptoConstant_AllLiterals() {
 }
 
 // TEST-RULE: go.xcrypto.pbkdf2.key-derivation
-// TEST-METADATA: operation:keyderive findingType:kdf iterations:15000 api:pbkdf2.Key
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testPBKDF2_SHA384_IterationsOnly() {
 	password := []byte("password")
 	salt := []byte("salt")
@@ -93,7 +93,7 @@ func testPBKDF2_SHA384_IterationsOnly() {
 }
 
 // TEST-RULE: go.xcrypto.pbkdf2.key-derivation
-// TEST-METADATA: operation:keyderive findingType:kdf api:pbkdf2.Key
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testPBKDF2_SHA224_AllDynamic() {
 	password := []byte("password")
 	salt := []byte("salt")

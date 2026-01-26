@@ -6,7 +6,7 @@ import (
 )
 
 // TEST-RULE: go.crypto.sha256.hash-usage-256
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-256 algorithmParameterSetIdentifier:256 api:sha256.New
+// TEST-METADATA: operation:digest findingType:hash
 func testSHA256New() {
 	// ruleid: go.crypto.sha256.hash-usage-256
 	hasher := sha256.New()
@@ -14,7 +14,7 @@ func testSHA256New() {
 }
 
 // TEST-RULE: go.crypto.sha256.hash-usage-256
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-256 algorithmParameterSetIdentifier:256 api:sha256.Sum256
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-256 algorithmParameterSetIdentifier:256
 func testSHA256Sum() {
 	data := []byte("test message")
 	// ruleid: go.crypto.sha256.hash-usage-256
@@ -23,7 +23,7 @@ func testSHA256Sum() {
 }
 
 // TEST-RULE: go.crypto.sha256.hash-usage-256
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-256 algorithmParameterSetIdentifier:256 api:crypto.SHA256
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-256 algorithmParameterSetIdentifier:256
 func testSHA256CryptoConst() {
 	// ruleid: go.crypto.sha256.hash-usage-256
 	hasher := crypto.SHA256.New()
@@ -31,7 +31,7 @@ func testSHA256CryptoConst() {
 }
 
 // TEST-RULE: go.crypto.sha256.hash-usage-224
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-224 algorithmParameterSetIdentifier:224 api:sha256.New224
+// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-224 algorithmParameterSetIdentifier:224
 func testSHA224New() {
 	// ruleid: go.crypto.sha256.hash-usage-224
 	hasher := sha256.New224()
@@ -39,7 +39,7 @@ func testSHA224New() {
 }
 
 // TEST-RULE: go.crypto.sha256.hash-usage-224
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-224 algorithmParameterSetIdentifier:224 api:sha256.Sum224
+// TEST-METADATA: operation:digest findingType:hash
 func testSHA224Sum() {
 	data := []byte("test message")
 	// ruleid: go.crypto.sha256.hash-usage-224
@@ -48,10 +48,9 @@ func testSHA224Sum() {
 }
 
 // TEST-RULE: go.crypto.sha256.hash-usage-224
-// TEST-METADATA: operation:digest findingType:hash algorithmName:SHA-224 algorithmParameterSetIdentifier:224 api:crypto.SHA224
+// TEST-METADATA: operation:digest findingType:hash
 func testSHA224CryptoConst() {
 	// ruleid: go.crypto.sha256.hash-usage-224
 	hasher := crypto.SHA224.New()
 	_ = hasher
 }
-

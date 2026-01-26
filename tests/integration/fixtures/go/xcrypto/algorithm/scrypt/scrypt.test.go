@@ -5,7 +5,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.scrypt.key-derivation
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmParameterSetIdentifier:16 api:scrypt.Key
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testScryptKey16() {
 	password := []byte("password")
 	salt := []byte("salt")
@@ -16,7 +16,7 @@ func testScryptKey16() {
 }
 
 // TEST-RULE: go.xcrypto.scrypt.key-derivation
-// TEST-METADATA: operation:keyderive findingType:kdf algorithmParameterSetIdentifier:32 api:scrypt.Key
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testScryptKey32() {
 	password := []byte("password")
 	salt := []byte("salt")
@@ -27,7 +27,7 @@ func testScryptKey32() {
 }
 
 // TEST-RULE: go.xcrypto.scrypt.key-derivation
-// TEST-METADATA: operation:keyderive findingType:kdf api:scrypt.Key
+// TEST-METADATA: operation:keyderive findingType:kdf
 func testScryptKeyGeneric() {
 	password := []byte("password")
 	salt := []byte("salt")

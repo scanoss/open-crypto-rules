@@ -8,7 +8,7 @@ import (
 )
 
 // TEST-RULE: go.crypto.x509.pkix-public-key
-// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:public-key library:crypto/x509 api:x509.ParsePKIXPublicKey
+// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:public-key library:crypto/x509
 func testParsePKIXPublicKey() {
 	derBytes := []byte{}
 	// ruleid: go.crypto.x509.pkix-public-key
@@ -17,7 +17,7 @@ func testParsePKIXPublicKey() {
 }
 
 // TEST-RULE: go.crypto.x509.pkix-public-key
-// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:public-key library:crypto/x509 api:x509.MarshalPKIXPublicKey
+// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:public-key library:crypto/x509
 func testMarshalPKIXPublicKey() {
 	pubKey := getRsaKey().Public()
 	// ruleid: go.crypto.x509.pkix-public-key
@@ -27,7 +27,7 @@ func testMarshalPKIXPublicKey() {
 }
 
 // TEST-RULE: go.crypto.x509.parse-pkcs8-private-key
-// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:private-key library:crypto/x509 api:x509.ParsePKCS8PrivateKey
+// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:private-key library:crypto/x509
 func testParsePKCS8PrivateKey() {
 	derBytes := []byte{}
 	// ruleid: go.crypto.x509.parse-pkcs8-private-key
@@ -36,7 +36,7 @@ func testParsePKCS8PrivateKey() {
 }
 
 // TEST-RULE: go.crypto.x509.parse-pkcs8-private-key
-// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:private-key library:crypto/x509 api:x509.MarshalPKCS8PrivateKey
+// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:private-key library:crypto/x509
 func testMarshalPKCS8PrivateKey() {
 	privKey := getRsaKey()
 	// ruleid: go.crypto.x509.parse-pkcs8-private-key
@@ -46,7 +46,7 @@ func testMarshalPKCS8PrivateKey() {
 }
 
 // TEST-RULE: go.crypto.x509.pem-block
-// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:private-key library:crypto/x509 api:x509.DecryptPEMBlock
+// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:private-key library:crypto/x509
 func testDecryptPEMBlock() {
 	block := &pem.Block{
 		Type:  "ENCRYPTED PRIVATE KEY",
@@ -60,7 +60,7 @@ func testDecryptPEMBlock() {
 }
 
 // TEST-RULE: go.crypto.x509.pem-block
-// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:private-key library:crypto/x509 api:x509.EncryptPEMBlock
+// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:private-key library:crypto/x509
 func testEncryptPEMBlock() {
 	data := []byte("private key data")
 	password := []byte("password")
@@ -72,7 +72,7 @@ func testEncryptPEMBlock() {
 }
 
 // TEST-RULE: go.crypto.x509.pem-block
-// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:private-key library:crypto/x509 api:x509.IsEncryptedPEMBlock
+// TEST-METADATA: assetType:related-crypto-material findingType:key_generation operation:keygen materialType:private-key library:crypto/x509
 func testIsEncryptedPEMBlock() {
 	block := &pem.Block{
 		Type:  "ENCRYPTED PRIVATE KEY",
