@@ -4,14 +4,15 @@ rules:
     severity: INFO
     languages:
       - go
-    patterns:
-      - pattern-either:
-          - patterns:
-              - pattern: ecdsa.GenerateKey(elliptic.$CURVE(), $RAND)
-              - metavariable-regex:
-                  metavariable: $CURVE
-                  regex: "^P(?<curve>224|256|384|521)$"
-          - pattern: ecdsa.GenerateKey($CURVE, $RAND)
+    mode: taint
+    pattern-sources:
+      - patterns:
+          - pattern: $FUNC()
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: ^(?<package>elliptic)\.P(?<curve>224|256|384|521)$
+    pattern-sinks:
+      - pattern: ecdsa.GenerateKey($CURVE, ...)
     metadata:
       category: security
       subcategory: cryptography
@@ -24,14 +25,14 @@ rules:
         assetType: algorithm
         findingType: key_generation
         operation: keygen
-        algorithmName: ECDSA-$1
+        algorithmName: ECDSA-$2
         algorithmFamily: ECDSA
         library: crypto/ecdsa
         api: ecdsa.GenerateKey
-        curve: $1
+        curve: $2
         materialSource: generated
         algorithmPrimitive: signature
-        algorithmParameterSetIdentifier: $1
+        algorithmParameterSetIdentifier: $2
 
   - id: go.crypto.ecdsa.sign-with-curve
     message: Detected ECDSA signature operation, algorithm=ECDSA
