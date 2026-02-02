@@ -25,14 +25,14 @@ rules:
         assetType: algorithm
         findingType: key_generation
         operation: keygen
-        algorithmName: ECDSA-$2
+        algorithmName: ECDSA-P$curve
         algorithmFamily: ECDSA
         library: crypto/ecdsa
         api: ecdsa.GenerateKey
-        curve: $2
+        curve: P$curve
         materialSource: generated
         algorithmPrimitive: signature
-        algorithmParameterSetIdentifier: $2
+        algorithmParameterSetIdentifier: $curve
 
   - id: go.crypto.ecdsa.sign-with-curve
     message: Detected ECDSA signature operation, algorithm=ECDSA
