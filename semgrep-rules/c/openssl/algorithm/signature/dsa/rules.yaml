@@ -1,0 +1,38 @@
+rules:
+  - id: c.openssl.algorithm.signature.dsa
+    message: Detected DSA signature algorithm usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>dsaEncryption|DSA|dsa)"'
+      - pattern: EVP_PKEY_DSA
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_PKEY_CTX_new_id($ALGO, $ENGINE)
+              - pattern: EVP_PKEY_keygen_init($CTX)
+              - pattern: EVP_PKEY_sign_init($CTX)
+              - pattern: EVP_PKEY_verify_init($CTX)
+              - pattern: EVP_DigestSignInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+              - pattern: EVP_DigestVerifyInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: DSA
+        algorithmName: DSA
+        library: OpenSSL
+        oid: 1.2.840.10040.4.1
+        api: EVP_PKEY_CTX_new_id|EVP_PKEY_sign_init|EVP_DigestSignInit

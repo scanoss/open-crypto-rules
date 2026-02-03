@@ -1,0 +1,40 @@
+rules:
+  - id: c.openssl.algorithm.hash.sha-3
+    message: Detected SHA-3 family hash function usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>SHA3-224|SHA3-256|SHA3-384|SHA3-512)"'
+      - pattern-either:
+          - pattern: EVP_sha3_224()
+          - pattern: EVP_sha3_256()
+          - pattern: EVP_sha3_384()
+          - pattern: EVP_sha3_512()
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_Q_digest($CTX, $IN, $INLEN, $OUT, $OUTLEN, $NAME, $ALGO, $PARAMS)
+              - pattern: EVP_get_digestbyname($ALGO)
+              - pattern: EVP_DigestInit_ex($CTX, $ALGO, $ENGINE)
+              - pattern: EVP_DigestInit_ex2($CTX, $ALGO, $PARAMS)
+              - pattern: EVP_MD_fetch($CTX, $ALGO, $PROPS)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: hash
+        algorithmFamily: SHA-3
+        algorithmName: SHA-3-$variant
+        library: OpenSSL
+        api: EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit_ex|EVP_sha3_*

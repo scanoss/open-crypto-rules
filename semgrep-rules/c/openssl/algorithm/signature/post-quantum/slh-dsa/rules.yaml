@@ -1,0 +1,36 @@
+rules:
+  - id: c.openssl.algorithm.signature.slh-dsa
+    message: Detected SLH-DSA post-quantum signature algorithm usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>id-slh-dsa-(?<hash>sha2|shake)-(?<security>128|192|256)(?<mode>s|f)|SLH-DSA-(?<hash2>SHA2|SHAKE)-(?<security2>128|192|256)(?<mode2>S|F))"'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_PKEY_CTX_new_from_name($LIBCTX, $ALGO, $PROPQUERY)
+              - pattern: EVP_PKEY_keygen_init($CTX)
+              - pattern: EVP_PKEY_sign_init($CTX)
+              - pattern: EVP_PKEY_verify_init($CTX)
+              - pattern: EVP_DigestSignInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+              - pattern: EVP_DigestVerifyInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: SLH-DSA
+        algorithmName: SLH-DSA-$hash-$security$mode
+        library: OpenSSL
+        api: EVP_PKEY_CTX_new_from_name|EVP_PKEY_sign_init|EVP_DigestSignInit

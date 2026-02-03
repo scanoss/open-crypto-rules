@@ -1,0 +1,38 @@
+rules:
+  - id: c.openssl.algorithm.hash.md5
+    message: Detected MD5 hash function usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<algorithmname>MD5|RSA-MD5|md5WithRSAEncryption|ssl3-md5|SSL3-MD5)"'
+      - pattern: EVP_md5()
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_Q_digest($CTX, $IN, $INLEN, $OUT, $OUTLEN, $NAME, $ALGO, $PARAMS)
+              - pattern: EVP_get_digestbyname($ALGO)
+              - pattern: EVP_DigestInit_ex($CTX, $ALGO, $ENGINE)
+              - pattern: EVP_DigestInit_ex2($CTX, $ALGO, $PARAMS)
+              - pattern: EVP_MD_fetch($CTX, $ALGO, $PROPS)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: hash
+        algorithmFamily: MD5
+        algorithmName: MD5
+        algorithmParameterSetIdentifier: "128"
+        library: OpenSSL
+        oid: 1.2.840.113549.2.5
+        api: EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit_ex|EVP_md5

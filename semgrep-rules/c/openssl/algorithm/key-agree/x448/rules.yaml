@@ -1,0 +1,36 @@
+rules:
+  - id: c.openssl.algorithm.key-agree.x448
+    message: Detected X448 key agreement usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>X448|x448)"'
+      - pattern: EVP_PKEY_X448
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_PKEY_CTX_new_id($ALGO, $ENGINE)
+              - pattern: EVP_PKEY_keygen_init($CTX)
+              - pattern: EVP_PKEY_derive_init($CTX)
+              - pattern: EVP_PKEY_derive($CTX, $KEY, $KEYLEN)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: key-agree
+        algorithmFamily: X448
+        algorithmName: X448
+        library: OpenSSL
+        oid: 1.3.101.111
+        api: EVP_PKEY_CTX_new_id|EVP_PKEY_derive

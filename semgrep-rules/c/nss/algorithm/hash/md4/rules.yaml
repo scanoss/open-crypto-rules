@@ -1,0 +1,30 @@
+rules:
+  - id: c.nss.algorithm.hash.md4
+    message: Detected MD4 hash function usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+    pattern-sources:
+      - patterns:
+          - pattern: $MECH
+          - metavariable-regex:
+              metavariable: $MECH
+              regex: '^SEC_OID_MD4$'
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: PK11_CreateDigestContext($MECH)
+              - pattern: PK11_DigestBegin($CTX)
+          - focus-metavariable: $MECH
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: hash
+        algorithmFamily: MD4
+        algorithmName: MD4
+        algorithmParameterSetIdentifier: "128"
+        library: NSS
+        api: PK11_CreateDigestContext

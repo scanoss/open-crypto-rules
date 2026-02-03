@@ -1,0 +1,39 @@
+rules:
+  - id: c.openssl.algorithm.signature.eddsa
+    message: Detected EdDSA signature algorithm usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>ED25519|ED448|ed25519|ed448)"'
+      - pattern-either:
+          - pattern: EVP_PKEY_ED25519
+          - pattern: EVP_PKEY_ED448
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_PKEY_CTX_new_id($ALGO, $ENGINE)
+              - pattern: EVP_PKEY_keygen_init($CTX)
+              - pattern: EVP_PKEY_sign_init($CTX)
+              - pattern: EVP_PKEY_verify_init($CTX)
+              - pattern: EVP_DigestSignInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+              - pattern: EVP_DigestVerifyInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: EdDSA
+        algorithmName: $variant
+        library: OpenSSL
+        api: EVP_PKEY_CTX_new_id|EVP_PKEY_sign_init|EVP_DigestSignInit

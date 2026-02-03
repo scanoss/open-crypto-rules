@@ -1,0 +1,75 @@
+rules:
+  - id: c.openssl.algorithm.signature.rsa-pkcs1
+    message: Detected RSA-PKCS1 signature algorithm usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>rsaEncryption|RSA|rsa)"'
+      - pattern: EVP_PKEY_RSA
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_PKEY_CTX_new_id($ALGO, $ENGINE)
+              - pattern: EVP_PKEY_keygen_init($CTX)
+              - pattern: EVP_PKEY_sign_init($CTX)
+              - pattern: EVP_PKEY_verify_init($CTX)
+              - pattern: EVP_DigestSignInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+              - pattern: EVP_DigestVerifyInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PKCS1
+        algorithmName: RSA-PKCS1
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.1
+        api: EVP_PKEY_CTX_new_id|EVP_PKEY_sign_init|EVP_DigestSignInit
+
+  - id: c.openssl.algorithm.signature.rsa-pss
+    message: Detected RSA-PSS signature algorithm usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>rsassaPss|RSA-PSS|rsa-pss)"'
+      - pattern: EVP_PKEY_RSA_PSS
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_PKEY_CTX_new_id($ALGO, $ENGINE)
+              - pattern: EVP_PKEY_sign_init($CTX)
+              - pattern: EVP_PKEY_verify_init($CTX)
+              - pattern: EVP_DigestSignInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+              - pattern: EVP_DigestVerifyInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PSS
+        algorithmName: RSA-PSS
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.10
+        api: EVP_PKEY_CTX_new_id|EVP_PKEY_sign_init|EVP_DigestSignInit

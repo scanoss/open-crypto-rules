@@ -1,0 +1,39 @@
+rules:
+  - id: c.openssl.algorithm.key-agree.dh
+    message: Detected Diffie-Hellman key agreement usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>dhKeyAgreement|DH|dh|X9.42 DH|X9_42DH|dhpublicnumber)"'
+      - pattern-either:
+          - pattern: EVP_PKEY_DH
+          - pattern: EVP_PKEY_DHX
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_PKEY_CTX_new_id($ALGO, $ENGINE)
+              - pattern: EVP_PKEY_keygen_init($CTX)
+              - pattern: EVP_PKEY_derive_init($CTX)
+              - pattern: EVP_PKEY_derive($CTX, $KEY, $KEYLEN)
+              - pattern: DH_compute_key($KEY, $PUB_KEY, $DH)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: key-agree
+        algorithmFamily: FFDH
+        algorithmName: DH
+        library: OpenSSL
+        oid: 1.2.840.10046.2.1
+        api: EVP_PKEY_CTX_new_id|EVP_PKEY_derive|DH_compute_key

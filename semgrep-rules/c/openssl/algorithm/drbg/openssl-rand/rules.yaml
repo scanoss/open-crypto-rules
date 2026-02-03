@@ -1,0 +1,30 @@
+rules:
+  - id: c.openssl.algorithm.drbg.rand
+    message: Detected OpenSSL random number generation
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - pattern: $SIZE
+      - pattern: RAND_bytes
+      - pattern: RAND_priv_bytes
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: RAND_bytes($BUFFER, $SIZE)
+              - pattern: RAND_priv_bytes($BUFFER, $SIZE)
+          - focus-metavariable: $BUFFER
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: drbg
+        algorithmFamily: DRBG
+        algorithmName: OpenSSL-RAND
+        library: OpenSSL
+        api: RAND_bytes|RAND_priv_bytes

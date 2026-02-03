@@ -1,0 +1,40 @@
+rules:
+  - id: c.openssl.algorithm.hash.sha-2
+    message: Detected SHA-2 family hash function usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>SHA-?224|SHA-?256|SHA-?384|SHA-?512|SHA2-224|SHA2-256|SHA2-384|SHA2-512|RSA-SHA224|RSA-SHA256|RSA-SHA384|RSA-SHA512|sha224WithRSAEncryption|sha256WithRSAEncryption|sha384WithRSAEncryption|sha512WithRSAEncryption)"'
+      - pattern-either:
+          - pattern: EVP_sha224()
+          - pattern: EVP_sha256()
+          - pattern: EVP_sha384()
+          - pattern: EVP_sha512()
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_Q_digest($CTX, $IN, $INLEN, $OUT, $OUTLEN, $NAME, $ALGO, $PARAMS)
+              - pattern: EVP_get_digestbyname($ALGO)
+              - pattern: EVP_DigestInit_ex($CTX, $ALGO, $ENGINE)
+              - pattern: EVP_DigestInit_ex2($CTX, $ALGO, $PARAMS)
+              - pattern: EVP_MD_fetch($CTX, $ALGO, $PROPS)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: hash
+        algorithmFamily: SHA-2
+        algorithmName: SHA-2-$variant
+        library: OpenSSL
+        api: EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit_ex|EVP_sha*

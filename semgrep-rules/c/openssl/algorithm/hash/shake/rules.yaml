@@ -1,0 +1,38 @@
+rules:
+  - id: c.openssl.algorithm.hash.shake
+    message: Detected SHAKE extendable output function usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>SHAKE128|SHAKE256)"'
+      - pattern-either:
+          - pattern: EVP_shake128()
+          - pattern: EVP_shake256()
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_Q_digest($CTX, $IN, $INLEN, $OUT, $OUTLEN, $NAME, $ALGO, $PARAMS)
+              - pattern: EVP_get_digestbyname($ALGO)
+              - pattern: EVP_DigestInit_ex($CTX, $ALGO, $ENGINE)
+              - pattern: EVP_DigestInit_ex2($CTX, $ALGO, $PARAMS)
+              - pattern: EVP_MD_fetch($CTX, $ALGO, $PROPS)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: xof
+        algorithmFamily: SHAKE
+        algorithmName: $variant
+        library: OpenSSL
+        api: EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit_ex|EVP_shake*

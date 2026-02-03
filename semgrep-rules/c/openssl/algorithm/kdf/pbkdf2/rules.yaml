@@ -1,0 +1,28 @@
+rules:
+  - id: c.openssl.algorithm.kdf.pbkdf2
+    message: Detected PBKDF2 key derivation function usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - pattern: $DIGEST
+
+    pattern-sinks:
+      - patterns:
+          - pattern: PKCS5_PBKDF2_HMAC($PASSWORD, $PLEN, $SALT, $SLEN, $ITERATIONS, $DIGEST, $KEY_LENGTH, $KEY)
+          - focus-metavariable: $DIGEST
+      - patterns:
+          - pattern: PKCS5_PBKDF2_HMAC_SHA1($PASSWORD, $PLEN, $SALT, $SLEN, $ITERATIONS, $KEY_LENGTH, $KEY)
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: kdf
+        algorithmFamily: PBKDF2
+        algorithmName: PBKDF2
+        library: OpenSSL
+        api: PKCS5_PBKDF2_HMAC|PKCS5_PBKDF2_HMAC_SHA1

@@ -1,0 +1,29 @@
+rules:
+  - id: c.openssl.algorithm.kdf.hkdf
+    message: Detected HKDF key derivation function usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - pattern: $DIGEST
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: HKDF($KEY, $KEY_LENGTH, $DIGEST, $SALT, $SALT_LEN, $IKM, $IKM_LEN, $INFO, $INFO_LEN)
+              - pattern: HKDF_extract($OUT_KEY, $OUT_LEN, $DIGEST, $SALT, $SALT_LEN, $IKM, $IKM_LEN)
+              - pattern: HKDF_expand($OUT_KEY, $OUT_LEN, $DIGEST, $PRK, $PRK_LEN, $INFO, $INFO_LEN)
+          - focus-metavariable: $DIGEST
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: kdf
+        algorithmFamily: HKDF
+        algorithmName: HKDF
+        library: OpenSSL
+        api: HKDF|HKDF_extract|HKDF_expand

@@ -1,0 +1,32 @@
+rules:
+  - id: c.nss.algorithm.key-agree.ecdh
+    message: Detected ECDH key agreement usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $MECH
+          - metavariable-regex:
+              metavariable: $MECH
+              regex: '^CKM_ECDH.*$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: PK11_GenerateKeyPair($_, $MECH, ...)
+              - pattern: PK11_PubDerive($PRIVKEY, $PUBKEY, $_, $MECH, ...)
+          - focus-metavariable: $MECH
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: key-agree
+        algorithmFamily: ECDH
+        algorithmName: ECDH
+        library: NSS
+        api: PK11_GenerateKeyPair|PK11_PubDerive

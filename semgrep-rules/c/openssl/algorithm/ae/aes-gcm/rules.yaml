@@ -1,0 +1,42 @@
+rules:
+  - id: c.openssl.algorithm.ae.aes
+    message: Detected AES authenticated encryption usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $FUNC()
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: '^EVP_aes_(?<keysize>128|192|256)_(?<mode>gcm|ccm)$'
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>AES-(?<keysize>128|192|256)-(?<mode>GCM|CCM)|aes-(?<keysize2>128|192|256)-(?<mode2>gcm|ccm))"'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_CipherInit_ex($CTX, $ALGO, $ENGINE, $KEY, $IV, $ENC)
+              - pattern: EVP_EncryptInit_ex($CTX, $ALGO, $ENGINE, $KEY, $IV)
+              - pattern: EVP_DecryptInit_ex($CTX, $ALGO, $ENGINE, $KEY, $IV)
+              - pattern: EVP_get_cipherbyname($ALGO)
+              - pattern: EVP_CIPHER_fetch($CTX, $ALGO, $PROPS)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: ae
+        algorithmFamily: AES
+        algorithmName: AES-$keysize-$mode
+        algorithmMode: $mode
+        algorithmParameterSetIdentifier: $keysize
+        library: OpenSSL
+        api: EVP_aes_*|EVP_get_cipherbyname|EVP_CipherInit_ex

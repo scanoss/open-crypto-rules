@@ -1,0 +1,34 @@
+rules:
+  - id: c.nss.algorithm.hash.md5
+    message: Detected MD5 hash function usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $MECH
+          - metavariable-regex:
+              metavariable: $MECH
+              regex: '^SEC_OID_MD5$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: PK11_CreateDigestContext($MECH)
+              - pattern: PK11_DigestBegin($CTX)
+              - pattern: PK11_DigestOp($CTX, $DATA, $LEN)
+          - focus-metavariable: $MECH
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: hash
+        algorithmFamily: MD5
+        algorithmName: MD5
+        algorithmParameterSetIdentifier: "128"
+        library: NSS
+        api: PK11_CreateDigestContext|PK11_DigestBegin|PK11_DigestOp

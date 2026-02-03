@@ -1,0 +1,34 @@
+rules:
+  - id: c.nss.algorithm.pke.rsa
+    message: Detected RSA public key encryption usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $MECH
+          - metavariable-regex:
+              metavariable: $MECH
+              regex: '^CKM_RSA.*$'
+      - pattern: SECKEY_CreateRSAPrivateKey($KEYSIZE, ...)
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: PK11_GenerateKeyPair($_, $MECH, ...)
+              - pattern: PK11_PubEncrypt($KEY, $MECH, ...)
+              - pattern: PK11_PrivDecrypt($KEY, $MECH, ...)
+          - focus-metavariable: $MECH
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: pke
+        algorithmFamily: RSAES-PKCS1
+        algorithmName: RSA
+        library: NSS
+        api: PK11_GenerateKeyPair|PK11_PubEncrypt|PK11_PrivDecrypt

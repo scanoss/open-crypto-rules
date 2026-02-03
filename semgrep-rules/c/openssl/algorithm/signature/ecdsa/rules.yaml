@@ -1,0 +1,40 @@
+rules:
+  - id: c.openssl.algorithm.signature.ecdsa
+    message: Detected ECDSA signature algorithm usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>id-ecPublicKey|EC|ec|ecdsa)"'
+      - pattern: EVP_PKEY_EC
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: EVP_PKEY_CTX_new_id($ALGO, $ENGINE)
+              - pattern: EVP_PKEY_keygen_init($CTX)
+              - pattern: EVP_PKEY_sign_init($CTX)
+              - pattern: EVP_PKEY_verify_init($CTX)
+              - pattern: EVP_DigestSignInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+              - pattern: EVP_DigestVerifyInit($CTX, $PCTX, $MD, $ENGINE, $PKEY)
+              - pattern: ECDSA_sign($TYPE, $DGST, $DGST_LEN, $SIG, $SIG_LEN, $ECKEY)
+              - pattern: ECDSA_verify($TYPE, $DGST, $DGST_LEN, $SIG, $SIG_LEN, $ECKEY)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: ECDSA
+        algorithmName: ECDSA
+        library: OpenSSL
+        oid: 1.2.840.10045.2.1
+        api: EVP_PKEY_CTX_new_id|EVP_PKEY_sign_init|EVP_DigestSignInit|ECDSA_sign

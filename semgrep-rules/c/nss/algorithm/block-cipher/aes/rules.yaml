@@ -1,0 +1,34 @@
+rules:
+  - id: c.nss.algorithm.block-cipher.aes
+    message: Detected AES block cipher usage
+    mode: taint
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $MECH
+          - metavariable-regex:
+              metavariable: $MECH
+              regex: '^CKM_AES_.*$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: PK11_CreateContext($_, $MECH, ...)
+              - pattern: PK11_CipherOp($CTX, $OUT, ...)
+              - pattern: PK11_Encrypt($KEY, $MECH, ...)
+              - pattern: PK11_Decrypt($KEY, $MECH, ...)
+          - focus-metavariable: $MECH
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: block-cipher
+        algorithmFamily: AES
+        algorithmName: AES
+        library: NSS
+        api: PK11_CreateContext|PK11_CipherOp|PK11_Encrypt|PK11_Decrypt
