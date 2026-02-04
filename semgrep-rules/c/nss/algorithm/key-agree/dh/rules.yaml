@@ -11,7 +11,7 @@ rules:
           - metavariable-regex:
               metavariable: $MECH
               regex: '^CKM_DH.*$'
-      - pattern: SECKEY_CreateDHPrivateKey($...)
+      - pattern: SECKEY_CreateDHPrivateKey(...)
 
     pattern-sinks:
       - patterns:
