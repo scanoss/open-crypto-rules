@@ -40,3 +40,25 @@ rules:
       algorithmParameterSetIdentifier: $keysize
       library: OpenSSL
       api: $API
+- id: c.openssl.algorithm.ae.aes.generic
+  message: Detected AES authenticated encryption algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>AES-(?<keysize>128|192|256)-(?<mode>GCM|CCM)|aes-(?<keysize2>128|192|256)-(?<mode2>gcm|ccm))"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: ae
+      algorithmFamily: AES
+      algorithmName: AES-$keysize-$mode
+      algorithmMode: $mode
+      algorithmParameterSetIdentifier: $keysize
+      library: OpenSSL

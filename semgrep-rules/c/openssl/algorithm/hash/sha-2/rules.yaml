@@ -41,3 +41,23 @@ rules:
       algorithmName: $variant
       library: OpenSSL
       api: $API
+- id: c.openssl.algorithm.hash.sha-2.generic
+  message: Detected SHA-2 family hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>SHA-?224|SHA-?256|SHA-?384|SHA-?512|SHA2-224|SHA2-256|SHA2-384|SHA2-512|SHA2-512/256|RSA-SHA224|RSA-SHA256|RSA-SHA384|RSA-SHA512|sha224WithRSAEncryption|sha256WithRSAEncryption|sha384WithRSAEncryption|sha512WithRSAEncryption)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-2
+      algorithmName: $variant
+      library: OpenSSL

@@ -33,3 +33,23 @@ rules:
       algorithmName: $variant
       library: OpenSSL
       api: $API
+- id: c.openssl.algorithm.hash.keccak.generic
+  message: Detected KECCAK hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>KECCAK-224|KECCAK-256|KECCAK-384|KECCAK-512|KECCAK-KMAC-128|KECCAK-KMAC-256)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: KECCAK
+      algorithmName: $variant
+      library: OpenSSL

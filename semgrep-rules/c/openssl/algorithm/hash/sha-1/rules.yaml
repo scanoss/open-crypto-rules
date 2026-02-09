@@ -36,3 +36,25 @@ rules:
       library: OpenSSL
       oid: 1.3.14.3.2.26
       api: $API
+- id: c.openssl.algorithm.hash.sha-1.generic
+  message: Detected SHA-1 hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<algorithmname>SHA1|SHA-1|RSA-SHA1|sha1WithRSAEncryption|ssl3-sha1|SSL3-SHA1|dsaWithSHA1|DSA-SHA1|ecdsa-with-SHA1)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-1
+      algorithmName: SHA-1
+      algorithmParameterSetIdentifier: '160'
+      library: OpenSSL
+      oid: 1.3.14.3.2.26

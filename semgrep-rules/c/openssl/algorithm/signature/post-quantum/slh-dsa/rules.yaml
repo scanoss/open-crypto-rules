@@ -41,3 +41,23 @@ rules:
         algorithmParameterSetIdentifier: $hash-$security$speed
         library: OpenSSL
         api: $API
+  - id: c.openssl.algorithm.signature.slh-dsa.generic
+    message: Detected SLH-DSA post-quantum signature algorithm name
+    severity: INFO
+    languages: [c]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>(?:id-slh-dsa-|SLH-DSA-)(?<hash>sha2|SHA2|shake|SHAKE)-(?<security>128|192|256)(?<speed>s|f))"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: SLH-DSA
+        algorithmName: SLH-DSA-$hash-$security$speed
+        algorithmParameterSetIdentifier: $hash-$security$speed
+        library: OpenSSL

@@ -9,14 +9,25 @@ rules:
 
     pattern-sources:
       - pattern: $DIGEST
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>HKDF|hkdf)"'
 
     pattern-sinks:
       - patterns:
           - pattern: $API($A, $B, $DIGEST, ...)
           - metavariable-regex:
               metavariable: $API
-              regex: '^(HKDF|HKDF_extract|HKDF_expand)$'
+              regex: '^(?:HKDF|HKDF_extract|HKDF_expand)$'
           - focus-metavariable: $DIGEST
+      - patterns:
+          - pattern: $API($A, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^EVP_KDF_fetch$'
+          - focus-metavariable: $ALGO
 
     metadata:
       category: security
@@ -29,3 +40,22 @@ rules:
         algorithmName: HKDF
         library: OpenSSL
         api: $API
+  - id: c.openssl.algorithm.kdf.hkdf.generic
+    message: Detected HKDF key derivation function name
+    severity: INFO
+    languages: [c]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>HKDF|hkdf)"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: kdf
+        algorithmFamily: HKDF
+        algorithmName: HKDF
+        library: OpenSSL

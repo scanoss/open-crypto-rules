@@ -26,7 +26,7 @@ rules:
               - pattern: $API($A, $B, $ALGO, ...)
           - metavariable-regex:
               metavariable: $API
-              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen)$'
+              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen|EVP_KEM_fetch)$'
           - focus-metavariable: $ALGO
 
     metadata:
@@ -41,3 +41,23 @@ rules:
         algorithmParameterSetIdentifier: $keysize
         library: OpenSSL
         api: $API
+  - id: c.openssl.algorithm.kem.ml-kem.generic
+    message: Detected ML-KEM post-quantum key encapsulation mechanism name
+    severity: INFO
+    languages: [c]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>(?:id-alg-ml-kem-|ML-KEM-)(?<keysize>512|768|1024))"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: kem
+        algorithmFamily: ML-KEM
+        algorithmName: ML-KEM-$keysize
+        algorithmParameterSetIdentifier: $keysize
+        library: OpenSSL

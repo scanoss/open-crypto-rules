@@ -35,3 +35,21 @@ void encrypt_aes_gcm() {
     const EVP_CIPHER *cipher = EVP_aes_256_gcm();
     EVP_EncryptInit_ex(ctx, cipher, NULL, NULL, NULL);
 }
+
+// TEST-METADATA: algorithmFamily=ECDSA, algorithmPrimitive=signature, library=OpenSSL, api=EVP_PKEY_CTX_new_from_name
+
+void test_ecdsa_provider() {
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_from_name(NULL, "EC", NULL);
+}
+
+// TEST-METADATA: algorithmFamily=EdDSA, algorithmName=ED25519, algorithmPrimitive=signature, library=OpenSSL, api=EVP_PKEY_CTX_new_from_name
+
+void test_eddsa_provider() {
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_from_name(NULL, "ED25519", NULL);
+}
+
+// TEST-METADATA: algorithmFamily=X25519, algorithmPrimitive=key-agree, library=OpenSSL, api=EVP_PKEY_CTX_new_from_name
+
+void test_x25519_provider() {
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_from_name(NULL, "X25519", NULL);
+}

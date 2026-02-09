@@ -26,7 +26,7 @@ rules:
               - pattern: $API($A, $B, $ALGO, ...)
           - metavariable-regex:
               metavariable: $API
-              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen|SSL_CTX_set1_groups_list|SSL_set1_groups_list)$'
+              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen|EVP_KEM_fetch|SSL_CTX_set1_groups_list|SSL_set1_groups_list)$'
           - focus-metavariable: $ALGO
 
     metadata:
@@ -42,3 +42,24 @@ rules:
         classicalAlgorithm: $classical
         library: OpenSSL
         api: $API
+  - id: c.openssl.algorithm.kem.hybrid-ml-kem.generic
+    message: Detected hybrid ML-KEM post-quantum key encapsulation mechanism name
+    severity: INFO
+    languages: [c]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"[^"]*(?<variant>(?<classical>X25519|SecP256r1|SecP384r1|X448)MLKEM(?<keysize>768|1024))[^"]*"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: kem
+        algorithmFamily: ML-KEM
+        algorithmName: $variant
+        algorithmParameterSetIdentifier: $keysize
+        classicalAlgorithm: $classical
+        library: OpenSSL

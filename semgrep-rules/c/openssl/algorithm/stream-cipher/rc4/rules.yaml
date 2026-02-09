@@ -38,3 +38,23 @@ rules:
       algorithmName: $variant
       library: OpenSSL
       api: $API
+- id: c.openssl.algorithm.stream-cipher.rc4.generic
+  message: Detected RC4 stream cipher algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>RC4|RC4-40|RC4-HMAC-MD5|rc4|rc4-40|rc4-hmac-md5)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: stream-cipher
+      algorithmFamily: RC4
+      algorithmName: $variant
+      library: OpenSSL

@@ -9,6 +9,11 @@ rules:
 
     pattern-sources:
       - pattern: $DIGEST
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>HMAC|hmac)"'
 
     pattern-sinks:
       - patterns:
@@ -17,8 +22,14 @@ rules:
               - pattern: $API($A, $B, $C, $EVP_MD, ...)
           - metavariable-regex:
               metavariable: $API
-              regex: '^(HMAC|HMAC_Init_ex|HMAC_Init)$'
+              regex: '^(?:HMAC|HMAC_Init_ex|HMAC_Init)$'
           - focus-metavariable: $EVP_MD
+      - patterns:
+          - pattern: $API($A, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^EVP_MAC_fetch$'
+          - focus-metavariable: $ALGO
 
     metadata:
       category: security
@@ -31,3 +42,22 @@ rules:
         algorithmName: HMAC
         library: OpenSSL
         api: $API
+  - id: c.openssl.algorithm.mac.hmac.generic
+    message: Detected HMAC message authentication code name
+    severity: INFO
+    languages: [c]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>HMAC|hmac)"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: mac
+        algorithmFamily: HMAC
+        algorithmName: HMAC
+        library: OpenSSL

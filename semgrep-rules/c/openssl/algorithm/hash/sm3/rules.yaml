@@ -36,3 +36,25 @@ rules:
       library: OpenSSL
       oid: 1.2.156.10197.1.401
       api: $API
+- id: c.openssl.algorithm.hash.sm3.generic
+  message: Detected SM3 hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<algorithmname>SM3|sm3)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: SM3
+      algorithmName: SM3
+      algorithmParameterSetIdentifier: '256'
+      library: OpenSSL
+      oid: 1.2.156.10197.1.401

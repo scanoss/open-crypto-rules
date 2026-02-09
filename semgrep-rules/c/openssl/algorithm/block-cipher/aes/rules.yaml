@@ -40,3 +40,25 @@ rules:
       algorithmParameterSetIdentifier: $keysize
       library: OpenSSL
       api: $API
+- id: c.openssl.algorithm.block-cipher.aes.generic
+  message: Detected AES block cipher algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>AES-(?<keysize>128|192|256)-(?<mode>CBC|ECB|CFB|OFB|CTR|XTS)|aes-(?<keysize2>128|192|256)-(?<mode2>cbc|ecb|cfb|ofb|ctr|xts))"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: AES
+      algorithmName: AES-$keysize-$mode
+      algorithmMode: $mode
+      algorithmParameterSetIdentifier: $keysize
+      library: OpenSSL

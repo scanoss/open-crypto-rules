@@ -38,3 +38,23 @@ rules:
       algorithmName: $variant
       library: OpenSSL
       api: $API
+- id: c.openssl.algorithm.block-cipher.des.generic
+  message: Detected DES family block cipher algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>DES-CBC|DES-ECB|DES-CFB|DES-OFB|DES-EDE|DES-EDE-CBC|DES-EDE3|DES-EDE3-CBC|des-cbc|des-ecb|des-cfb|des-ofb|des-ede|des-ede-cbc|des-ede3|des-ede3-cbc)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: DES
+      algorithmName: $variant
+      library: OpenSSL

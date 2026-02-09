@@ -43,3 +43,22 @@ rules:
         algorithmName: $variant
         library: OpenSSL
         api: $API
+  - id: c.openssl.algorithm.hash.sha-3.generic
+    message: Detected SHA-3 family hash algorithm name
+    severity: INFO
+    languages: [c]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>SHA3-224|SHA3-256|SHA3-384|SHA3-512)"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: hash
+        algorithmFamily: SHA-3
+        algorithmName: $variant
+        library: OpenSSL

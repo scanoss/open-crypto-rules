@@ -1,65 +1,132 @@
 rules:
-- id: c.openssl.algorithm.signature.rsa-pkcs1
-  message: Detected RSA-PKCS1 signature algorithm usage
-  mode: taint
-  options:
-    interfile: true
-  severity: INFO
-  languages:
-  - c
-  pattern-sources:
-  - patterns:
-    - pattern: $ALGO
-    - metavariable-regex:
-        metavariable: $ALGO
-        regex: '"(?<variant>rsaEncryption|RSA|rsa)"'
-  - pattern: EVP_PKEY_RSA
-  pattern-sinks:
-  - &id001
+  - id: c.openssl.algorithm.signature.rsa-pkcs1
+    message: Detected RSA-PKCS1 signature algorithm usage
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>rsaEncryption|RSA|rsa)"'
+      - pattern: EVP_PKEY_RSA
+
+    pattern-sinks:
+      - patterns:
+          - pattern: $API($ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^EVP_PKEY_CTX_new_id$'
+          - focus-metavariable: $ALGO
+      - patterns:
+          - pattern-either:
+              - pattern: $API($A, $ALGO, ...)
+              - pattern: $API($A, $B, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PKCS1
+        algorithmName: RSA-PKCS1
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.1
+        api: $API
+
+  - id: c.openssl.algorithm.signature.rsa-pss
+    message: Detected RSA-PSS signature algorithm usage
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>rsassaPss|RSA-PSS|rsa-pss)"'
+      - pattern: EVP_PKEY_RSA_PSS
+
+    pattern-sinks:
+      - patterns:
+          - pattern: $API($ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^EVP_PKEY_CTX_new_id$'
+          - focus-metavariable: $ALGO
+      - patterns:
+          - pattern-either:
+              - pattern: $API($A, $ALGO, ...)
+              - pattern: $API($A, $B, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PSS
+        algorithmName: RSA-PSS
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.10
+        api: $API
+
+  - id: c.openssl.algorithm.signature.rsa-pkcs1.generic
+    message: Detected RSA-PKCS1 signature algorithm name
+    severity: INFO
+    languages: [c]
     patterns:
-    - pattern: $API($ALGO, ...)
-    - metavariable-regex:
-        metavariable: $API
-        regex: ^EVP_PKEY_CTX_new_id$
-    - focus-metavariable: $ALGO
-  metadata:
-    category: security
-    subcategory: cryptography
-    confidence: HIGH
-    crypto:
-      assetType: algorithm
-      algorithmPrimitive: signature
-      algorithmFamily: RSASSA-PKCS1
-      algorithmName: RSA-PKCS1
-      library: OpenSSL
-      oid: 1.2.840.113549.1.1.1
-      api: $API
-- id: c.openssl.algorithm.signature.rsa-pss
-  message: Detected RSA-PSS signature algorithm usage
-  mode: taint
-  options:
-    interfile: true
-  severity: INFO
-  languages:
-  - c
-  pattern-sources:
-  - patterns:
-    - pattern: $ALGO
-    - metavariable-regex:
-        metavariable: $ALGO
-        regex: '"(?<variant>rsassaPss|RSA-PSS|rsa-pss)"'
-  - pattern: EVP_PKEY_RSA_PSS
-  pattern-sinks:
-  - *id001
-  metadata:
-    category: security
-    subcategory: cryptography
-    confidence: HIGH
-    crypto:
-      assetType: algorithm
-      algorithmPrimitive: signature
-      algorithmFamily: RSASSA-PSS
-      algorithmName: RSA-PSS
-      library: OpenSSL
-      oid: 1.2.840.113549.1.1.10
-      api: $API
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>rsaEncryption|RSA|rsa)"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PKCS1
+        algorithmName: RSA-PKCS1
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.1
+
+  - id: c.openssl.algorithm.signature.rsa-pss.generic
+    message: Detected RSA-PSS signature algorithm name
+    severity: INFO
+    languages: [c]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>rsassaPss|RSA-PSS|rsa-pss)"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PSS
+        algorithmName: RSA-PSS
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.10

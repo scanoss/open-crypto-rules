@@ -46,3 +46,23 @@ rules:
         algorithmParameterSetIdentifier: $keysize
         library: OpenSSL
         api: $API
+  - id: c.openssl.algorithm.signature.ml-dsa.generic
+    message: Detected ML-DSA post-quantum signature algorithm name
+    severity: INFO
+    languages: [c]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>(?:id-ml-dsa-|ML-DSA-|MLDSA)(?<keysize>44|65|87))"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: ML-DSA
+        algorithmName: ML-DSA-$keysize
+        algorithmParameterSetIdentifier: $keysize
+        library: OpenSSL

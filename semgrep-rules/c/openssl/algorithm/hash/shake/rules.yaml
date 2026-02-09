@@ -39,3 +39,23 @@ rules:
       algorithmName: $variant
       library: OpenSSL
       api: $API
+- id: c.openssl.algorithm.hash.shake.generic
+  message: Detected SHAKE extendable output function name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>SHAKE-?128|SHAKE-?256)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: xof
+      algorithmFamily: SHAKE
+      algorithmName: $variant
+      library: OpenSSL

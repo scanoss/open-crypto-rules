@@ -23,6 +23,14 @@ rules:
         metavariable: $API
         regex: ^EVP_PKEY_CTX_new_id$
     - focus-metavariable: $ALGO
+  - patterns:
+    - pattern-either:
+      - pattern: $API($A, $ALGO, ...)
+      - pattern: $API($A, $B, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen)$'
+    - focus-metavariable: $ALGO
   metadata:
     category: security
     subcategory: cryptography
@@ -35,3 +43,24 @@ rules:
       library: OpenSSL
       oid: 1.2.840.10046.2.1
       api: $API
+- id: c.openssl.algorithm.key-agree.dh.generic
+  message: Detected Diffie-Hellman key agreement algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>dhKeyAgreement|DH|dh|X9.42 DH|X9_42DH|dhpublicnumber)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: key-agree
+      algorithmFamily: FFDH
+      algorithmName: DH
+      library: OpenSSL
+      oid: 1.2.840.10046.2.1

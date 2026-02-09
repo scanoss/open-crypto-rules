@@ -9,6 +9,11 @@ rules:
 
     pattern-sources:
       - pattern: $DIGEST
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>PBKDF2|pbkdf2)"'
 
     pattern-sinks:
       - patterns:
@@ -17,6 +22,12 @@ rules:
               metavariable: $API
               regex: '^PKCS5_PBKDF2_HMAC$'
           - focus-metavariable: $DIGEST
+      - patterns:
+          - pattern: $API($A, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^EVP_KDF_fetch$'
+          - focus-metavariable: $ALGO
 
     metadata:
       category: security
@@ -29,3 +40,22 @@ rules:
         algorithmName: PBKDF2
         library: OpenSSL
         api: $API
+  - id: c.openssl.algorithm.kdf.pbkdf2.generic
+    message: Detected PBKDF2 key derivation function name
+    severity: INFO
+    languages: [c]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>PBKDF2|pbkdf2)"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: kdf
+        algorithmFamily: PBKDF2
+        algorithmName: PBKDF2
+        library: OpenSSL

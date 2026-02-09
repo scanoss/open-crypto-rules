@@ -36,3 +36,23 @@ rules:
       algorithmName: BLAKE2-$variant
       library: OpenSSL
       api: $API
+- id: c.openssl.algorithm.hash.blake2.generic
+  message: Detected BLAKE2 hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>BLAKE2b512|BLAKE2s256)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: BLAKE2
+      algorithmName: BLAKE2-$variant
+      library: OpenSSL

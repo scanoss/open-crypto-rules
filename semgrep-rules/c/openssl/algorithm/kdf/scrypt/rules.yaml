@@ -9,7 +9,11 @@ rules:
 
     pattern-sources:
       - pattern: $FUNC
-      - pattern: '"scrypt"'
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>SCRYPT|scrypt)"'
 
     pattern-sinks:
       - patterns:
@@ -18,6 +22,12 @@ rules:
               metavariable: $API
               regex: '^EVP_PBE_scrypt$'
           - focus-metavariable: $PASSWORD
+      - patterns:
+          - pattern: $API($A, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^EVP_KDF_fetch$'
+          - focus-metavariable: $ALGO
 
     metadata:
       category: security
@@ -30,3 +40,22 @@ rules:
         algorithmName: scrypt
         library: OpenSSL
         api: $API
+  - id: c.openssl.algorithm.kdf.scrypt.generic
+    message: Detected scrypt key derivation function name
+    severity: INFO
+    languages: [c]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>SCRYPT|scrypt)"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: kdf
+        algorithmFamily: scrypt
+        algorithmName: scrypt
+        library: OpenSSL

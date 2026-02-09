@@ -21,6 +21,14 @@ rules:
         metavariable: $API
         regex: ^EVP_PKEY_CTX_new_id$
     - focus-metavariable: $ALGO
+  - patterns:
+    - pattern-either:
+      - pattern: $API($A, $ALGO, ...)
+      - pattern: $API($A, $B, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen)$'
+    - focus-metavariable: $ALGO
   metadata:
     category: security
     subcategory: cryptography
@@ -33,3 +41,24 @@ rules:
       library: OpenSSL
       oid: 1.2.156.10197.1.301
       api: $API
+- id: c.openssl.algorithm.signature.sm2.generic
+  message: Detected SM2 signature algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>SM2|sm2)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: signature
+      algorithmFamily: SM2
+      algorithmName: SM2
+      library: OpenSSL
+      oid: 1.2.156.10197.1.301

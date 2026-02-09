@@ -36,3 +36,25 @@ rules:
       library: OpenSSL
       oid: 1.3.36.3.2.1
       api: $API
+- id: c.openssl.algorithm.hash.ripemd160.generic
+  message: Detected RIPEMD160 hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<algorithmname>RIPEMD160|RMD160|ripemd160WithRSA)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: RIPEMD
+      algorithmName: RIPEMD160
+      algorithmParameterSetIdentifier: '160'
+      library: OpenSSL
+      oid: 1.3.36.3.2.1
