@@ -2,6 +2,8 @@ rules:
   - id: c.nss.algorithm.kdf.pbkdf2
     message: Detected PBKDF2 key derivation function usage
     mode: taint
+    options:
+      interfile: true
     severity: INFO
     languages: [c]
 
@@ -15,8 +17,11 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: PK11_PBEKeyGen($SLOT, $ALG, $PASSWORD, $_, $_, $MECH, ...)
-              - pattern: PK11_CreatePBEV2AlgorithmID($MECH, ...)
+              - pattern: $API($MECH, ...)
+              - pattern: $API($A, $B, $C, $D, $E, $MECH, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(PK11_CreatePBEV2AlgorithmID|PK11_PBEKeyGen)$'
           - focus-metavariable: $MECH
 
     metadata:
@@ -29,4 +34,4 @@ rules:
         algorithmFamily: PBKDF2
         algorithmName: PBKDF2
         library: NSS
-        api: PK11_PBEKeyGen|PK11_CreatePBEV2AlgorithmID
+        api: $API

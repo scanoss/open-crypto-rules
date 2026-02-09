@@ -52,6 +52,8 @@ rules:
     severity: INFO
     languages: [go]
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - pattern: xts.NewCipher(...)
     pattern-propagators:

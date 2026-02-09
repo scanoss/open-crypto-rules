@@ -2,6 +2,8 @@ rules:
   - id: c.nss.algorithm.hash.sha-2
     message: Detected SHA-2 family hash function usage
     mode: taint
+    options:
+      interfile: true
     severity: INFO
     languages: [c]
 
@@ -14,10 +16,10 @@ rules:
 
     pattern-sinks:
       - patterns:
-          - pattern-either:
-              - pattern: PK11_CreateDigestContext($MECH)
-              - pattern: PK11_DigestBegin($CTX)
-              - pattern: PK11_DigestOp($CTX, $DATA, $LEN)
+          - pattern: $API($MECH)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^PK11_CreateDigestContext$'
           - focus-metavariable: $MECH
 
     metadata:
@@ -30,4 +32,4 @@ rules:
         algorithmFamily: SHA-2
         algorithmName: $variant
         library: NSS
-        api: PK11_CreateDigestContext|PK11_DigestBegin|PK11_DigestOp
+        api: $API

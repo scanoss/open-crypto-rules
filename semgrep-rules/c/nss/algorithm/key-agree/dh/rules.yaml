@@ -2,6 +2,8 @@ rules:
   - id: c.nss.algorithm.key-agree.dh
     message: Detected Diffie-Hellman key agreement usage
     mode: taint
+    options:
+      interfile: true
     severity: INFO
     languages: [c]
 
@@ -16,8 +18,11 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: PK11_GenerateKeyPair($_, $MECH, ...)
-              - pattern: PK11_PubDerive($PRIVKEY, $PUBKEY, $_, $MECH, ...)
+              - pattern: $API($A, $MECH, ...)
+              - pattern: $API($A, $B, $C, $MECH, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(PK11_GenerateKeyPair|PK11_PubDerive)$'
           - focus-metavariable: $MECH
 
     metadata:
@@ -30,4 +35,4 @@ rules:
         algorithmFamily: FFDH
         algorithmName: DH
         library: NSS
-        api: PK11_GenerateKeyPair|PK11_PubDerive
+        api: $API

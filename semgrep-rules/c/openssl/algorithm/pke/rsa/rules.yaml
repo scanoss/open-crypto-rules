@@ -1,77 +1,67 @@
 rules:
-  - id: c.openssl.algorithm.pke.rsa-pkcs1
-    message: Detected RSA-PKCS1 public key encryption usage
-    mode: taint
-    severity: INFO
-    languages: [c]
-
-    pattern-sources:
-      - patterns:
-          - pattern: $ALGO
-          - metavariable-regex:
-              metavariable: $ALGO
-              regex: '"(?<variant>rsaEncryption|RSA|rsa)"'
-      - pattern: EVP_PKEY_RSA
-      - patterns:
-          - pattern: RSA_generate_key($KEYSIZE, $E, $CB, $ARG)
-          - metavariable-regex:
-              metavariable: $KEYSIZE
-              regex: '^(?<keysize>512|1024|2048|3072|4096|8192)$'
-
-    pattern-sinks:
-      - patterns:
-          - pattern-either:
-              - pattern: EVP_PKEY_CTX_new_id($ALGO, $ENGINE)
-              - pattern: EVP_PKEY_encrypt_init($CTX)
-              - pattern: EVP_PKEY_decrypt_init($CTX)
-              - pattern: EVP_PKEY_encrypt($CTX, $OUT, $OUTLEN, $IN, $INLEN)
-              - pattern: EVP_PKEY_decrypt($CTX, $OUT, $OUTLEN, $IN, $INLEN)
-              - pattern: RSA_public_encrypt($FLEN, $FROM, $TO, $RSA, $PADDING)
-              - pattern: RSA_private_decrypt($FLEN, $FROM, $TO, $RSA, $PADDING)
-          - focus-metavariable: $ALGO
-
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      crypto:
-        assetType: algorithm
-        algorithmPrimitive: pke
-        algorithmFamily: RSAES-PKCS1
-        algorithmName: RSA-PKCS1
-        algorithmParameterSetIdentifier: $keysize
-        library: OpenSSL
-        oid: 1.2.840.113549.1.1.1
-        api: EVP_PKEY_CTX_new_id|EVP_PKEY_encrypt_init|RSA_public_encrypt
-
-  - id: c.openssl.algorithm.pke.rsa-oaep
-    message: Detected RSA-OAEP public key encryption usage
-    mode: taint
-    severity: INFO
-    languages: [c]
-
-    pattern-sources:
-      - pattern: RSA_PKCS1_OAEP_PADDING
-      - pattern: EVP_PKEY_CTX_set_rsa_padding($CTX, RSA_PKCS1_OAEP_PADDING)
-
-    pattern-sinks:
-      - patterns:
-          - pattern-either:
-              - pattern: EVP_PKEY_encrypt($CTX, $OUT, $OUTLEN, $IN, $INLEN)
-              - pattern: EVP_PKEY_decrypt($CTX, $OUT, $OUTLEN, $IN, $INLEN)
-              - pattern: RSA_public_encrypt($FLEN, $FROM, $TO, $RSA, $PADDING)
-              - pattern: RSA_private_decrypt($FLEN, $FROM, $TO, $RSA, $PADDING)
-          - focus-metavariable: $PADDING
-
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      crypto:
-        assetType: algorithm
-        algorithmPrimitive: pke
-        algorithmFamily: RSAES-OAEP
-        algorithmName: RSA-OAEP
-        library: OpenSSL
-        oid: 1.2.840.113549.1.1.7
-        api: EVP_PKEY_encrypt|RSA_public_encrypt
+- id: c.openssl.algorithm.pke.rsa-pkcs1
+  message: Detected RSA-PKCS1 public key encryption usage
+  mode: taint
+  options:
+    interfile: true
+  severity: INFO
+  languages:
+  - c
+  pattern-sources:
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<variant>rsaEncryption|RSA|rsa)"'
+  - pattern: EVP_PKEY_RSA
+  - patterns:
+    - pattern: RSA_generate_key($KEYSIZE, $E, $CB, $ARG)
+    - metavariable-regex:
+        metavariable: $KEYSIZE
+        regex: ^(?<keysize>512|1024|2048|3072|4096|8192)$
+  pattern-sinks:
+  - &id001
+    patterns:
+    - pattern: $API($ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^EVP_PKEY_CTX_new_id$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: pke
+      algorithmFamily: RSAES-PKCS1
+      algorithmName: RSA-PKCS1
+      algorithmParameterSetIdentifier: $keysize
+      library: OpenSSL
+      oid: 1.2.840.113549.1.1.1
+      api: $API
+- id: c.openssl.algorithm.pke.rsa-oaep
+  message: Detected RSA-OAEP public key encryption usage
+  mode: taint
+  options:
+    interfile: true
+  severity: INFO
+  languages:
+  - c
+  pattern-sources:
+  - pattern: RSA_PKCS1_OAEP_PADDING
+  - pattern: EVP_PKEY_CTX_set_rsa_padding($CTX, RSA_PKCS1_OAEP_PADDING)
+  pattern-sinks:
+  - *id001
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: pke
+      algorithmFamily: RSAES-OAEP
+      algorithmName: RSA-OAEP
+      library: OpenSSL
+      oid: 1.2.840.113549.1.1.7
+      api: $API

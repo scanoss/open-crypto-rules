@@ -2,6 +2,8 @@ rules:
   - id: c.openssl.algorithm.kdf.scrypt
     message: Detected scrypt key derivation function usage
     mode: taint
+    options:
+      interfile: true
     severity: INFO
     languages: [c]
 
@@ -11,9 +13,10 @@ rules:
 
     pattern-sinks:
       - patterns:
-          - pattern-either:
-              - pattern: EVP_PBE_scrypt($PASSWORD, $PLEN, $SALT, $SLEN, $N, $R, $P, $MAXMEM, $KEY, $KEY_LENGTH)
-              - pattern: EVP_KDF_CTX_set_params($CTX, $PARAMS)
+          - pattern: $API($PASSWORD, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^EVP_PBE_scrypt$'
           - focus-metavariable: $PASSWORD
 
     metadata:
@@ -26,4 +29,4 @@ rules:
         algorithmFamily: scrypt
         algorithmName: scrypt
         library: OpenSSL
-        api: EVP_PBE_scrypt|EVP_KDF_CTX_set_params
+        api: $API

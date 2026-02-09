@@ -2,6 +2,8 @@ rules:
   - id: c.openssl.algorithm.drbg.rand
     message: Detected OpenSSL random number generation
     mode: taint
+    options:
+      interfile: true
     severity: INFO
     languages: [c]
 
@@ -12,9 +14,10 @@ rules:
 
     pattern-sinks:
       - patterns:
-          - pattern-either:
-              - pattern: RAND_bytes($BUFFER, $SIZE)
-              - pattern: RAND_priv_bytes($BUFFER, $SIZE)
+          - pattern: $API($BUFFER, $SIZE)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(RAND_bytes|RAND_priv_bytes)$'
           - focus-metavariable: $BUFFER
 
     metadata:
@@ -27,4 +30,4 @@ rules:
         algorithmFamily: DRBG
         algorithmName: OpenSSL-RAND
         library: OpenSSL
-        api: RAND_bytes|RAND_priv_bytes
+        api: $API

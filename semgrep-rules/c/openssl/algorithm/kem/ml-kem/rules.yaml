@@ -2,6 +2,8 @@ rules:
   - id: c.openssl.algorithm.kem.ml-kem
     message: Detected ML-KEM post-quantum key encapsulation mechanism usage
     mode: taint
+    options:
+      interfile: true
     severity: INFO
     languages: [c]
 
@@ -10,17 +12,21 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '"(?<variant>id-alg-ml-kem-512|id-alg-ml-kem-768|id-alg-ml-kem-1024|ML-KEM-512|ML-KEM-768|ML-KEM-1024)"'
+              regex: '"(?<variant>id-alg-ml-kem-(?<keysize>512|768|1024))"'
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>ML-KEM-(?<keysize>512|768|1024))"'
 
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: EVP_PKEY_CTX_new_from_name($LIBCTX, $ALGO, $PROPQUERY)
-              - pattern: EVP_PKEY_keygen_init($CTX)
-              - pattern: EVP_PKEY_encapsulate_init($CTX, $PARAMS)
-              - pattern: EVP_PKEY_encapsulate($CTX, $WRAPPEDKEY, $WRAPPEDKEYLEN, $SECRET, $SECRETLEN)
-              - pattern: EVP_PKEY_decapsulate_init($CTX, $PARAMS)
-              - pattern: EVP_PKEY_decapsulate($CTX, $SECRET, $SECRETLEN, $WRAPPEDKEY, $WRAPPEDKEYLEN)
+              - pattern: $API($A, $ALGO, ...)
+              - pattern: $API($A, $B, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen)$'
           - focus-metavariable: $ALGO
 
     metadata:
@@ -31,6 +37,7 @@ rules:
         assetType: algorithm
         algorithmPrimitive: kem
         algorithmFamily: ML-KEM
-        algorithmName: $variant
+        algorithmName: ML-KEM-$keysize
+        algorithmParameterSetIdentifier: $keysize
         library: OpenSSL
-        api: EVP_PKEY_CTX_new_from_name|EVP_PKEY_encapsulate|EVP_PKEY_decapsulate
+        api: $API

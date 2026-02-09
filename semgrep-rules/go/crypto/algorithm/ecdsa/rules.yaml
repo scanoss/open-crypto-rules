@@ -5,6 +5,8 @@ rules:
     languages:
       - go
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - patterns:
           - pattern: $FUNC()

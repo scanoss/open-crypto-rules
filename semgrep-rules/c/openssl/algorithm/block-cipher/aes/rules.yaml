@@ -1,42 +1,42 @@
 rules:
-  - id: c.openssl.algorithm.block-cipher.aes
-    message: Detected AES block cipher usage
-    mode: taint
-    severity: INFO
-    languages: [c]
-
-    pattern-sources:
-      - patterns:
-          - pattern: $FUNC()
-          - metavariable-regex:
-              metavariable: $FUNC
-              regex: '^EVP_aes_(?<keysize>128|192|256)_(?<mode>cbc|ecb|cfb|ofb|ctr|xts)$'
-      - patterns:
-          - pattern: $ALGO
-          - metavariable-regex:
-              metavariable: $ALGO
-              regex: '"(?<variant>AES-(?<keysize>128|192|256)-(?<mode>CBC|ECB|CFB|OFB|CTR|XTS)|aes-(?<keysize2>128|192|256)-(?<mode2>cbc|ecb|cfb|ofb|ctr|xts))"'
-
-    pattern-sinks:
-      - patterns:
-          - pattern-either:
-              - pattern: EVP_CipherInit_ex($CTX, $ALGO, $ENGINE, $KEY, $IV, $ENC)
-              - pattern: EVP_EncryptInit_ex($CTX, $ALGO, $ENGINE, $KEY, $IV)
-              - pattern: EVP_DecryptInit_ex($CTX, $ALGO, $ENGINE, $KEY, $IV)
-              - pattern: EVP_get_cipherbyname($ALGO)
-              - pattern: EVP_CIPHER_fetch($CTX, $ALGO, $PROPS)
-          - focus-metavariable: $ALGO
-
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      crypto:
-        assetType: algorithm
-        algorithmPrimitive: block-cipher
-        algorithmFamily: AES
-        algorithmName: AES-$keysize-$mode
-        algorithmMode: $mode
-        algorithmParameterSetIdentifier: $keysize
-        library: OpenSSL
-        api: EVP_aes_*|EVP_get_cipherbyname|EVP_CipherInit_ex
+- id: c.openssl.algorithm.block-cipher.aes
+  message: Detected AES block cipher usage
+  mode: taint
+  options:
+    interfile: true
+  severity: INFO
+  languages:
+  - c
+  pattern-sources:
+  - patterns:
+    - pattern: $FUNC()
+    - metavariable-regex:
+        metavariable: $FUNC
+        regex: ^EVP_aes_(?<keysize>128|192|256)_(?<mode>cbc|ecb|cfb|ofb|ctr|xts)$
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<variant>AES-(?<keysize>128|192|256)-(?<mode>CBC|ECB|CFB|OFB|CTR|XTS)|aes-(?<keysize2>128|192|256)-(?<mode2>cbc|ecb|cfb|ofb|ctr|xts))"'
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_cipherbyname|EVP_CipherInit_ex|EVP_EncryptInit_ex|EVP_DecryptInit_ex|EVP_CIPHER_fetch)$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: AES
+      algorithmName: AES-$keysize-$mode
+      algorithmMode: $mode
+      algorithmParameterSetIdentifier: $keysize
+      library: OpenSSL
+      api: $API

@@ -1,28 +1,23 @@
 rules:
-  - id: c.openssl.algorithm.signature.ml-dsa
-    message: Detected ML-DSA post-quantum signature algorithm usage
+  - id: c.openssl.algorithm.kem.hybrid-ml-kem
+    message: Detected hybrid ML-KEM post-quantum key encapsulation mechanism usage
     mode: taint
-    severity: INFO
-    languages: [c]
     options:
       interfile: true
+    severity: INFO
+    languages: [c]
 
     pattern-sources:
       - patterns:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '"(?<variant>id-ml-dsa-(?<keysize>44|65|87))"'
+              regex: '"(?<variant>(?<classical>X25519|SecP256r1|SecP384r1|X448)MLKEM(?<keysize>768|1024))"'
       - patterns:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '"(?<variant>ML-DSA-(?<keysize>44|65|87))"'
-      - patterns:
-          - pattern: $ALGO
-          - metavariable-regex:
-              metavariable: $ALGO
-              regex: '"(?<variant>MLDSA(?<keysize>44|65|87))"'
+              regex: '"[^"]*(?<variant>(?<classical>X25519|SecP256r1|SecP384r1|X448)MLKEM(?<keysize>768|1024))[^"]*"'
 
     pattern-sinks:
       - patterns:
@@ -31,7 +26,7 @@ rules:
               - pattern: $API($A, $B, $ALGO, ...)
           - metavariable-regex:
               metavariable: $API
-              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen|EVP_SIGNATURE_fetch|EVP_PKEY_new_raw_private_key_ex|EVP_PKEY_new_raw_public_key_ex|EVP_PKEY_sign_message_init|EVP_PKEY_verify_message_init)$'
+              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen|SSL_CTX_set1_groups_list|SSL_set1_groups_list)$'
           - focus-metavariable: $ALGO
 
     metadata:
@@ -40,9 +35,10 @@ rules:
       confidence: HIGH
       crypto:
         assetType: algorithm
-        algorithmPrimitive: signature
-        algorithmFamily: ML-DSA
-        algorithmName: ML-DSA-$keysize
+        algorithmPrimitive: kem
+        algorithmFamily: ML-KEM
+        algorithmName: $variant
         algorithmParameterSetIdentifier: $keysize
+        classicalAlgorithm: $classical
         library: OpenSSL
         api: $API

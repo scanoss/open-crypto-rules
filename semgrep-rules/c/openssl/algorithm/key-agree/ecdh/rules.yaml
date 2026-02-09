@@ -1,37 +1,35 @@
 rules:
-  - id: c.openssl.algorithm.key-agree.ecdh
-    message: Detected ECDH key agreement usage
-    mode: taint
-    severity: INFO
-    languages: [c]
-
-    pattern-sources:
-      - patterns:
-          - pattern: $ALGO
-          - metavariable-regex:
-              metavariable: $ALGO
-              regex: '"(?<variant>id-ecPublicKey|EC|ec|ecdh)"'
-      - pattern: EVP_PKEY_EC
-
-    pattern-sinks:
-      - patterns:
-          - pattern-either:
-              - pattern: EVP_PKEY_CTX_new_id($ALGO, $ENGINE)
-              - pattern: EVP_PKEY_keygen_init($CTX)
-              - pattern: EVP_PKEY_derive_init($CTX)
-              - pattern: EVP_PKEY_derive($CTX, $KEY, $KEYLEN)
-              - pattern: ECDH_compute_key($OUT, $OUTLEN, $PUB_KEY, $ECDH, $KDF)
-          - focus-metavariable: $ALGO
-
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: HIGH
-      crypto:
-        assetType: algorithm
-        algorithmPrimitive: key-agree
-        algorithmFamily: ECDH
-        algorithmName: ECDH
-        library: OpenSSL
-        oid: 1.2.840.10045.2.1
-        api: EVP_PKEY_CTX_new_id|EVP_PKEY_derive|ECDH_compute_key
+- id: c.openssl.algorithm.key-agree.ecdh
+  message: Detected ECDH key agreement usage
+  mode: taint
+  options:
+    interfile: true
+  severity: INFO
+  languages:
+  - c
+  pattern-sources:
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<variant>id-ecPublicKey|EC|ec|ecdh)"'
+  - pattern: EVP_PKEY_EC
+  pattern-sinks:
+  - patterns:
+    - pattern: $API($ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^EVP_PKEY_CTX_new_id$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: key-agree
+      algorithmFamily: ECDH
+      algorithmName: ECDH
+      library: OpenSSL
+      oid: 1.2.840.10045.2.1
+      api: $API

@@ -4,6 +4,8 @@ rules:
     severity: INFO
     languages: [go]
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - patterns:
           - pattern-either:
@@ -71,6 +73,8 @@ rules:
     severity: INFO
     languages: [go]
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - patterns:
           - pattern-either:
@@ -138,6 +142,8 @@ rules:
     severity: INFO
     languages: [go]
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - patterns:
           - pattern-either:
@@ -205,6 +211,8 @@ rules:
     severity: INFO
     languages: [go]
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - patterns:
           - pattern-either:

@@ -2,6 +2,8 @@ rules:
   - id: c.openssl.algorithm.mac.hmac
     message: Detected HMAC message authentication code usage
     mode: taint
+    options:
+      interfile: true
     severity: INFO
     languages: [c]
 
@@ -11,10 +13,11 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: HMAC($EVP_MD, $KEY, $KEY_LEN, $DATA, $DATA_LEN, $OUT, $OUT_LEN)
-              - pattern: HMAC_Init_ex($CTX, $KEY, $KEY_LEN, $EVP_MD, $ENGINE)
-              - pattern: HMAC_Init($CTX, $KEY, $KEY_LEN, $EVP_MD)
-              - pattern: EVP_MAC_CTX_set_params($CTX, $PARAMS)
+              - pattern: $API($EVP_MD, ...)
+              - pattern: $API($A, $B, $C, $EVP_MD, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(HMAC|HMAC_Init_ex|HMAC_Init)$'
           - focus-metavariable: $EVP_MD
 
     metadata:
@@ -27,4 +30,4 @@ rules:
         algorithmFamily: HMAC
         algorithmName: HMAC
         library: OpenSSL
-        api: HMAC|HMAC_Init_ex|EVP_MAC_CTX_set_params
+        api: $API

@@ -40,6 +40,8 @@ rules:
     severity: INFO
     languages: [go]
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - pattern: |
           &acme.Client{...}
@@ -79,6 +81,8 @@ rules:
     severity: INFO
     languages: [go]
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - pattern: |
           &acme.Client{...}
@@ -118,6 +122,8 @@ rules:
     severity: INFO
     languages: [go]
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - pattern: |
           &acme.Client{...}
@@ -157,6 +163,8 @@ rules:
     severity: INFO
     languages: [go]
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - pattern: |
           &acme.Client{...}
@@ -196,6 +204,8 @@ rules:
     severity: INFO
     languages: [go]
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - pattern: |
           &acme.Client{...}
@@ -235,6 +245,8 @@ rules:
     severity: INFO
     languages: [go]
     mode: taint
+    options:
+      interfile: true
     pattern-sources:
       - pattern: |
           &acme.Client{...}
