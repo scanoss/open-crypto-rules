@@ -1,0 +1,192 @@
+rules:
+  - id: rust.openssl.aes-kw.wrap-key
+    message: Detected AES key wrapping using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::aes::wrap_key($KEY, $IV, $OUT, $IN)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: aes::wrap_key($KEY, $IV, $OUT, $IN)
+                  - pattern: wrap_key($KEY, $IV, $OUT, $IN)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl::aes.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: kw
+        operation: encrypt
+        algorithmName: AES-Wrap
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: key-wrap
+
+  - id: rust.openssl.aes-kw.unwrap-key
+    message: Detected AES key unwrapping using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::aes::unwrap_key($KEY, $IV, $OUT, $IN)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: aes::unwrap_key($KEY, $IV, $OUT, $IN)
+                  - pattern: unwrap_key($KEY, $IV, $OUT, $IN)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl::aes.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: kw
+        operation: decrypt
+        algorithmName: AES-Wrap
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: key-wrap
+
+  - id: rust.openssl.aes-kw.aeskey-encrypt
+    message: Detected AES key creation for encryption using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::aes::AesKey::new_encrypt($KEY)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: AesKey::new_encrypt($KEY)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: kw
+        operation: keygen
+        algorithmName: AES
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: key-wrap
+
+  - id: rust.openssl.aes-kw.aeskey-decrypt
+    message: Detected AES key creation for decryption using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::aes::AesKey::new_decrypt($KEY)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: AesKey::new_decrypt($KEY)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: kw
+        operation: keygen
+        algorithmName: AES
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: key-wrap
+
+  - id: rust.openssl.aes-kw.cipher-wrap
+    message: Detected AES key wrap cipher instantiation using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::symm::Cipher::$METHOD()
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Cipher::$METHOD()
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: "aes_(?P<bits>128|192|256)_wrap"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: kw
+        operation: instantiate
+        algorithmName: AES-$bits-Wrap
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: key-wrap
+        algorithmParameterSetIdentifier: $bits
+
+  - id: rust.openssl.aes-kw.cipher-wrap-pad
+    message: Detected AES key wrap with padding cipher instantiation using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::symm::Cipher::$METHOD()
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Cipher::$METHOD()
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: "aes_(?P<bits>128|192|256)_wrap_pad"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: kw
+        operation: instantiate
+        algorithmName: AES-$bits-Wrap-KWP
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: key-wrap
+        algorithmParameterSetIdentifier: $bits

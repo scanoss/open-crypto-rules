@@ -1,0 +1,571 @@
+rules:
+  - id: rust.openssl.ec.curve-from-name
+    message: Detected elliptic curve selection via openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcGroup::from_curve_name($NID)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcGroup::from_curve_name($NID)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+      - metavariable-regex:
+          metavariable: $NID
+          regex: "(?:Nid::)?(X9_62_PRIME256V1|SECP384R1|SECP521R1|SECP256K1|X25519|ED25519|SECP224R1|SECP224K1|SECP192K1|PRIME192V1)"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: instantiate
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+        ellipticCurve: $NID
+
+  - id: rust.openssl.ec.curve-from-components
+    message: Detected custom elliptic curve creation via openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcGroup::from_components($P, $A, $B, $CTX)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcGroup::from_components($P, $A, $B, $CTX)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: instantiate
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.ec.key-generate
+    message: Detected EC key generation using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::generate($GROUP)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcKey::generate($GROUP)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: keygen
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.ec.key-from-curve-name
+    message: Detected EC key creation from curve name using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::from_curve_name($NID)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcKey::from_curve_name($NID)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: instantiate
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.ec.key-from-group
+    message: Detected EC key creation from group using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::from_group($GROUP)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcKey::from_group($GROUP)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: instantiate
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.ec.key-from-public-key
+    message: Detected EC public key construction using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::from_public_key($GROUP, $POINT)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcKey::from_public_key($GROUP, $POINT)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: keygen
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.ec.key-from-public-key-affine
+    message: Detected EC public key construction from affine coordinates using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::from_public_key_affine_coordinates($GROUP, $X, $Y)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcKey::from_public_key_affine_coordinates($GROUP, $X, $Y)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: keygen
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.ec.key-from-private-components
+    message: Detected EC private key construction from components using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::from_private_components($GROUP, $PRIVATE, $PUBLIC)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcKey::from_private_components($GROUP, $PRIVATE, $PUBLIC)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: keygen
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.ec.private-key-from-pem
+    message: Detected EC private key loading from PEM using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::private_key_from_pem($PEM)
+          - pattern: openssl::ec::EcKey::private_key_from_pem_passphrase($PEM, $PASSPHRASE)
+          - pattern: openssl::ec::EcKey::private_key_from_pem_callback($PEM, $CALLBACK)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: EcKey::private_key_from_pem($PEM)
+                  - pattern: EcKey::private_key_from_pem_passphrase($PEM, $PASSPHRASE)
+                  - pattern: EcKey::private_key_from_pem_callback($PEM, $CALLBACK)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: load
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+        keyFormat: PEM
+
+  - id: rust.openssl.ec.private-key-from-der
+    message: Detected EC private key loading from DER using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::private_key_from_der($DER)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcKey::private_key_from_der($DER)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: load
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+        keyFormat: DER
+
+  - id: rust.openssl.ec.public-key-from-pem
+    message: Detected EC public key loading from PEM using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::public_key_from_pem($PEM)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcKey::public_key_from_pem($PEM)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: load
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+        keyFormat: PEM
+
+  - id: rust.openssl.ec.public-key-from-der
+    message: Detected EC public key loading from DER using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::public_key_from_der($DER)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcKey::public_key_from_der($DER)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: load
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+        keyFormat: DER
+
+  - id: rust.openssl.ec.private-key-to-der
+    message: Detected EC private key export to DER using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::generate($GROUP)
+          - pattern: openssl::ec::EcKey::from_private_components($GROUP, $PRIVATE, $PUBLIC)
+          - pattern: openssl::ec::EcKey::private_key_from_pem($PEM)
+          - pattern: openssl::ec::EcKey::private_key_from_der($DER)
+          - pattern: EcKey::generate($GROUP)
+          - pattern: EcKey::from_private_components($GROUP, $PRIVATE, $PUBLIC)
+          - pattern: EcKey::private_key_from_pem($PEM)
+          - pattern: EcKey::private_key_from_der($DER)
+    pattern-sinks:
+      - pattern: $KEY.private_key_to_der()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: serialize
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+        keyFormat: DER
+
+  - id: rust.openssl.ec.private-key-to-pem
+    message: Detected EC private key export to PEM using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::generate($GROUP)
+          - pattern: openssl::ec::EcKey::from_private_components($GROUP, $PRIVATE, $PUBLIC)
+          - pattern: openssl::ec::EcKey::private_key_from_pem($PEM)
+          - pattern: openssl::ec::EcKey::private_key_from_der($DER)
+          - pattern: EcKey::generate($GROUP)
+          - pattern: EcKey::from_private_components($GROUP, $PRIVATE, $PUBLIC)
+          - pattern: EcKey::private_key_from_pem($PEM)
+          - pattern: EcKey::private_key_from_der($DER)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $KEY.private_key_to_pem()
+          - pattern: $KEY.private_key_to_pem_passphrase($CIPHER, $PASSPHRASE)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: serialize
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+        keyFormat: PEM
+
+  - id: rust.openssl.ec.public-key-to-der
+    message: Detected EC public key export to DER using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::generate($GROUP)
+          - pattern: openssl::ec::EcKey::from_public_key($GROUP, $POINT)
+          - pattern: openssl::ec::EcKey::from_public_key_affine_coordinates($GROUP, $X, $Y)
+          - pattern: openssl::ec::EcKey::public_key_from_pem($PEM)
+          - pattern: openssl::ec::EcKey::public_key_from_der($DER)
+          - pattern: EcKey::generate($GROUP)
+          - pattern: EcKey::from_public_key($GROUP, $POINT)
+          - pattern: EcKey::from_public_key_affine_coordinates($GROUP, $X, $Y)
+          - pattern: EcKey::public_key_from_pem($PEM)
+          - pattern: EcKey::public_key_from_der($DER)
+    pattern-sinks:
+      - pattern: $KEY.public_key_to_der()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: serialize
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+        keyFormat: DER
+
+  - id: rust.openssl.ec.public-key-to-pem
+    message: Detected EC public key export to PEM using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ec::EcKey::generate($GROUP)
+          - pattern: openssl::ec::EcKey::from_public_key($GROUP, $POINT)
+          - pattern: openssl::ec::EcKey::from_public_key_affine_coordinates($GROUP, $X, $Y)
+          - pattern: openssl::ec::EcKey::public_key_from_pem($PEM)
+          - pattern: openssl::ec::EcKey::public_key_from_der($DER)
+          - pattern: EcKey::generate($GROUP)
+          - pattern: EcKey::from_public_key($GROUP, $POINT)
+          - pattern: EcKey::from_public_key_affine_coordinates($GROUP, $X, $Y)
+          - pattern: EcKey::public_key_from_pem($PEM)
+          - pattern: EcKey::public_key_from_der($DER)
+    pattern-sinks:
+      - pattern: $KEY.public_key_to_pem()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: serialize
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+        keyFormat: PEM
+
+  - id: rust.openssl.ec.point-from-bytes
+    message: Detected EC point loading from bytes using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcPoint::from_bytes($GROUP, $BUF, $CTX)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcPoint::from_bytes($GROUP, $BUF, $CTX)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: load
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.ec.point-from-hex
+    message: Detected EC point loading from hex string using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ec::EcPoint::from_hex_str($GROUP, $HEX, $CTX)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcPoint::from_hex_str($GROUP, $HEX, $CTX)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: load
+        algorithmName: EC
+        algorithmFamily: EC
+        library: openssl
+        algorithmPrimitive: signature

@@ -1,0 +1,101 @@
+rules:
+  - id: rust.openssl.aes-gcm.cipher
+    message: Detected AES-GCM cipher instantiation using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::symm::Cipher::$METHOD()
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Cipher::$METHOD()
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: "aes_(?P<bits>128|192|256)_gcm"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: ae
+        operation: instantiate
+        algorithmName: AES-$bits-GCM
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: ae
+        algorithmParameterSetIdentifier: $bits
+        algorithmMode: GCM
+
+  - id: rust.openssl.aes-gcm.encrypt-aead
+    message: Detected AES-GCM AEAD encryption using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::symm::encrypt_aead($CIPHER, $KEY, $IV, $AAD, $DATA, $TAG)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: encrypt_aead($CIPHER, $KEY, $IV, $AAD, $DATA, $TAG)
+                  - pattern: symm::encrypt_aead($CIPHER, $KEY, $IV, $AAD, $DATA, $TAG)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: ae
+        operation: encrypt
+        algorithmName: AES-GCM
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: ae
+        algorithmMode: GCM
+
+  - id: rust.openssl.aes-gcm.decrypt-aead
+    message: Detected AES-GCM AEAD decryption using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::symm::decrypt_aead($CIPHER, $KEY, $IV, $AAD, $DATA, $TAG)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: decrypt_aead($CIPHER, $KEY, $IV, $AAD, $DATA, $TAG)
+                  - pattern: symm::decrypt_aead($CIPHER, $KEY, $IV, $AAD, $DATA, $TAG)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: ae
+        operation: decrypt
+        algorithmName: AES-GCM
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: ae
+        algorithmMode: GCM
