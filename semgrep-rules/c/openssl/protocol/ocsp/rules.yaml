@@ -1,0 +1,21 @@
+rules:
+  - id: c.openssl.protocol.ocsp
+    message: Detected OCSP operations
+    severity: INFO
+    languages: [c]
+    patterns:
+      - pattern: $API(...)
+      - metavariable-regex:
+          metavariable: $API
+          regex: ^(?:OCSP_REQUEST_new|OCSP_REQ_CTX_set1_req|OCSP_response_status|OCSP_response_get1_basic|OCSP_check_nonce|OCSP_basic_verify|OCSP_resp_find_status|OCSP_check_validity|OCSP_cert_status_str)$
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: OCSP
+        library: OpenSSL
+        api: $API
+

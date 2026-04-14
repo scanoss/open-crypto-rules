@@ -2,8 +2,6 @@ rules:
 - id: c.openssl.algorithm.hash.sha-1
   message: Detected SHA-1 hash function usage
   mode: taint
-  options:
-    interfile: true
   severity: INFO
   languages:
   - c
@@ -21,7 +19,7 @@ rules:
       - pattern: $API($CTX, $ALGO, ...)
     - metavariable-regex:
         metavariable: $API
-        regex: ^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit_ex2?|EVP_MD_fetch)$
+        regex: ^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit(?:_ex2?)?|EVP_MD_fetch)$
     - focus-metavariable: $ALGO
   metadata:
     category: security
@@ -58,3 +56,23 @@ rules:
       algorithmParameterSetIdentifier: '160'
       library: OpenSSL
       oid: 1.3.14.3.2.26
+- id: c.openssl.algorithm.hash.sha-1.constructor
+  message: Detected SHA-1 hash constructor usage
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: EVP_sha1()
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-1
+      algorithmName: SHA-1
+      algorithmParameterSetIdentifier: '160'
+      library: OpenSSL
+      oid: 1.3.14.3.2.26
+      api: EVP_sha1

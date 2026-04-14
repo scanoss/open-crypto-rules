@@ -2,8 +2,6 @@ rules:
 - id: c.openssl.algorithm.hash.sha-2
   message: Detected SHA-2 family hash function usage
   mode: taint
-  options:
-    interfile: true
   severity: INFO
   languages:
   - c
@@ -25,7 +23,7 @@ rules:
       - pattern: $API($CTX, $ALGO, ...)
     - metavariable-regex:
         metavariable: $API
-        regex: ^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit_ex2?|EVP_MD_fetch)$
+        regex: ^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit(?:_ex2?)?|EVP_MD_fetch)$
     - focus-metavariable: $ALGO
   - patterns:
     - pattern: EVP_Digest($DATA, $LEN, $MD, $MDLEN, $ALGO, ...)
@@ -41,6 +39,28 @@ rules:
       algorithmName: $variant
       library: OpenSSL
       api: $API
+- id: c.openssl.algorithm.hash.sha-2.digestinit
+  message: Detected SHA-2 family hash function usage via EVP_DigestInit
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: EVP_DigestInit($CTX, $FUNC())
+  - metavariable-regex:
+      metavariable: $FUNC
+      regex: ^EVP_sha(?<bits>224|256|384|512)$
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-2
+      algorithmName: SHA-$bits
+      algorithmParameterSetIdentifier: $bits
+      library: OpenSSL
+      api: EVP_DigestInit
 - id: c.openssl.algorithm.hash.sha-2.generic
   message: Detected SHA-2 family hash algorithm name
   severity: INFO
@@ -61,3 +81,25 @@ rules:
       algorithmFamily: SHA-2
       algorithmName: $variant
       library: OpenSSL
+- id: c.openssl.algorithm.hash.sha-2.constructor
+  message: Detected SHA-2 family hash constructor usage
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $FUNC()
+  - metavariable-regex:
+      metavariable: $FUNC
+      regex: ^EVP_sha(?<bits>224|256|384|512)$
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-2
+      algorithmName: SHA-$bits
+      algorithmParameterSetIdentifier: $bits
+      library: OpenSSL
+      api: $FUNC

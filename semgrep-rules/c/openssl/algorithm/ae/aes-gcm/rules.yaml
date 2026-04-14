@@ -2,8 +2,6 @@ rules:
 - id: c.openssl.algorithm.ae.aes
   message: Detected AES authenticated encryption usage
   mode: taint
-  options:
-    interfile: true
   severity: INFO
   languages:
   - c
@@ -40,6 +38,29 @@ rules:
       algorithmParameterSetIdentifier: $keysize
       library: OpenSSL
       api: $API
+- id: c.openssl.algorithm.ae.aes.constructor
+  message: Detected AES authenticated encryption constructor usage
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $FUNC()
+  - metavariable-regex:
+      metavariable: $FUNC
+      regex: ^EVP_aes_(?<keysize>128|192|256)_(?<mode>gcm|ccm)$
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: ae
+      algorithmFamily: AES
+      algorithmName: AES-$keysize-$mode
+      algorithmMode: $mode
+      algorithmParameterSetIdentifier: $keysize
+      library: OpenSSL
+      api: $FUNC
 - id: c.openssl.algorithm.ae.aes.generic
   message: Detected AES authenticated encryption algorithm name
   severity: INFO

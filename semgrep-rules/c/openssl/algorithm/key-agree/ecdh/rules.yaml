@@ -2,8 +2,6 @@ rules:
 - id: c.openssl.algorithm.key-agree.ecdh
   message: Detected ECDH key agreement usage
   mode: taint
-  options:
-    interfile: true
   severity: INFO
   languages:
   - c
@@ -29,6 +27,28 @@ rules:
         metavariable: $API
         regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen)$'
     - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: key-agree
+      algorithmFamily: ECDH
+      algorithmName: ECDH
+      library: OpenSSL
+      oid: 1.2.840.10045.2.1
+      api: $API
+- id: c.openssl.algorithm.key-agree.ecdh.low-level
+  message: Detected low-level ECDH key agreement usage
+  severity: INFO
+  languages:
+  - c
+  patterns:
+  - pattern: $API(...)
+  - metavariable-regex:
+      metavariable: $API
+      regex: ^(?:EC_KEY_new_by_curve_name|EC_KEY_generate_key|EC_POINT_mul)$
   metadata:
     category: security
     subcategory: cryptography

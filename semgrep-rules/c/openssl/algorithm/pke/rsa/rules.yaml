@@ -90,24 +90,3 @@ rules:
         library: OpenSSL
         oid: 1.2.840.113549.1.1.7
         api: $API
-
-  - id: c.openssl.algorithm.pke.rsa-pkcs1.generic
-    message: Detected RSA-PKCS1 public key encryption algorithm name
-    severity: INFO
-    languages: [c]
-    patterns:
-      - pattern: $ALGO
-      - metavariable-regex:
-          metavariable: $ALGO
-          regex: '"(?<variant>rsaEncryption|RSA|rsa)"'
-    metadata:
-      category: security
-      subcategory: cryptography
-      confidence: MEDIUM
-      crypto:
-        assetType: algorithm
-        algorithmPrimitive: pke
-        algorithmFamily: RSAES-PKCS1
-        algorithmName: RSA-PKCS1
-        library: OpenSSL
-        oid: 1.2.840.113549.1.1.1
