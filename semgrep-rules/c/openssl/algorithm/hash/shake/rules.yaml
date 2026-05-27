@@ -34,6 +34,7 @@ rules:
     confidence: HIGH
     crypto:
       assetType: algorithm
+      operation: "digest"
       algorithmPrimitive: xof
       algorithmFamily: SHAKE
       algorithmName: $variant

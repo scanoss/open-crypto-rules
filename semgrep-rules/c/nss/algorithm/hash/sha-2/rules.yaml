@@ -28,6 +28,7 @@ rules:
       confidence: HIGH
       crypto:
         assetType: algorithm
+        operation: "digest"
         algorithmPrimitive: hash
         algorithmFamily: SHA-2
         algorithmName: $variant

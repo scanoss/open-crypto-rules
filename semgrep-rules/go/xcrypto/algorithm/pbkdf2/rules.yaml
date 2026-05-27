@@ -80,7 +80,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kdf
-        operation: keyderive
+        operation: "keyderive"
         algorithmPrimitive: kdf
         algorithmName: PBKDF2-$hash-$iterations-$keylen
         algorithmFamily: PBKDF2

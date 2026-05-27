@@ -21,7 +21,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kdf
-        operation: keyderive
+        operation: "keyderive"
         algorithmName: HKDF-$1
         algorithmFamily: HKDF
         library: crypto/hkdf
@@ -52,7 +52,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kdf
-        operation: keyderive
+        operation: "keyderive"
         algorithmName: HKDF-$1
         algorithmFamily: HKDF
         library: crypto/hkdf
@@ -83,7 +83,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kdf
-        operation: keyderive
+        operation: "keyderive"
         algorithmName: HKDF-$1
         algorithmFamily: HKDF
         library: crypto/hkdf

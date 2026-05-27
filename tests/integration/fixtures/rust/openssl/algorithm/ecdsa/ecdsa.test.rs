@@ -27,7 +27,7 @@ fn test_ecdsa_verify() {
 }
 
 // TEST-RULE: rust.openssl.ecdsa.sig-from-der
-// TEST-METADATA: assetType=algorithm, findingType=signature, operation=load, algorithmName=ECDSA, algorithmFamily=ECDSA, library=openssl, algorithmPrimitive=signature, signatureFormat=DER
+// TEST-METADATA: assetType=algorithm, findingType=signature, algorithmName=ECDSA, algorithmFamily=ECDSA, library=openssl, algorithmPrimitive=signature, signatureFormat=DER
 fn test_ecdsa_sig_from_der() {
     use openssl::ecdsa::EcdsaSig;
     let der_data = [0u8; 72];
@@ -36,7 +36,7 @@ fn test_ecdsa_sig_from_der() {
 }
 
 // TEST-RULE: rust.openssl.ecdsa.sig-from-components
-// TEST-METADATA: assetType=algorithm, findingType=signature, operation=instantiate, algorithmName=ECDSA, algorithmFamily=ECDSA, library=openssl, algorithmPrimitive=signature
+// TEST-METADATA: assetType=algorithm, findingType=signature, algorithmName=ECDSA, algorithmFamily=ECDSA, library=openssl, algorithmPrimitive=signature
 fn test_ecdsa_sig_from_components() {
     use openssl::bn::BigNum;
     use openssl::ecdsa::EcdsaSig;
@@ -47,7 +47,7 @@ fn test_ecdsa_sig_from_components() {
 }
 
 // TEST-RULE: rust.openssl.ecdsa.sig-to-der
-// TEST-METADATA: assetType=algorithm, findingType=signature, operation=serialize, algorithmName=ECDSA, algorithmFamily=ECDSA, library=openssl, algorithmPrimitive=signature, signatureFormat=DER
+// TEST-METADATA: assetType=algorithm, findingType=signature, algorithmName=ECDSA, algorithmFamily=ECDSA, library=openssl, algorithmPrimitive=signature, signatureFormat=DER
 fn test_ecdsa_sig_to_der() {
     use openssl::ec::{EcGroup, EcKey};
     use openssl::ecdsa::EcdsaSig;

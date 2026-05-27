@@ -27,7 +27,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
+        operation: "encrypt"
         algorithmPrimitive: ae
         algorithmName: XSalsa20-Poly1305
         algorithmFamily: XSalsa20
@@ -61,7 +61,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: decrypt
         algorithmPrimitive: ae
         algorithmName: XSalsa20-Poly1305
         algorithmFamily: XSalsa20

@@ -5,7 +5,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.salsa20.stream-cipher
-// TEST-METADATA: operation:encrypt findingType:cipher api:salsa.XORKeyStream
+// TEST-METADATA: findingType:cipher api:salsa.XORKeyStream
 func testXORKeyStream() {
 	var out [64]byte
 	var in [64]byte
@@ -29,7 +29,7 @@ func testHSalsa20() {
 }
 
 // TEST-RULE: go.xcrypto.salsa20.core208
-// TEST-METADATA: operation:encrypt findingType:cipher api:salsa.Core208
+// TEST-METADATA: findingType:cipher api:salsa.Core208
 func testCore208() {
 	var out [64]byte
 	var in [64]byte

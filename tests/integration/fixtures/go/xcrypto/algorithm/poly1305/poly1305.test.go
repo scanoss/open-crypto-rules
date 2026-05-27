@@ -5,7 +5,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.poly1305.mac
-// TEST-METADATA: operation:sign findingType:mac api:poly1305.New
+// TEST-METADATA: operation:tag findingType:mac api:poly1305.New
 func testPoly1305New() {
 	key := [32]byte{}
 	
@@ -15,7 +15,7 @@ func testPoly1305New() {
 }
 
 // TEST-RULE: go.xcrypto.poly1305.sum
-// TEST-METADATA: operation:sign findingType:mac api:poly1305.Sum
+// TEST-METADATA: operation:tag findingType:mac api:poly1305.Sum
 func testPoly1305Sum() {
 	message := [16]byte{'H', 'e', 'l', 'l', 'o', ' ', 'G', 'o', 'p', 'h', 'e', 'r', 's'}
 	key := [32]byte{}

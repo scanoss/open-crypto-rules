@@ -42,7 +42,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmPrimitive: hash
         algorithmName: BLAKE2b-$size
         algorithmFamily: BLAKE2b

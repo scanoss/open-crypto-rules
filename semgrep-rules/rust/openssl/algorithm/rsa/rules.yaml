@@ -26,7 +26,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: keygen
+        operation: "keygen"
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -60,7 +60,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: keygen
+        operation: "keygen"
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -90,7 +90,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: keygen
+        operation: "keygen"
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -120,7 +120,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: keygen
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -150,7 +149,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: keygen
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -180,7 +178,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: keygen
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -215,7 +212,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: load
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -246,7 +242,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: load
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -280,7 +275,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: load
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -314,7 +308,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: load
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -349,7 +342,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: serialize
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -386,7 +378,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: serialize
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -421,7 +412,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: serialize
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -456,7 +446,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: serialize
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -491,7 +480,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: decrypt
+        operation: "decrypt"
         algorithmName: RSA-OAEP
         algorithmFamily: RSA
         library: openssl
@@ -526,7 +515,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: decrypt
+        operation: "decrypt"
         algorithmName: RSA-PKCS1-1.5
         algorithmFamily: RSA
         library: openssl
@@ -561,7 +550,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: encrypt
+        operation: "encrypt"
         algorithmName: RSA-OAEP
         algorithmFamily: RSA
         library: openssl
@@ -596,7 +585,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: encrypt
+        operation: "encrypt"
         algorithmName: RSA-PKCS1-1.5
         algorithmFamily: RSA
         library: openssl
@@ -629,7 +618,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: sign
+        operation: "encrypt"
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -661,7 +650,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: verify
+        operation: "decrypt"
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -687,7 +676,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: encrypt
+        operation: "encrypt"
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl
@@ -713,7 +702,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: pke
-        operation: decrypt
+        operation: "decrypt"
         algorithmName: RSA
         algorithmFamily: RSA
         library: openssl

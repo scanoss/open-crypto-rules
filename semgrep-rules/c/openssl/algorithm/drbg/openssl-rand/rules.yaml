@@ -26,6 +26,7 @@ rules:
       confidence: HIGH
       crypto:
         assetType: algorithm
+        operation: "generate"
         algorithmPrimitive: drbg
         algorithmFamily: DRBG
         algorithmName: OpenSSL-RAND

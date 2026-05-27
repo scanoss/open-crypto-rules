@@ -23,7 +23,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: keyderive
-        operation: instantiate
         algorithmName: ECDH
         algorithmFamily: ECDH
         library: openssl
@@ -51,7 +50,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: keyderive
-        operation: configure
         algorithmName: ECDH
         algorithmFamily: ECDH
         library: openssl
@@ -79,7 +77,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: keyderive
-        operation: keyderive
         algorithmName: ECDH
         algorithmFamily: ECDH
         library: openssl

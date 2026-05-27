@@ -25,7 +25,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kw
-        operation: encrypt
         algorithmName: AES-Wrap
         algorithmFamily: AES
         library: openssl
@@ -57,7 +56,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kw
-        operation: decrypt
         algorithmName: AES-Wrap
         algorithmFamily: AES
         library: openssl
@@ -87,7 +85,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kw
-        operation: keygen
+        operation: "encrypt"
         algorithmName: AES
         algorithmFamily: AES
         library: openssl
@@ -117,7 +115,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kw
-        operation: keygen
+        operation: "decrypt"
         algorithmName: AES
         algorithmFamily: AES
         library: openssl
@@ -150,7 +148,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kw
-        operation: instantiate
         algorithmName: AES-$bits-Wrap
         algorithmFamily: AES
         library: openssl
@@ -184,7 +181,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kw
-        operation: instantiate
         algorithmName: AES-$bits-Wrap-KWP
         algorithmFamily: AES
         library: openssl

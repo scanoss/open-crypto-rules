@@ -26,7 +26,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: instantiate
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -57,7 +56,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: instantiate
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -87,7 +85,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: keygen
+        operation: "keygen"
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -117,7 +115,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: instantiate
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -147,7 +144,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: instantiate
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -177,7 +173,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: keygen
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -207,7 +202,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: keygen
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -237,7 +231,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: keygen
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -272,7 +265,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: load
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -303,7 +295,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: load
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -334,7 +325,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: load
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -365,7 +355,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: load
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -398,7 +387,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: serialize
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -433,7 +421,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: serialize
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -468,7 +455,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: serialize
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -503,7 +489,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: serialize
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -534,7 +519,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: load
         algorithmName: EC
         algorithmFamily: EC
         library: openssl
@@ -564,7 +548,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: load
         algorithmName: EC
         algorithmFamily: EC
         library: openssl

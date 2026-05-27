@@ -22,7 +22,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
+        operation: "keygen"
         algorithmName: ML-KEM-$params
         algorithmFamily: ML-KEM
         library: crypto/mlkem
@@ -56,7 +56,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
+        operation: "keygen"
         algorithmName: ML-KEM-$params
         algorithmFamily: ML-KEM
         library: crypto/mlkem
@@ -90,7 +90,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
+        operation: "encapsulate"
         algorithmName: ML-KEM-$params
         algorithmFamily: ML-KEM
         library: crypto/mlkem
@@ -117,7 +117,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
+        operation: "encapsulate"
         algorithmName: ML-KEM
         algorithmFamily: ML-KEM
         library: crypto/mlkem
@@ -142,7 +142,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
+        operation: "decapsulate"
         algorithmName: ML-KEM
         algorithmFamily: ML-KEM
         library: crypto/mlkem
@@ -177,7 +177,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
         algorithmName: ML-KEM
         algorithmFamily: ML-KEM
         library: crypto/mlkem
@@ -202,7 +201,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
+        operation: "encapsulate"
         algorithmName: ML-KEM
         algorithmFamily: ML-KEM
         library: crypto/mlkem
@@ -254,7 +253,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
         algorithmName: ML-KEM
         algorithmFamily: ML-KEM
         library: crypto/mlkem

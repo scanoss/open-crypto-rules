@@ -1,5 +1,5 @@
 // TEST-RULE: go.crypto.rsa.sign-pss
-// TEST-METADATA: assetType=algorithm, findingType=signature, operation=sign, algorithmPrimitive=signature, algorithmName=RSA-PSS-SHA256, algorithmFamily=RSA, library=crypto/rsa, api=rsa.SignPSS
+// TEST-METADATA: assetType=algorithm, findingType=signature, algorithmPrimitive=signature, algorithmName=RSA-PSS-SHA256, algorithmFamily=RSA, library=crypto/rsa, api=rsa.SignPSS
 
 package main
 

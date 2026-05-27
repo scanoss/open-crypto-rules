@@ -23,7 +23,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: sign
+        operation: "sign"
         algorithmName: ECDSA
         algorithmFamily: ECDSA
         library: openssl
@@ -51,7 +51,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: verify
+        operation: "verify"
         algorithmName: ECDSA
         algorithmFamily: ECDSA
         library: openssl
@@ -81,7 +81,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: load
         algorithmName: ECDSA
         algorithmFamily: ECDSA
         library: openssl
@@ -112,7 +111,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: instantiate
         algorithmName: ECDSA
         algorithmFamily: ECDSA
         library: openssl
@@ -142,7 +140,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: serialize
         algorithmName: ECDSA
         algorithmFamily: ECDSA
         library: openssl

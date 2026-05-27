@@ -35,7 +35,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmName: SHA-1
         algorithmFamily: SHA-1
         library: openssl

@@ -31,6 +31,7 @@ rules:
     confidence: HIGH
     crypto:
       assetType: algorithm
+      operation: "digest"
       algorithmPrimitive: hash
       algorithmFamily: BLAKE2
       algorithmName: BLAKE2-$variant

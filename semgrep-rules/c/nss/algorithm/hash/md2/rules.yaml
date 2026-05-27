@@ -25,6 +25,7 @@ rules:
       confidence: HIGH
       crypto:
         assetType: algorithm
+        operation: "digest"
         algorithmPrimitive: hash
         algorithmFamily: MD2
         algorithmName: MD2

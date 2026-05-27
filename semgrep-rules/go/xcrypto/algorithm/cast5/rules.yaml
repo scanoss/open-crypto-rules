@@ -42,7 +42,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmPrimitive: block-cipher
         algorithmName: CAST5
         algorithmFamily: CAST5

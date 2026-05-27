@@ -26,7 +26,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: ae
-        operation: instantiate
         algorithmName: AES-$bits-GCM
         algorithmFamily: AES
         library: openssl
@@ -60,7 +59,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: ae
-        operation: encrypt
+        operation: "encrypt"
         algorithmName: AES-GCM
         algorithmFamily: AES
         library: openssl
@@ -93,7 +92,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: ae
-        operation: decrypt
+        operation: "decrypt"
         algorithmName: AES-GCM
         algorithmFamily: AES
         library: openssl

@@ -27,7 +27,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
+        operation: "keygen"
         algorithmName: 3DES
         algorithmFamily: 3DES
         library: crypto/des
@@ -60,7 +60,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmName: 3DES-$1
         algorithmFamily: 3DES
         library: crypto/cipher

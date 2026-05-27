@@ -1,18 +1,18 @@
-// TEST-METADATA: assetType=algorithm, findingType=ae, operation=instantiate, algorithmName=AES-128-GCM, algorithmFamily=AES, library=openssl, algorithmPrimitive=ae, algorithmMode=GCM, algorithmParameterSetIdentifier=128
+// TEST-METADATA: assetType=algorithm, findingType=ae, algorithmName=AES-128-GCM, algorithmFamily=AES, library=openssl, algorithmPrimitive=ae, algorithmMode=GCM, algorithmParameterSetIdentifier=128
 fn test_aes_128_gcm_cipher() {
     use openssl::symm::Cipher;
     let cipher = Cipher::aes_128_gcm();
     _ = cipher;
 }
 
-// TEST-METADATA: assetType=algorithm, findingType=ae, operation=instantiate, algorithmName=AES-192-GCM, algorithmFamily=AES, library=openssl, algorithmPrimitive=ae, algorithmMode=GCM, algorithmParameterSetIdentifier=192
+// TEST-METADATA: assetType=algorithm, findingType=ae, algorithmName=AES-192-GCM, algorithmFamily=AES, library=openssl, algorithmPrimitive=ae, algorithmMode=GCM, algorithmParameterSetIdentifier=192
 fn test_aes_192_gcm_cipher() {
     use openssl::symm::Cipher;
     let cipher = Cipher::aes_192_gcm();
     _ = cipher;
 }
 
-// TEST-METADATA: assetType=algorithm, findingType=ae, operation=instantiate, algorithmName=AES-256-GCM, algorithmFamily=AES, library=openssl, algorithmPrimitive=ae, algorithmMode=GCM, algorithmParameterSetIdentifier=256
+// TEST-METADATA: assetType=algorithm, findingType=ae, algorithmName=AES-256-GCM, algorithmFamily=AES, library=openssl, algorithmPrimitive=ae, algorithmMode=GCM, algorithmParameterSetIdentifier=256
 fn test_aes_256_gcm_cipher() {
     use openssl::symm::Cipher;
     let cipher = Cipher::aes_256_gcm();

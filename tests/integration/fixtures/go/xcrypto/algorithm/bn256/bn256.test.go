@@ -5,7 +5,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.bn256.pairing
-// TEST-METADATA: operation:keyexchange findingType:key_exchange api:bn256.Pair
+// TEST-METADATA: findingType:key_exchange api:bn256.Pair
 func testPair() {
 	g1 := new(bn256.G1)
 	g2 := new(bn256.G2)

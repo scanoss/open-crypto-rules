@@ -42,7 +42,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kdf
-        operation: keyderive
+        operation: "keyderive"
         algorithmPrimitive: kdf
         algorithmName: bcrypt
         algorithmFamily: bcrypt
@@ -77,7 +77,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kdf
-        operation: verify
+        operation: "verify"
         algorithmPrimitive: kdf
         algorithmName: bcrypt
         algorithmFamily: bcrypt
@@ -110,7 +110,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kdf
-        operation: other
+        operation: "keyderive"
         algorithmPrimitive: kdf
         algorithmName: bcrypt
         algorithmFamily: bcrypt

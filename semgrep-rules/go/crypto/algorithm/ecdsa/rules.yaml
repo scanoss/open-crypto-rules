@@ -26,7 +26,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
+        operation: "keygen"
         algorithmName: ECDSA-P$curve
         algorithmFamily: ECDSA
         library: crypto/ecdsa
@@ -66,7 +66,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: sign
         algorithmName: ECDSA-$1
         algorithmFamily: ECDSA
         library: crypto/ecdsa
@@ -95,7 +94,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: sign
+        operation: "sign"
         algorithmName: ECDSA
         algorithmFamily: ECDSA
         library: crypto/ecdsa
@@ -132,7 +131,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: verify
         algorithmName: ECDSA-$1
         algorithmFamily: ECDSA
         library: crypto/ecdsa
@@ -161,7 +159,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: verify
+        operation: "verify"
         algorithmName: ECDSA
         algorithmFamily: ECDSA
         library: crypto/ecdsa
@@ -198,7 +196,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
         algorithmName: ECDSA
         algorithmFamily: ECDSA
         library: crypto/ecdsa
@@ -228,7 +225,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
         algorithmName: ECDSA
         algorithmFamily: ECDSA
         library: crypto/ecdsa
@@ -266,7 +262,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
         algorithmName: ECDSA
         algorithmFamily: ECDSA
         library: crypto/ecdsa

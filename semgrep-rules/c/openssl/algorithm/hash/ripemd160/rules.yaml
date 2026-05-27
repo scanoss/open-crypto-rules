@@ -29,6 +29,7 @@ rules:
     confidence: HIGH
     crypto:
       assetType: algorithm
+      operation: "digest"
       algorithmPrimitive: hash
       algorithmFamily: RIPEMD
       algorithmName: RIPEMD160

@@ -30,7 +30,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
         algorithmPrimitive: key-agree
         algorithmName: X25519
         algorithmFamily: X25519
@@ -65,7 +64,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
         algorithmPrimitive: key-agree
         algorithmName: X25519
         algorithmFamily: X25519

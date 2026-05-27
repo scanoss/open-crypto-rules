@@ -18,7 +18,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmName: SHA-512
         algorithmFamily: SHA-2
         library: crypto/sha512
@@ -45,7 +45,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmName: SHA-384
         algorithmFamily: SHA-2
         library: crypto/sha512
@@ -72,7 +72,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmName: SHA-512/224
         algorithmFamily: SHA-2
         library: crypto/sha512
@@ -99,7 +99,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmName: SHA-512/256
         algorithmFamily: SHA-2
         library: crypto/sha512

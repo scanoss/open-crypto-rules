@@ -1,5 +1,5 @@
 // TEST-RULE: go.crypto.rsa.key-type
-// TEST-METADATA: assetType=algorithm, findingType=key_generation, operation=keygen, algorithmPrimitive=pke, algorithmName=RSA, algorithmFamily=RSA, library=crypto/rsa, api=rsa.Public
+// TEST-METADATA: assetType=algorithm, findingType=key_generation, algorithmPrimitive=pke, algorithmName=RSA, algorithmFamily=RSA, library=crypto/rsa, api=rsa.Public
 
 package main
 

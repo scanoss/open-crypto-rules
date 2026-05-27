@@ -25,7 +25,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmPrimitive: stream-cipher
         algorithmName: Salsa20
         algorithmFamily: Salsa20
@@ -59,7 +58,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmPrimitive: hash
         algorithmName: HSalsa20
         algorithmFamily: Salsa20
@@ -93,7 +92,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmPrimitive: stream-cipher
         algorithmName: Salsa20/8
         algorithmFamily: Salsa20

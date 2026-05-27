@@ -5,7 +5,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.twofish.block-cipher
-// TEST-METADATA: operation:encrypt findingType:cipher
+// TEST-METADATA: findingType:cipher
 func testNewCipherWithSize16() {
 	key := make([]byte, 16)
 	
@@ -15,7 +15,7 @@ func testNewCipherWithSize16() {
 }
 
 // TEST-RULE: go.xcrypto.twofish.block-cipher
-// TEST-METADATA: operation:encrypt findingType:cipher
+// TEST-METADATA: findingType:cipher
 func testNewCipherWithSize32() {
 	key := make([]byte, 32)
 	
@@ -25,7 +25,7 @@ func testNewCipherWithSize32() {
 }
 
 // TEST-RULE: go.xcrypto.twofish.block-cipher
-// TEST-METADATA: operation:encrypt findingType:cipher
+// TEST-METADATA: findingType:cipher
 func testNewCipher() {
 	key := []byte{1, 2, 3, 4, 5, 6, 7, 8}
 	

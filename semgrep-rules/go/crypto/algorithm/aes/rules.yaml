@@ -27,7 +27,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
+        operation: "keygen"
         algorithmPrimitive: block-cipher
         algorithmName: AES
         algorithmFamily: AES
@@ -59,7 +59,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmPrimitive: ae
         algorithmName: AES-GCM
         algorithmFamily: AES
@@ -91,7 +90,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
+        operation: "encrypt"
         algorithmPrimitive: block-cipher
         algorithmName: AES-$mode
         algorithmFamily: AES
@@ -123,7 +122,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: decrypt
+        operation: "decrypt"
         algorithmPrimitive: block-cipher
         algorithmName: AES-$mode
         algorithmFamily: AES

@@ -25,7 +25,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
         algorithmPrimitive: key-agree
         algorithmName: BN256
         algorithmFamily: BN256

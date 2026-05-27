@@ -21,7 +21,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
         algorithmName: RSA
         algorithmFamily: RSA
         library: crypto/x509
@@ -51,7 +50,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
         algorithmName: ECDSA
         algorithmFamily: ECDSA
         library: crypto/x509

@@ -42,7 +42,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmPrimitive: stream-cipher
         algorithmName: ChaCha20
         algorithmFamily: ChaCha20
@@ -76,7 +75,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmPrimitive: hash
         algorithmName: HChaCha20
         algorithmFamily: ChaCha20

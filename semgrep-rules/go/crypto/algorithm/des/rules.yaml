@@ -27,7 +27,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
+        operation: "keygen"
         algorithmPrimitive: block-cipher
         algorithmName: DES
         algorithmFamily: DES
@@ -68,7 +68,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
+        operation: "keygen"
         algorithmPrimitive: block-cipher
         algorithmName: 3DES
         algorithmFamily: 3DES
@@ -105,7 +105,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
+        operation: "encrypt"
         algorithmPrimitive: block-cipher
         algorithmName: DES-$mode
         algorithmFamily: DES
@@ -138,7 +138,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: decrypt
+        operation: "decrypt"
         algorithmPrimitive: block-cipher
         algorithmName: DES-$mode
         algorithmFamily: DES
@@ -175,7 +175,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
+        operation: "encrypt"
         algorithmPrimitive: block-cipher
         algorithmName: 3DES-$mode
         algorithmFamily: 3DES
@@ -208,7 +208,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: decrypt
+        operation: "decrypt"
         algorithmPrimitive: block-cipher
         algorithmName: 3DES-$mode
         algorithmFamily: 3DES

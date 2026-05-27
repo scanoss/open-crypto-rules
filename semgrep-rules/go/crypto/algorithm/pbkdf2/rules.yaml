@@ -43,7 +43,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: kdf
-        operation: keyderive
+        operation: "keyderive"
         algorithmName: PBKDF2-$hash-$iterations-$keylen
         algorithmFamily: PBKDF2
         iterations: $iterations

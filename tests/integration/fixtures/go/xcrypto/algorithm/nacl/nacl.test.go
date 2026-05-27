@@ -25,7 +25,7 @@ func testSecretboxOverhead() {
 }
 
 // TEST-RULE: go.xcrypto.nacl.secretbox.open
-// TEST-METADATA: operation:decrypt findingType:cipher api:secretbox.Open
+// TEST-METADATA: findingType:cipher api:secretbox.Open
 func testSecretboxOpen() {
 	var key [32]byte
 	var nonce [24]byte

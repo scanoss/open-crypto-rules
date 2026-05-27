@@ -43,7 +43,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmPrimitive: block-cipher
         algorithmName: TEA
         algorithmFamily: TEA
@@ -101,7 +100,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmPrimitive: block-cipher
         algorithmName: TEA
         algorithmFamily: TEA

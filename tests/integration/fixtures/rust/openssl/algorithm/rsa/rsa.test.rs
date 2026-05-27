@@ -31,7 +31,7 @@ fn test_rsa_generate_with_exponent() {
 }
 
 // TEST-RULE: rust.openssl.rsa.from-public-components
-// TEST-METADATA: assetType=algorithm, findingType=pke, operation=keygen, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke
+// TEST-METADATA: assetType=algorithm, findingType=pke, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke
 fn test_rsa_from_public_components() {
     use openssl::bn::BigNum;
     use openssl::rsa::Rsa;
@@ -42,7 +42,7 @@ fn test_rsa_from_public_components() {
 }
 
 // TEST-RULE: rust.openssl.rsa.from-private-components
-// TEST-METADATA: assetType=algorithm, findingType=pke, operation=keygen, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke
+// TEST-METADATA: assetType=algorithm, findingType=pke, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke
 fn test_rsa_from_private_components() {
     use openssl::bn::BigNum;
     use openssl::rsa::Rsa;
@@ -59,7 +59,7 @@ fn test_rsa_from_private_components() {
 }
 
 // TEST-RULE: rust.openssl.rsa.private-key-builder
-// TEST-METADATA: assetType=algorithm, findingType=pke, operation=keygen, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke
+// TEST-METADATA: assetType=algorithm, findingType=pke, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke
 fn test_rsa_private_key_builder() {
     use openssl::bn::BigNum;
     use openssl::rsa::RsaPrivateKeyBuilder;
@@ -71,7 +71,7 @@ fn test_rsa_private_key_builder() {
 }
 
 // TEST-RULE: rust.openssl.rsa.private-key-from-pem
-// TEST-METADATA: assetType=algorithm, findingType=pke, operation=load, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=PEM
+// TEST-METADATA: assetType=algorithm, findingType=pke, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=PEM
 fn test_rsa_private_key_from_pem() {
     use openssl::rsa::Rsa;
     let pem_data = b"-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----";
@@ -80,7 +80,7 @@ fn test_rsa_private_key_from_pem() {
 }
 
 // TEST-RULE: rust.openssl.rsa.private-key-from-der
-// TEST-METADATA: assetType=algorithm, findingType=pke, operation=load, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=DER
+// TEST-METADATA: assetType=algorithm, findingType=pke, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=DER
 fn test_rsa_private_key_from_der() {
     use openssl::rsa::Rsa;
     let der_data = [0u8; 100];
@@ -89,7 +89,7 @@ fn test_rsa_private_key_from_der() {
 }
 
 // TEST-RULE: rust.openssl.rsa.public-key-from-pem
-// TEST-METADATA: assetType=algorithm, findingType=pke, operation=load, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=PEM
+// TEST-METADATA: assetType=algorithm, findingType=pke, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=PEM
 fn test_rsa_public_key_from_pem() {
     use openssl::rsa::Rsa;
     let pem_data = b"-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----";
@@ -98,7 +98,7 @@ fn test_rsa_public_key_from_pem() {
 }
 
 // TEST-RULE: rust.openssl.rsa.public-key-from-der
-// TEST-METADATA: assetType=algorithm, findingType=pke, operation=load, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=DER
+// TEST-METADATA: assetType=algorithm, findingType=pke, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=DER
 fn test_rsa_public_key_from_der() {
     use openssl::rsa::Rsa;
     let der_data = [0u8; 100];
@@ -107,7 +107,7 @@ fn test_rsa_public_key_from_der() {
 }
 
 // TEST-RULE: rust.openssl.rsa.private-key-to-der
-// TEST-METADATA: assetType=algorithm, findingType=pke, operation=serialize, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=DER
+// TEST-METADATA: assetType=algorithm, findingType=pke, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=DER
 fn test_rsa_private_key_to_der() {
     use openssl::rsa::Rsa;
     let rsa = Rsa::generate(2048).unwrap();
@@ -116,7 +116,7 @@ fn test_rsa_private_key_to_der() {
 }
 
 // TEST-RULE: rust.openssl.rsa.private-key-to-pem
-// TEST-METADATA: assetType=algorithm, findingType=pke, operation=serialize, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=PEM
+// TEST-METADATA: assetType=algorithm, findingType=pke, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=PEM
 fn test_rsa_private_key_to_pem() {
     use openssl::rsa::Rsa;
     let rsa = Rsa::generate(2048).unwrap();
@@ -125,7 +125,7 @@ fn test_rsa_private_key_to_pem() {
 }
 
 // TEST-RULE: rust.openssl.rsa.public-key-to-der
-// TEST-METADATA: assetType=algorithm, findingType=pke, operation=serialize, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=DER
+// TEST-METADATA: assetType=algorithm, findingType=pke, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=DER
 fn test_rsa_public_key_to_der() {
     use openssl::rsa::Rsa;
     let rsa = Rsa::generate(2048).unwrap();
@@ -134,7 +134,7 @@ fn test_rsa_public_key_to_der() {
 }
 
 // TEST-RULE: rust.openssl.rsa.public-key-to-pem
-// TEST-METADATA: assetType=algorithm, findingType=pke, operation=serialize, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=PEM
+// TEST-METADATA: assetType=algorithm, findingType=pke, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=pke, keyFormat=PEM
 fn test_rsa_public_key_to_pem() {
     use openssl::rsa::Rsa;
     let rsa = Rsa::generate(2048).unwrap();
@@ -183,7 +183,7 @@ fn test_rsa_encrypt_pkcs1() {
 }
 
 // TEST-RULE: rust.openssl.rsa.private-encrypt
-// TEST-METADATA: assetType=algorithm, findingType=signature, operation=sign, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=signature
+// TEST-METADATA: assetType=algorithm, findingType=signature, operation=encrypt, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=signature
 fn test_rsa_private_encrypt() {
     use openssl::rsa::{Padding, Rsa};
     let rsa = Rsa::generate(2048).unwrap();
@@ -193,7 +193,7 @@ fn test_rsa_private_encrypt() {
 }
 
 // TEST-RULE: rust.openssl.rsa.public-decrypt
-// TEST-METADATA: assetType=algorithm, findingType=signature, operation=verify, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=signature
+// TEST-METADATA: assetType=algorithm, findingType=signature, operation=decrypt, algorithmName=RSA, algorithmFamily=RSA, library=openssl, algorithmPrimitive=signature
 fn test_rsa_public_decrypt() {
     use openssl::bn::BigNum;
     use openssl::rsa::{Padding, Rsa};

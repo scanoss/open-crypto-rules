@@ -39,7 +39,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmPrimitive: block-cipher
         algorithmName: XTS
         algorithmFamily: XTS
@@ -79,7 +78,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
+        operation: "decrypt"
         algorithmPrimitive: block-cipher
         algorithmName: XTS
         algorithmFamily: XTS

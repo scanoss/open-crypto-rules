@@ -27,6 +27,7 @@ rules:
     confidence: HIGH
     crypto:
       assetType: algorithm
+      operation: "digest"
       algorithmPrimitive: hash
       algorithmFamily: MD5
       algorithmName: MD5

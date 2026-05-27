@@ -21,7 +21,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
         algorithmPrimitive: signature
         algorithmName: DSA
         algorithmFamily: DSA
@@ -46,7 +45,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
+        operation: "keygen"
         algorithmPrimitive: signature
         algorithmName: DSA
         algorithmFamily: DSA
@@ -76,7 +75,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: sign
+        operation: "sign"
         algorithmPrimitive: signature
         algorithmName: DSA
         algorithmFamily: DSA
@@ -100,7 +99,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: sign
+        operation: "sign"
         algorithmPrimitive: signature
         algorithmName: DSA
         algorithmFamily: DSA
@@ -129,7 +128,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: verify
+        operation: "verify"
         algorithmPrimitive: signature
         algorithmName: DSA
         algorithmFamily: DSA
@@ -153,7 +152,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: verify
+        operation: "verify"
         algorithmPrimitive: signature
         algorithmName: DSA
         algorithmFamily: DSA
@@ -188,7 +187,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
         algorithmPrimitive: signature
         algorithmName: DSA
         algorithmFamily: DSA
@@ -220,7 +218,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
         algorithmPrimitive: signature
         algorithmName: DSA
         algorithmFamily: DSA

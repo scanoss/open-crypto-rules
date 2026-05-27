@@ -35,6 +35,7 @@ rules:
       confidence: HIGH
       crypto:
         assetType: algorithm
+        operation: "encapsulate"
         algorithmPrimitive: kem
         algorithmFamily: ML-KEM
         algorithmName: ML-KEM-$keysize

@@ -38,7 +38,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: rng
-        operation: other
+        operation: "generate"
         algorithmPrimitive: drbg
         algorithmName: CSPRNG
         algorithmFamily: CSPRNG

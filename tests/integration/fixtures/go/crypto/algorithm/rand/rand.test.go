@@ -7,7 +7,7 @@ import (
 )
 
 // TEST-RULE: go.crypto.rand.usage
-// TEST-METADATA: assetType:algorithm findingType:rng operation:other algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
+// TEST-METADATA: assetType:algorithm findingType:rng operation:generate algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
 func testRead() {
 	b := make([]byte, 32)
 	// ruleid: go.crypto.rand.usage
@@ -15,7 +15,7 @@ func testRead() {
 }
 
 // TEST-RULE: go.crypto.rand.usage
-// TEST-METADATA: assetType:algorithm findingType:rng operation:other algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
+// TEST-METADATA: assetType:algorithm findingType:rng operation:generate algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
 func testReaderAssignment() {
 	// ruleid: go.crypto.rand.usage
 	var r io.Reader = rand.Reader
@@ -23,7 +23,7 @@ func testReaderAssignment() {
 }
 
 // TEST-RULE: go.crypto.rand.usage
-// TEST-METADATA: assetType:algorithm findingType:rng operation:other algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
+// TEST-METADATA: assetType:algorithm findingType:rng operation:generate algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
 func testReaderShortAssignment() {
 	// ruleid: go.crypto.rand.usage
 	r := rand.Reader
@@ -31,7 +31,7 @@ func testReaderShortAssignment() {
 }
 
 // TEST-RULE: go.crypto.rand.usage
-// TEST-METADATA: assetType:algorithm findingType:rng operation:other algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
+// TEST-METADATA: assetType:algorithm findingType:rng operation:generate algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
 func testReadFull() {
 	b := make([]byte, 32)
 	// ruleid: go.crypto.rand.usage
@@ -42,7 +42,7 @@ func testReadFull() {
 }
 
 // TEST-RULE: go.crypto.rand.usage
-// TEST-METADATA: assetType:algorithm findingType:rng operation:other algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
+// TEST-METADATA: assetType:algorithm findingType:rng operation:generate algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
 func testInt() {
 	max := big.NewInt(100)
 	// ruleid: go.crypto.rand.usage
@@ -51,7 +51,7 @@ func testInt() {
 }
 
 // TEST-RULE: go.crypto.rand.usage
-// TEST-METADATA: assetType:algorithm findingType:rng operation:other algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
+// TEST-METADATA: assetType:algorithm findingType:rng operation:generate algorithmPrimitive:drbg algorithmName:CSPRNG algorithmFamily:CSPRNG library:crypto/rand
 func testPrime() {
 	// ruleid: go.crypto.rand.usage
 	p, _ := rand.Prime(rand.Reader, 256)

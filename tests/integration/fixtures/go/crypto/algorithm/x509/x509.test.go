@@ -9,7 +9,7 @@ import (
 )
 
 // TEST-RULE: go.crypto.x509.parse-pkcs1-key
-// TEST-METADATA: assetType:algorithm findingType:key_generation operation:keygen algorithmName:RSA algorithmFamily:RSA library:crypto/x509
+// TEST-METADATA: assetType:algorithm findingType:key_generation algorithmName:RSA algorithmFamily:RSA library:crypto/x509
 func testParsePKCS1PrivateKey() {
 	derBytes := []byte{}
 	// ruleid: go.crypto.x509.parse-pkcs1-key
@@ -18,7 +18,7 @@ func testParsePKCS1PrivateKey() {
 }
 
 // TEST-RULE: go.crypto.x509.parse-pkcs1-key
-// TEST-METADATA: assetType:algorithm findingType:key_generation operation:keygen algorithmName:RSA algorithmFamily:RSA library:crypto/x509
+// TEST-METADATA: assetType:algorithm findingType:key_generation algorithmName:RSA algorithmFamily:RSA library:crypto/x509
 func testMarshalPKCS1PrivateKey() {
 	var key = getRsaKey()
 	// ruleid: go.crypto.x509.parse-pkcs1-key
@@ -27,7 +27,7 @@ func testMarshalPKCS1PrivateKey() {
 }
 
 // TEST-RULE: go.crypto.x509.parse-pkcs1-key
-// TEST-METADATA: assetType:algorithm findingType:key_generation operation:keygen algorithmName:RSA algorithmFamily:RSA library:crypto/x509
+// TEST-METADATA: assetType:algorithm findingType:key_generation algorithmName:RSA algorithmFamily:RSA library:crypto/x509
 func testParsePKCS1PublicKey() {
 	derBytes := []byte{}
 	// ruleid: go.crypto.x509.parse-pkcs1-key
@@ -36,7 +36,7 @@ func testParsePKCS1PublicKey() {
 }
 
 // TEST-RULE: go.crypto.x509.parse-pkcs1-key
-// TEST-METADATA: assetType:algorithm findingType:key_generation operation:keygen algorithmName:RSA algorithmFamily:RSA library:crypto/x509
+// TEST-METADATA: assetType:algorithm findingType:key_generation algorithmName:RSA algorithmFamily:RSA library:crypto/x509
 func testMarshalPKCS1PublicKey() {
 	var key = getRsaKey()
 	// ruleid: go.crypto.x509.parse-pkcs1-key
@@ -45,7 +45,7 @@ func testMarshalPKCS1PublicKey() {
 }
 
 // TEST-RULE: go.crypto.x509.parse-ec-private-key
-// TEST-METADATA: assetType:algorithm findingType:key_generation operation:keygen algorithmName:ECDSA algorithmFamily:ECDSA library:crypto/x509
+// TEST-METADATA: assetType:algorithm findingType:key_generation algorithmName:ECDSA algorithmFamily:ECDSA library:crypto/x509
 func testParseECPrivateKey() {
 	derBytes := []byte{}
 	// ruleid: go.crypto.x509.parse-ec-private-key
@@ -54,7 +54,7 @@ func testParseECPrivateKey() {
 }
 
 // TEST-RULE: go.crypto.x509.parse-ec-private-key
-// TEST-METADATA: assetType:algorithm findingType:key_generation operation:keygen algorithmName:ECDSA algorithmFamily:ECDSA library:crypto/x509
+// TEST-METADATA: assetType:algorithm findingType:key_generation algorithmName:ECDSA algorithmFamily:ECDSA library:crypto/x509
 func testMarshalECPrivateKey() {
 	var key = getEcdsaKey()
 	// ruleid: go.crypto.x509.parse-ec-private-key

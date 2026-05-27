@@ -15,7 +15,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
+        operation: "keygen"
         algorithmPrimitive: signature
         algorithmName: OTR
         algorithmFamily: OTR
@@ -39,7 +39,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: sign
+        operation: "sign"
         algorithmPrimitive: signature
         algorithmName: OTR
         algorithmFamily: OTR
@@ -62,7 +62,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: verify
+        operation: "verify"
         algorithmPrimitive: signature
         algorithmName: OTR
         algorithmFamily: OTR

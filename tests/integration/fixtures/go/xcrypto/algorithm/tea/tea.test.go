@@ -5,7 +5,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.tea.block-cipher
-// TEST-METADATA: operation:encrypt findingType:cipher
+// TEST-METADATA: findingType:cipher
 func testNewCipherWithSize() {
 	key := make([]byte, 16)
 	
@@ -15,7 +15,7 @@ func testNewCipherWithSize() {
 }
 
 // TEST-RULE: go.xcrypto.tea.block-cipher
-// TEST-METADATA: operation:encrypt findingType:cipher
+// TEST-METADATA: findingType:cipher
 func testNewCipher() {
 	key := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
 	
@@ -25,7 +25,7 @@ func testNewCipher() {
 }
 
 // TEST-RULE: go.xcrypto.tea.block-cipher-with-rounds
-// TEST-METADATA: operation:encrypt findingType:cipher
+// TEST-METADATA: findingType:cipher
 func testNewCipherWithRoundsAndSize() {
 	key := make([]byte, 16)
 	
@@ -35,7 +35,7 @@ func testNewCipherWithRoundsAndSize() {
 }
 
 // TEST-RULE: go.xcrypto.tea.block-cipher-with-rounds
-// TEST-METADATA: operation:encrypt findingType:cipher
+// TEST-METADATA: findingType:cipher
 func testNewCipherWithRounds() {
 	key := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
 	

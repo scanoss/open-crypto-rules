@@ -36,7 +36,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmPrimitive: hash
         algorithmName: BLAKE2s-$size
         algorithmFamily: BLAKE2s

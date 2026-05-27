@@ -25,7 +25,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: mac
-        operation: sign
+        operation: "tag"
         algorithmPrimitive: mac
         algorithmName: Poly1305
         algorithmFamily: Poly1305
@@ -58,7 +58,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: mac
-        operation: sign
+        operation: "tag"
         algorithmPrimitive: mac
         algorithmName: Poly1305
         algorithmFamily: Poly1305
@@ -91,7 +91,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: mac
-        operation: verify
+        operation: "verify"
         algorithmPrimitive: mac
         algorithmName: Poly1305
         algorithmFamily: Poly1305

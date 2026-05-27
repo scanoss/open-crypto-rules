@@ -7,7 +7,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.xts.encrypt-decrypt
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.Cipher.Encrypt
+// TEST-METADATA: operation:decrypt findingType:cipher api:xts.Cipher.Encrypt
 func testDirectUsage() {
 	key := make([]byte, 32)
 	cipher, _ := xts.NewCipher(aes.NewCipher, key)
@@ -20,7 +20,7 @@ func testDirectUsage() {
 }
 
 // TEST-RULE: go.xcrypto.xts.encrypt-decrypt
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.Cipher.Encrypt
+// TEST-METADATA: operation:decrypt findingType:cipher api:xts.Cipher.Encrypt
 func testCrossFunctionTaint() {
 	key := make([]byte, 32)
 	cipher, _ := xts.NewCipher(aes.NewCipher, key)
@@ -35,7 +35,7 @@ func encryptWithCipher(c *xts.Cipher, dst, src []byte) {
 }
 
 // TEST-RULE: go.xcrypto.xts.encrypt-decrypt
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.Cipher.Encrypt
+// TEST-METADATA: operation:decrypt findingType:cipher api:xts.Cipher.Encrypt
 func testStructFieldTaint() {
 	type DiskEncryptor struct {
 		Cipher *xts.Cipher
@@ -57,7 +57,7 @@ func testStructFieldTaint() {
 }
 
 // TEST-RULE: go.xcrypto.xts.encrypt-decrypt
-// TEST-METADATA: operation:encrypt findingType:cipher api:xts.Cipher.Encrypt
+// TEST-METADATA: operation:decrypt findingType:cipher api:xts.Cipher.Encrypt
 func testNestedStructTaint() {
 	type CryptoConfig struct {
 		Cipher *xts.Cipher
@@ -85,7 +85,7 @@ func testNestedStructTaint() {
 }
 
 // TEST-RULE: go.xcrypto.xts.encrypt-decrypt
-// TEST-METADATA: operation:encrypt findingType:cipher
+// TEST-METADATA: operation:decrypt findingType:cipher
 func testMultipleOperations() {
 	key := make([]byte, 32)
 	cipher, _ := xts.NewCipher(aes.NewCipher, key)

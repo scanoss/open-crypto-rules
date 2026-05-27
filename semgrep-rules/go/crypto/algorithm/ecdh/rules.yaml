@@ -21,7 +21,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
+        operation: "keygen"
         algorithmName: ECDH-$1
         algorithmFamily: ECDH
         library: crypto/ecdh
@@ -53,7 +53,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
         algorithmName: ECDH-$1
         algorithmFamily: ECDH
         library: crypto/ecdh
@@ -83,7 +82,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
         algorithmName: ECDH
         algorithmFamily: ECDH
         library: crypto/ecdh
@@ -118,7 +116,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
         algorithmName: ECDH-$1
         algorithmFamily: ECDH
         library: crypto/ecdh
@@ -143,7 +140,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
         algorithmName: ECDH
         algorithmFamily: ECDH
         library: crypto/ecdh
@@ -178,7 +174,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
         algorithmName: ECDH
         algorithmFamily: ECDH
         library: crypto/ecdh
@@ -201,7 +196,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
         algorithmName: ECDH
         algorithmFamily: ECDH
         library: crypto/ecdh
@@ -239,7 +233,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_exchange
-        operation: keyexchange
         algorithmName: ECDH
         algorithmFamily: ECDH
         library: crypto/ecdh

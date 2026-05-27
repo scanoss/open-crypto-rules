@@ -1,5 +1,5 @@
 // TEST-RULE: rust.openssl.ecdh.deriver-new
-// TEST-METADATA: assetType=algorithm, findingType=keyderive, operation=instantiate, algorithmName=ECDH, algorithmFamily=ECDH, library=openssl, algorithmPrimitive=key-agree
+// TEST-METADATA: assetType=algorithm, findingType=keyderive, algorithmName=ECDH, algorithmFamily=ECDH, library=openssl, algorithmPrimitive=key-agree
 fn test_deriver_new() {
     use openssl::derive::Deriver;
     use openssl::ec::{EcGroup, EcKey};
@@ -13,7 +13,7 @@ fn test_deriver_new() {
 }
 
 // TEST-RULE: rust.openssl.ecdh.set-peer
-// TEST-METADATA: assetType=algorithm, findingType=keyderive, operation=configure, algorithmName=ECDH, algorithmFamily=ECDH, library=openssl, algorithmPrimitive=key-agree
+// TEST-METADATA: assetType=algorithm, findingType=keyderive, algorithmName=ECDH, algorithmFamily=ECDH, library=openssl, algorithmPrimitive=key-agree
 fn test_deriver_set_peer() {
     use openssl::derive::Deriver;
     use openssl::ec::{EcGroup, EcKey};
@@ -29,7 +29,7 @@ fn test_deriver_set_peer() {
 }
 
 // TEST-RULE: rust.openssl.ecdh.derive
-// TEST-METADATA: assetType=algorithm, findingType=keyderive, operation=keyderive, algorithmName=ECDH, algorithmFamily=ECDH, library=openssl, algorithmPrimitive=key-agree
+// TEST-METADATA: assetType=algorithm, findingType=keyderive, algorithmName=ECDH, algorithmFamily=ECDH, library=openssl, algorithmPrimitive=key-agree
 fn test_deriver_derive() {
     use openssl::derive::Deriver;
     use openssl::ec::{EcGroup, EcKey};

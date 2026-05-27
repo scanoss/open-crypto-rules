@@ -38,7 +38,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmPrimitive: ae
         algorithmName: $variantChaCha20-Poly1305
         algorithmFamily: ChaCha20
@@ -76,7 +75,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmPrimitive: ae
         algorithmName: ChaCha20-Poly1305
         algorithmFamily: ChaCha20

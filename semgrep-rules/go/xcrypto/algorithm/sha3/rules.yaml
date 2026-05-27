@@ -29,7 +29,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmPrimitive: hash
         algorithmName: SHA-3-$variant
         algorithmFamily: SHA-3
@@ -67,7 +67,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmPrimitive: hash
         algorithmName: Keccak-$variant
         algorithmFamily: SHA-3
@@ -105,7 +105,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmPrimitive: xof
         algorithmName: SHAKE-$variant
         algorithmFamily: SHA-3
@@ -143,7 +143,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmPrimitive: xof
         algorithmName: cSHAKE-$variant
         algorithmFamily: SHA-3

@@ -1,5 +1,5 @@
 // TEST-RULE: go.crypto.rsa.sign-pkcs1v15
-// TEST-METADATA: assetType=algorithm, findingType=signature, operation=sign, algorithmPrimitive=signature, algorithmName=RSA-PKCS1v15-SHA256, algorithmFamily=RSA, library=crypto/rsa, api=rsa.SignPKCS1v15
+// TEST-METADATA: assetType=algorithm, findingType=signature, algorithmPrimitive=signature, algorithmName=RSA-PKCS1v15-SHA256, algorithmFamily=RSA, library=crypto/rsa, api=rsa.SignPKCS1v15
 
 package main
 

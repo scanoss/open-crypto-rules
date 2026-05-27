@@ -26,7 +26,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: instantiate
         algorithmName: AES-$bits-CTR
         algorithmFamily: AES
         library: openssl
@@ -60,7 +59,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
+        operation: "encrypt"
         algorithmFamily: AES
         library: openssl
         algorithmPrimitive: block-cipher
@@ -91,7 +90,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: decrypt
+        operation: "decrypt"
         algorithmFamily: AES
         library: openssl
         algorithmPrimitive: block-cipher
@@ -120,7 +119,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: instantiate
         algorithmFamily: AES
         library: openssl
         algorithmPrimitive: block-cipher

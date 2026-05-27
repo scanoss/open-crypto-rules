@@ -1,18 +1,18 @@
-// TEST-METADATA: assetType=algorithm, findingType=cipher, operation=instantiate, algorithmName=AES-128-CTR, algorithmFamily=AES, library=openssl, algorithmPrimitive=block-cipher, algorithmMode=CTR, algorithmParameterSetIdentifier=128
+// TEST-METADATA: assetType=algorithm, findingType=cipher, algorithmName=AES-128-CTR, algorithmFamily=AES, library=openssl, algorithmPrimitive=block-cipher, algorithmMode=CTR, algorithmParameterSetIdentifier=128
 fn test_aes_128_ctr_cipher() {
     use openssl::symm::Cipher;
     let cipher = Cipher::aes_128_ctr();
     _ = cipher;
 }
 
-// TEST-METADATA: assetType=algorithm, findingType=cipher, operation=instantiate, algorithmName=AES-192-CTR, algorithmFamily=AES, library=openssl, algorithmPrimitive=block-cipher, algorithmMode=CTR, algorithmParameterSetIdentifier=192
+// TEST-METADATA: assetType=algorithm, findingType=cipher, algorithmName=AES-192-CTR, algorithmFamily=AES, library=openssl, algorithmPrimitive=block-cipher, algorithmMode=CTR, algorithmParameterSetIdentifier=192
 fn test_aes_192_ctr_cipher() {
     use openssl::symm::Cipher;
     let cipher = Cipher::aes_192_ctr();
     _ = cipher;
 }
 
-// TEST-METADATA: assetType=algorithm, findingType=cipher, operation=instantiate, algorithmName=AES-256-CTR, algorithmFamily=AES, library=openssl, algorithmPrimitive=block-cipher, algorithmMode=CTR, algorithmParameterSetIdentifier=256
+// TEST-METADATA: assetType=algorithm, findingType=cipher, algorithmName=AES-256-CTR, algorithmFamily=AES, library=openssl, algorithmPrimitive=block-cipher, algorithmMode=CTR, algorithmParameterSetIdentifier=256
 fn test_aes_256_ctr_cipher() {
     use openssl::symm::Cipher;
     let cipher = Cipher::aes_256_ctr();
@@ -42,7 +42,7 @@ fn test_symm_decrypt() {
 }
 
 // TEST-RULE: rust.openssl.symm.crypter-new
-// TEST-METADATA: assetType=algorithm, findingType=cipher, operation=instantiate, algorithmFamily=AES, library=openssl, algorithmPrimitive=block-cipher
+// TEST-METADATA: assetType=algorithm, findingType=cipher, algorithmFamily=AES, library=openssl, algorithmPrimitive=block-cipher
 fn test_crypter_new() {
     use openssl::symm::{Cipher, Crypter, Mode};
     let cipher = Cipher::aes_256_ctr();

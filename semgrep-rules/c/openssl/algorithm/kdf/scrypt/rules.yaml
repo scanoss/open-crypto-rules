@@ -35,6 +35,7 @@ rules:
       confidence: HIGH
       crypto:
         assetType: algorithm
+        operation: "keyderive"
         algorithmPrimitive: kdf
         algorithmFamily: scrypt
         algorithmName: scrypt

@@ -1,5 +1,5 @@
 // TEST-RULE: go.crypto.aes.gcm-mode
-// TEST-METADATA: assetType=algorithm, findingType=cipher, operation=encrypt, algorithmPrimitive=ae, algorithmName=AES-GCM, algorithmFamily=AES, library=crypto/cipher, api=cipher.NewGCMWithNonceSize, cipher=AES, algorithmMode=gcm
+// TEST-METADATA: assetType=algorithm, findingType=cipher, algorithmPrimitive=ae, algorithmName=AES-GCM, algorithmFamily=AES, library=crypto/cipher, api=cipher.NewGCMWithNonceSize, cipher=AES, algorithmMode=gcm
 
 package main
 

@@ -25,7 +25,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmName: SHA-3-$variant
         algorithmFamily: SHA-3
         library: crypto/sha3
@@ -52,7 +52,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmName: $shakevariant
         algorithmFamily: SHA-3
         library: crypto/sha3

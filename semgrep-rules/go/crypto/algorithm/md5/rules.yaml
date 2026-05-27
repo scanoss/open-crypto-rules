@@ -20,7 +20,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: hash
-        operation: digest
+        operation: "digest"
         algorithmName: MD5
         algorithmFamily: MD5
         library: crypto/md5

@@ -37,6 +37,7 @@ rules:
       confidence: HIGH
       crypto:
         assetType: algorithm
+        operation: "tag"
         algorithmPrimitive: mac
         algorithmFamily: HMAC
         algorithmName: HMAC

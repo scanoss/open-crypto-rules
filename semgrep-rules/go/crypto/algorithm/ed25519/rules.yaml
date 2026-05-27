@@ -17,7 +17,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
+        operation: "keygen"
         algorithmName: Ed25519
         algorithmFamily: EdDSA
         library: crypto/ed25519
@@ -44,7 +44,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
+        operation: "keygen"
         algorithmName: Ed25519
         algorithmFamily: EdDSA
         library: crypto/ed25519
@@ -77,7 +77,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: sign
+        operation: "sign"
         algorithmName: Ed25519
         algorithmFamily: EdDSA
         library: crypto/ed25519
@@ -107,7 +107,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: signature
-        operation: verify
+        operation: "verify"
         algorithmName: Ed25519
         algorithmFamily: EdDSA
         library: crypto/ed25519
@@ -137,7 +137,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
         algorithmName: Ed25519
         algorithmFamily: EdDSA
         library: crypto/ed25519

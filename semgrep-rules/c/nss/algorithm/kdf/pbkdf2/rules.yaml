@@ -30,6 +30,7 @@ rules:
       confidence: HIGH
       crypto:
         assetType: algorithm
+        operation: "keyderive"
         algorithmPrimitive: kdf
         algorithmFamily: PBKDF2
         algorithmName: PBKDF2

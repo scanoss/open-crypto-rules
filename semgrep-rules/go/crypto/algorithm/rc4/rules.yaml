@@ -27,7 +27,6 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
         algorithmName: RC4
         algorithmFamily: RC4
         library: crypto/rc4

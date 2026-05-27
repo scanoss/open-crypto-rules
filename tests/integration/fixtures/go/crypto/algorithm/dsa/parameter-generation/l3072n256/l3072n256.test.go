@@ -1,5 +1,5 @@
 // TEST-RULE: go.crypto.dsa.parameter-generation
-// TEST-METADATA: assetType=algorithm, findingType=key_generation, operation=keygen, algorithmPrimitive=signature, algorithmName=DSA, algorithmFamily=DSA, algorithmParameterSetIdentifier=3072, library=crypto/dsa, api=dsa.GenerateParameters, materialSource=generated
+// TEST-METADATA: assetType=algorithm, findingType=key_generation, algorithmPrimitive=signature, algorithmName=DSA, algorithmFamily=DSA, algorithmParameterSetIdentifier=3072, library=crypto/dsa, api=dsa.GenerateParameters, materialSource=generated
 
 package main
 

@@ -1,5 +1,5 @@
 // TEST-RULE: go.crypto.rsa.verify-pss
-// TEST-METADATA: assetType=algorithm, findingType=signature, operation=verify, algorithmPrimitive=signature, algorithmName=RSA-PSS-SHA256, algorithmFamily=RSA, library=crypto/rsa, api=rsa.VerifyPSS
+// TEST-METADATA: assetType=algorithm, findingType=signature, algorithmPrimitive=signature, algorithmName=RSA-PSS-SHA256, algorithmFamily=RSA, library=crypto/rsa, api=rsa.VerifyPSS
 
 package main
 

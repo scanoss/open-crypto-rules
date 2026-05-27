@@ -53,7 +53,7 @@ func testSaltedKeyGenerationWithSize() {
 }
 
 // TEST-RULE: go.xcrypto.blowfish.key-expansion
-// TEST-METADATA: operation:keygen findingType:key_generation api:blowfish.ExpandKey
+// TEST-METADATA: findingType:key_generation api:blowfish.ExpandKey
 func testKeyExpansion() {
 	key := make([]byte, 16)
 	cipher, _ := blowfish.NewCipher(key)

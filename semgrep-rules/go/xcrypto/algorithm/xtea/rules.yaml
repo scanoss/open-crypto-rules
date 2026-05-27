@@ -33,7 +33,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: key_generation
-        operation: keygen
+        operation: "keygen"
         algorithmPrimitive: block-cipher
         algorithmName: XTEA
         algorithmFamily: XTEA
@@ -89,7 +89,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: encrypt
+        operation: "encrypt"
         algorithmPrimitive: block-cipher
         algorithmName: XTEA
         algorithmFamily: XTEA
@@ -144,7 +144,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: cipher
-        operation: decrypt
+        operation: "decrypt"
         algorithmPrimitive: block-cipher
         algorithmName: XTEA
         algorithmFamily: XTEA

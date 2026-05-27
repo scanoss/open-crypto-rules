@@ -46,7 +46,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: mac
-        operation: sign
+        operation: "tag"
         algorithmName: HMAC-$hash
         algorithmFamily: HMAC
         library: crypto/hmac
@@ -70,7 +70,7 @@ rules:
       crypto:
         assetType: algorithm
         findingType: mac
-        operation: verify
+        operation: "tag"
         algorithmName: HMAC
         algorithmFamily: HMAC
         library: crypto/hmac

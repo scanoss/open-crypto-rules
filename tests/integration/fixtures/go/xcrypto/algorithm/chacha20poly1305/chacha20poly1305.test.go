@@ -5,7 +5,7 @@ import (
 )
 
 // TEST-RULE: go.xcrypto.chacha20poly1305.aead
-// TEST-METADATA: operation:encrypt findingType:cipher
+// TEST-METADATA: findingType:cipher
 func testChaCha20Poly1305New() {
 	key := make([]byte, 32)
 	// ruleid: go.xcrypto.chacha20poly1305.aead
@@ -14,7 +14,7 @@ func testChaCha20Poly1305New() {
 }
 
 // TEST-RULE: go.xcrypto.chacha20poly1305.aead
-// TEST-METADATA: operation:encrypt findingType:cipher
+// TEST-METADATA: findingType:cipher
 func testXChaCha20Poly1305NewX() {
 	key := make([]byte, 32)
 	// ruleid: go.xcrypto.chacha20poly1305.aead
@@ -23,7 +23,7 @@ func testXChaCha20Poly1305NewX() {
 }
 
 // TEST-RULE: go.xcrypto.chacha20poly1305.constants
-// TEST-METADATA: operation:encrypt findingType:cipher
+// TEST-METADATA: findingType:cipher
 func testChaCha20Poly1305Constants() {
 	// ruleid: go.xcrypto.chacha20poly1305.constants
 	keySize := chacha20poly1305.KeySize
