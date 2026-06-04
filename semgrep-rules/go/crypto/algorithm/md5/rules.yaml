@@ -1,0 +1,22 @@
+rules:
+  - id: go.crypto.md5.hash-usage
+    message: Detected MD5 hash function usage from the Go standard library.
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: md5.New()
+          - pattern: md5.Sum(...)
+          - pattern: crypto.MD5
+    metadata:
+      category: security
+      subcategory: cryptography
+      references:
+        - https://pkg.go.dev/crypto/md5
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: hash
+        algorithmName: MD5
+        algorithmFamily: MD5
+        library: crypto/md5

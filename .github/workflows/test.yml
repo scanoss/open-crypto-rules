@@ -1,0 +1,46 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Run integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build test Docker image
+        run: |
+          docker build \
+            -f Dockerfile.test \
+            -t crypto-rules-test:${{ github.sha }} \
+            -t crypto-rules-test:latest \
+            .
+
+      - name: Run integration tests
+        run: |
+          docker run --rm \
+            -e CI=true \
+            crypto-rules-test:${{ github.sha }}
+
+      - name: Test summary
+        if: always()
+        run: |
+          echo "### Test Results 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Integration tests run via batch scanning (one OpenGrep invocation per language)." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

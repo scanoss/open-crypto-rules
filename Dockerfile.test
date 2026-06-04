@@ -1,0 +1,36 @@
+# Dockerfile for running crypto rule tests with Python + OpenGrep
+# This image includes Python, OpenGrep/Semgrep, and pytest for fast test execution
+
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        git \
+        curl \
+        ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install OpenGrep (minimum version 1.12.1)
+RUN curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/main/install.sh | bash
+
+# Add opengrep to PATH
+ENV PATH="$PATH:/root/.opengrep/cli/latest"
+
+RUN opengrep --version
+
+# Set up workspace
+WORKDIR /workspace
+
+# Copy test infrastructure
+COPY tests/ tests/
+COPY semgrep-rules/ semgrep-rules/
+
+# Install Python test dependencies
+RUN pip install --no-cache-dir -r tests/requirements.txt
+
+# Set working directory for tests
+WORKDIR /workspace/tests
+
+CMD ["pytest", "-v", "--tb=short"]
