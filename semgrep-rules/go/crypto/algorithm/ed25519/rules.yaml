@@ -1,3 +1,7 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
 rules:
   - id: go.crypto.ed25519.generatekey
     message: Detected Ed25519 key generation, algorithm=Ed25519, curve=Ed25519
