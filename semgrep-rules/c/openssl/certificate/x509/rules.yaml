@@ -6,7 +6,7 @@ rules:
   - id: c.openssl.certificate.x509
     message: Detected X.509 certificate usage
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern-either:
           - pattern: d2i_X509(...)

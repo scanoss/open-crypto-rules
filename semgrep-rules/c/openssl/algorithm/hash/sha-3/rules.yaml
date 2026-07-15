@@ -9,7 +9,7 @@ rules:
     options:
       interfile: true
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
 
     pattern-sources:
       - patterns:
@@ -51,7 +51,7 @@ rules:
   - id: c.openssl.algorithm.hash.sha-3.generic
     message: Detected SHA-3 family hash algorithm name
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern: $ALGO
       - metavariable-regex:

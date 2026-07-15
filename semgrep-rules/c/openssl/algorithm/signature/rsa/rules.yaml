@@ -7,7 +7,7 @@ rules:
     message: Detected RSA-PKCS1 signature algorithm usage
     mode: taint
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
 
     pattern-sources:
       - patterns:
@@ -50,7 +50,7 @@ rules:
     message: Detected RSA-PSS signature algorithm usage
     mode: taint
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
 
     pattern-sources:
       - patterns:
@@ -92,7 +92,7 @@ rules:
   - id: c.openssl.algorithm.signature.rsa-pss.padding
     message: Detected RSA-PSS signature padding configuration
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern: EVP_PKEY_CTX_set_rsa_padding($CTX, RSA_PKCS1_PSS_PADDING)
     metadata:
@@ -111,7 +111,7 @@ rules:
   - id: c.openssl.algorithm.signature.rsa-pss.saltlen
     message: Detected RSA-PSS signature salt length configuration
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern: EVP_PKEY_CTX_set_rsa_pss_saltlen($CTX, $LEN)
     metadata:
@@ -130,7 +130,7 @@ rules:
   - id: c.openssl.algorithm.signature.rsa-pss.mgf1-md
     message: Detected RSA-PSS MGF1 digest configuration
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern: EVP_PKEY_CTX_set_rsa_mgf1_md($CTX, $MD)
     metadata:
@@ -148,7 +148,7 @@ rules:
   - id: c.openssl.algorithm.signature.rsa-pss.generic
     message: Detected RSA-PSS signature algorithm name
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern: $ALGO
       - metavariable-regex:

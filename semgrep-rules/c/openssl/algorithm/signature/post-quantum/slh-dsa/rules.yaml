@@ -9,7 +9,7 @@ rules:
     options:
       interfile: true
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
 
     pattern-sources:
       - patterns:
@@ -48,7 +48,7 @@ rules:
   - id: c.openssl.algorithm.signature.slh-dsa.generic
     message: Detected SLH-DSA post-quantum signature algorithm name
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern: $ALGO
       - metavariable-regex:

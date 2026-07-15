@@ -9,7 +9,7 @@ rules:
     options:
       interfile: true
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
 
     pattern-sources:
       - pattern: $DIGEST
@@ -48,7 +48,7 @@ rules:
   - id: c.openssl.algorithm.kdf.hkdf.generic
     message: Detected HKDF key derivation function name
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern: $ALGO
       - metavariable-regex:

@@ -9,6 +9,7 @@ rules:
   severity: INFO
   languages:
   - c
+  - cpp
   pattern-sources:
   - patterns:
     - pattern: $FUNC()
@@ -46,6 +47,7 @@ rules:
   severity: INFO
   languages:
   - c
+  - cpp
   pattern-sources:
   - patterns:
     - pattern: $FUNC()
@@ -82,6 +84,7 @@ rules:
   severity: INFO
   languages:
   - c
+  - cpp
   patterns:
   - pattern: $API(...)
   - metavariable-regex:
@@ -103,6 +106,7 @@ rules:
   severity: INFO
   languages:
   - c
+  - cpp
   patterns:
   - pattern: $FUNC()
   - metavariable-regex:
@@ -124,6 +128,7 @@ rules:
   severity: INFO
   languages:
   - c
+  - cpp
   patterns:
   - pattern: $FUNC()
   - metavariable-regex:
@@ -145,6 +150,7 @@ rules:
   severity: INFO
   languages:
   - c
+  - cpp
   patterns:
   - pattern: $ALGO
   - metavariable-regex:
@@ -165,6 +171,7 @@ rules:
   severity: INFO
   languages:
   - c
+  - cpp
   patterns:
   - pattern: $ALGO
   - metavariable-regex:
