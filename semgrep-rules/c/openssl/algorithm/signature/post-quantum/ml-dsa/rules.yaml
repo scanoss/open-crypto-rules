@@ -7,7 +7,7 @@ rules:
     message: Detected ML-DSA post-quantum signature algorithm usage
     mode: taint
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     options:
       interfile: true
 
@@ -53,7 +53,7 @@ rules:
   - id: c.openssl.algorithm.signature.ml-dsa.generic
     message: Detected ML-DSA post-quantum signature algorithm name
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern: $ALGO
       - metavariable-regex:

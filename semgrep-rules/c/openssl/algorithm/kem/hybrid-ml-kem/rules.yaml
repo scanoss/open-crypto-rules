@@ -9,7 +9,7 @@ rules:
     options:
       interfile: true
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
 
     pattern-sources:
       - patterns:
@@ -50,7 +50,7 @@ rules:
   - id: c.openssl.algorithm.kem.hybrid-ml-kem.generic
     message: Detected hybrid ML-KEM post-quantum key encapsulation mechanism name
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern: $ALGO
       - metavariable-regex:

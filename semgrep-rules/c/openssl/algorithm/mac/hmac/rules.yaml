@@ -9,7 +9,7 @@ rules:
     options:
       interfile: true
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
 
     pattern-sources:
       - pattern: $DIGEST
@@ -50,7 +50,7 @@ rules:
   - id: c.openssl.algorithm.mac.hmac.generic
     message: Detected HMAC message authentication code name
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern: $ALGO
       - metavariable-regex:

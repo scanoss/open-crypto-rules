@@ -11,6 +11,7 @@ rules:
   severity: INFO
   languages:
   - c
+  - cpp
   pattern-sources:
   - patterns:
     - pattern: $ALGO
@@ -51,6 +52,7 @@ rules:
   severity: INFO
   languages:
   - c
+  - cpp
   patterns:
   - pattern: $ALGO
   - metavariable-regex:

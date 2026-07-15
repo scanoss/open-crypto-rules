@@ -6,7 +6,7 @@ rules:
   - id: c.openssl.protocol.ocsp
     message: Detected OCSP operations
     severity: INFO
-    languages: [c]
+    languages: [c, cpp]
     patterns:
       - pattern: $API(...)
       - metavariable-regex:
