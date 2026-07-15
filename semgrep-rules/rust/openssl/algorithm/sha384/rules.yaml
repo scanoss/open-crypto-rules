@@ -1,0 +1,48 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: rust.openssl.sha384.hash-usage
+    message: Detected SHA-384 hash usage
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: sha::Sha384::new()
+                  - pattern: sha384(...)
+                  - pattern: MessageDigest::sha384()
+                  - pattern: Md::sha384()
+                  - pattern: md::Md::sha384()
+                  - pattern: MessageDigest::from_nid(Nid::SHA384)
+                  - pattern: Md::from_nid(Nid::SHA384)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+          - pattern: openssl::sha::sha384(...)
+          - pattern: openssl::sha::Sha384::new()
+          - pattern: openssl::hash::MessageDigest::sha384()
+          - pattern: openssl::md::Md::sha384()
+          - pattern: openssl::hash::MessageDigest::from_nid(openssl::nid::Nid::SHA384)
+          - pattern: openssl::md::Md::from_nid(openssl::nid::Nid::SHA384)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmName: SHA-384
+        algorithmFamily: SHA-2
+        library: openssl
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "384"
+

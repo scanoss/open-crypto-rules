@@ -1,0 +1,38 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: c.openssl.algorithm.drbg.rand
+    message: Detected OpenSSL random number generation
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c, cpp]
+
+    pattern-sources:
+      - pattern: $SIZE
+      - pattern: RAND_bytes
+      - pattern: RAND_priv_bytes
+
+    pattern-sinks:
+      - patterns:
+          - pattern: $API($BUFFER, $SIZE)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(RAND_bytes|RAND_priv_bytes)$'
+          - focus-metavariable: $BUFFER
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        operation: "generate"
+        algorithmPrimitive: drbg
+        algorithmFamily: DRBG
+        algorithmName: OpenSSL-RAND
+        library: OpenSSL
+        api: $API

@@ -1,0 +1,95 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.xcrypto.pbkdf2.key-derivation
+    message: Detected PBKDF2 key derivation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/pbkdf2"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/pbkdf2"
+              ...
+      - pattern-either:
+          - patterns:
+              - pattern: pbkdf2.Key($PASSWORD, $SALT, $ITERATIONS, $KEY_LENGTH, $HASH)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.(?:New|New224|New384|New512_224|New512_256)'
+              - metavariable-regex:
+                  metavariable: $ITERATIONS
+                  regex: '^(?<iterations>\d+)$'
+              - metavariable-regex:
+                  metavariable: $KEY_LENGTH
+                  regex: "^(?<keylen>16|24|32|64)$"
+          - patterns:
+              - pattern: pbkdf2.Key($PASSWORD, $SALT, $ITERATIONS, $KEY_LENGTH, $HASH)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(?<hash>SHA256|SHA512|SHA224|SHA384|SHA512_224|SHA512_256|SHA1|MD5)\.New'
+              - metavariable-regex:
+                  metavariable: $ITERATIONS
+                  regex: '^(?<iterations>\d+)$'
+              - metavariable-regex:
+                  metavariable: $KEY_LENGTH
+                  regex: "^(?<keylen>16|24|32|64)$"
+          - patterns:
+              - pattern: pbkdf2.Key($PASSWORD, $SALT, $ITERATIONS, $KEY_LENGTH, $HASH)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.(?:New|New224|New384|New512_224|New512_256)'
+              - metavariable-regex:
+                  metavariable: $ITERATIONS
+                  regex: '^(?<iterations>\d+)$'
+          - patterns:
+              - pattern: pbkdf2.Key($PASSWORD, $SALT, $ITERATIONS, $KEY_LENGTH, $HASH)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(?<hash>SHA256|SHA512|SHA224|SHA384|SHA512_224|SHA512_256|SHA1|MD5)\.New'
+              - metavariable-regex:
+                  metavariable: $ITERATIONS
+                  regex: '^(?<iterations>\d+)$'
+          - patterns:
+              - pattern: pbkdf2.Key($PASSWORD, $SALT, $ITERATIONS, $KEY_LENGTH, $HASH)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.(?:New|New224|New384|New512_224|New512_256)'
+              - metavariable-regex:
+                  metavariable: $KEY_LENGTH
+                  regex: "^(?<keylen>16|24|32|64)$"
+          - patterns:
+              - pattern: pbkdf2.Key($PASSWORD, $SALT, $ITERATIONS, $KEY_LENGTH, $HASH)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(?<hash>SHA256|SHA512|SHA224|SHA384|SHA512_224|SHA512_256|SHA1|MD5)\.New'
+              - metavariable-regex:
+                  metavariable: $KEY_LENGTH
+                  regex: "^(?<keylen>16|24|32|64)$"
+          - pattern: pbkdf2.Key(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/pbkdf2
+      crypto:
+        assetType: algorithm
+        findingType: kdf
+        operation: "keyderive"
+        algorithmPrimitive: kdf
+        algorithmName: PBKDF2-$hash-$iterations-$keylen
+        algorithmFamily: PBKDF2
+        algorithmParameterSetIdentifier: $iterations-$keylen
+        iterations: $iterations
+        library: golang.org/x/crypto/pbkdf2
+        api: pbkdf2.Key
+        materialSource: derived

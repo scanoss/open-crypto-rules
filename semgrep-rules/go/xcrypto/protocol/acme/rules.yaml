@@ -1,0 +1,286 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.xcrypto.acme.client-creation
+    message: Detected ACME client creation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/acme"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/acme"
+              ...
+      - pattern-either:
+          - pattern: |
+              &acme.Client{...}
+          - pattern: |
+              acme.Client{...}
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        library: golang.org/x/crypto/acme
+        api: acme.Client
+
+  - id: go.xcrypto.acme.client-operations
+    message: Detected ACME client operations
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - pattern: |
+          &acme.Client{...}
+      - pattern: |
+          acme.Client{...}
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Client: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Client
+        from: $OBJ
+        to: $OBJ.Client
+    pattern-sinks:
+      - patterns:
+          - pattern: $CLIENT.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>Discover|GetReg|UpdateReg|DeactivateReg|AccountKeyRollover)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        library: golang.org/x/crypto/acme
+        api: acme.Client.$func
+
+  - id: go.xcrypto.acme.registration
+    message: Detected ACME account registration
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - pattern: |
+          &acme.Client{...}
+      - pattern: |
+          acme.Client{...}
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Client: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Client
+        from: $OBJ
+        to: $OBJ.Client
+    pattern-sinks:
+      - patterns:
+          - pattern: $CLIENT.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>Register)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        library: golang.org/x/crypto/acme
+        api: acme.Client.$func
+
+  - id: go.xcrypto.acme.authorization
+    message: Detected ACME authorization operations
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - pattern: |
+          &acme.Client{...}
+      - pattern: |
+          acme.Client{...}
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Client: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Client
+        from: $OBJ
+        to: $OBJ.Client
+    pattern-sinks:
+      - patterns:
+          - pattern: $CLIENT.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>Authorize|AuthorizeIP|AuthorizeOrder|GetAuthorization|WaitAuthorization|RevokeAuthorization)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        library: golang.org/x/crypto/acme
+        api: acme.Client.$func
+
+  - id: go.xcrypto.acme.challenge
+    message: Detected ACME challenge operations
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - pattern: |
+          &acme.Client{...}
+      - pattern: |
+          acme.Client{...}
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Client: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Client
+        from: $OBJ
+        to: $OBJ.Client
+    pattern-sinks:
+      - patterns:
+          - pattern: $CLIENT.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>GetChallenge|Accept|DNS01ChallengeRecord|HTTP01ChallengeResponse|HTTP01ChallengePath|TLSALPN01ChallengeCert|TLSSNI01ChallengeCert|TLSSNI02ChallengeCert)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        library: golang.org/x/crypto/acme
+        api: acme.Client.$func
+
+  - id: go.xcrypto.acme.order
+    message: Detected ACME order operations
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - pattern: |
+          &acme.Client{...}
+      - pattern: |
+          acme.Client{...}
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Client: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Client
+        from: $OBJ
+        to: $OBJ.Client
+    pattern-sinks:
+      - patterns:
+          - pattern: $CLIENT.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>GetOrder|WaitOrder)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        library: golang.org/x/crypto/acme
+        api: acme.Client.$func
+
+  - id: go.xcrypto.acme.certificate
+    message: Detected ACME certificate operations
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - pattern: |
+          &acme.Client{...}
+      - pattern: |
+          acme.Client{...}
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Client: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Client
+        from: $OBJ
+        to: $OBJ.Client
+    pattern-sinks:
+      - patterns:
+          - pattern: $CLIENT.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>CreateCert|CreateOrderCert|FetchCert|RevokeCert|ListCertAlternates)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/acme
+      crypto:
+        assetType: protocol
+        protocolType: other
+        protocolName: ACME
+        findingType: certificate_handling
+        operation: other
+        library: golang.org/x/crypto/acme
+        api: acme.Client.$func

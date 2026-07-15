@@ -1,0 +1,66 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: c.openssl.algorithm.kdf.hkdf
+    message: Detected HKDF key derivation function usage
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c, cpp]
+
+    pattern-sources:
+      - pattern: $DIGEST
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>HKDF|hkdf)"'
+
+    pattern-sinks:
+      - patterns:
+          - pattern: $API($A, $B, $DIGEST, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(?:HKDF|HKDF_extract|HKDF_expand)$'
+          - focus-metavariable: $DIGEST
+      - patterns:
+          - pattern: $API($A, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^EVP_KDF_fetch$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        operation: "keyderive"
+        algorithmPrimitive: kdf
+        algorithmFamily: HKDF
+        algorithmName: HKDF
+        library: OpenSSL
+        api: $API
+  - id: c.openssl.algorithm.kdf.hkdf.generic
+    message: Detected HKDF key derivation function name
+    severity: INFO
+    languages: [c, cpp]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>HKDF|hkdf)"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: kdf
+        algorithmFamily: HKDF
+        algorithmName: HKDF
+        library: OpenSSL

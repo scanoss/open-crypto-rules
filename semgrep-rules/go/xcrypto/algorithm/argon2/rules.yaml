@@ -1,0 +1,45 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.xcrypto.argon2.key-derivation
+    message: Detected Argon2 key derivation with output length=$keylen bytes, algorithm=Argon2
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/argon2"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/argon2"
+              ...
+      - pattern: argon2.$FUNC($PASSWORD, $SALT, $TIME, $MEMORY, $THREADS, $KEY_LENGTH)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>IDKey|Key)$"
+      - metavariable-regex:
+          metavariable: $KEY_LENGTH
+          regex: "^(?<keylen>16|24|32|64)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/argon2
+      crypto:
+        assetType: algorithm
+        findingType: kdf
+        operation: "keyderive"
+        algorithmPrimitive: kdf
+        algorithmName: Argon2
+        algorithmFamily: Argon2
+        algorithmParameterSetIdentifier: $keylen
+        library: golang.org/x/crypto/argon2
+        api: argon2.$func
+        materialSource: derived

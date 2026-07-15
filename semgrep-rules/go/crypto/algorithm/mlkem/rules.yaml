@@ -1,0 +1,264 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.crypto.mlkem.key-generation
+    message: Detected ML-KEM key generation, algorithm=ML-KEM
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: mlkem.$FUNC()
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^GenerateKey(?<params>768|1024)$"
+          - pattern: mlkem.GenerateKey768()
+          - pattern: mlkem.GenerateKey1024()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/mlkem
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: "keygen"
+        algorithmName: ML-KEM-$params
+        algorithmFamily: ML-KEM
+        library: crypto/mlkem
+        api: mlkem.GenerateKey
+        materialSource: generated
+        algorithmPrimitive: kem
+        algorithmParameterSetIdentifier: $params
+
+  - id: go.crypto.mlkem.key-generation-from-seed
+    message: Detected ML-KEM key generation from seed, algorithm=ML-KEM
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: mlkem.$FUNC($SEED)
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^NewDecapsulationKey(?<params>768|1024)$"
+          - pattern: mlkem.NewDecapsulationKey768($SEED)
+          - pattern: mlkem.NewDecapsulationKey1024($SEED)
+          - pattern: mlkem.NewDecapsulationKey768(...)
+          - pattern: mlkem.NewDecapsulationKey1024(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/mlkem
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: "keygen"
+        algorithmName: ML-KEM-$params
+        algorithmFamily: ML-KEM
+        library: crypto/mlkem
+        api: mlkem.NewDecapsulationKey
+        materialSource: generated
+        algorithmPrimitive: kem
+        algorithmParameterSetIdentifier: $params
+
+  - id: go.crypto.mlkem.encapsulation-key
+    message: Detected ML-KEM encapsulation key creation, algorithm=ML-KEM
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: mlkem.$FUNC($KEY_DATA)
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^NewEncapsulationKey(?<params>768|1024)$"
+          - pattern: mlkem.NewEncapsulationKey768($KEY_DATA)
+          - pattern: mlkem.NewEncapsulationKey1024($KEY_DATA)
+          - pattern: mlkem.NewEncapsulationKey768(...)
+          - pattern: mlkem.NewEncapsulationKey1024(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/mlkem
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: "encapsulate"
+        algorithmName: ML-KEM-$params
+        algorithmFamily: ML-KEM
+        library: crypto/mlkem
+        api: mlkem.NewEncapsulationKey
+        materialSource: loaded
+        algorithmPrimitive: kem
+        algorithmParameterSetIdentifier: $params
+
+  - id: go.crypto.mlkem.encapsulate
+    message: Detected ML-KEM key encapsulation, algorithm=ML-KEM
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $ENCAPSULATION_KEY.Encapsulate()
+          - pattern: $KEY.Encapsulate()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/mlkem
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: "encapsulate"
+        algorithmName: ML-KEM
+        algorithmFamily: ML-KEM
+        library: crypto/mlkem
+        api: mlkem.Encapsulate
+        algorithmPrimitive: kem
+
+  - id: go.crypto.mlkem.decapsulate
+    message: Detected ML-KEM key decapsulation, algorithm=ML-KEM
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $DECAPSULATION_KEY.Decapsulate($CIPHERTEXT)
+          - pattern: $KEY.Decapsulate(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/mlkem
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: "decapsulate"
+        algorithmName: ML-KEM
+        algorithmFamily: ML-KEM
+        library: crypto/mlkem
+        api: mlkem.Decapsulate
+        algorithmPrimitive: kem
+
+  - id: go.crypto.mlkem.key-type
+    message: Detected ML-KEM key type declaration, algorithm=ML-KEM
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern-either:
+              - pattern: var $VAR *mlkem.$KEY_TYPE
+              - pattern: var $VAR mlkem.$KEY_TYPE
+              - pattern: $VAR := &mlkem.$KEY_TYPE{...}
+              - pattern: var $VAR = &mlkem.$KEY_TYPE{...}
+              - pattern: var $VAR = new(mlkem.$KEY_TYPE)
+              - pattern: $VAR := new(mlkem.$KEY_TYPE)
+              - pattern: var $VAR = mlkem.$KEY_TYPE{...}
+              - pattern: $VAR := mlkem.$KEY_TYPE{...}
+          - metavariable-regex:
+              metavariable: $KEY_TYPE
+              regex: "^(?<keytype>DecapsulationKey|EncapsulationKey)(?:768|1024)?$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      references:
+        - https://pkg.go.dev/crypto/mlkem
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        algorithmName: ML-KEM
+        algorithmFamily: ML-KEM
+        library: crypto/mlkem
+        api: mlkem.$keytype
+        algorithmPrimitive: kem
+
+  - id: go.crypto.mlkem.encapsulation-key-extraction
+    message: Detected ML-KEM encapsulation key extraction, algorithm=ML-KEM
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: $DECAPSULATION_KEY.EncapsulationKey()
+          - pattern: $KEY.EncapsulationKey()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/mlkem
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        operation: "encapsulate"
+        algorithmName: ML-KEM
+        algorithmFamily: ML-KEM
+        library: crypto/mlkem
+        api: mlkem.EncapsulationKey
+        algorithmPrimitive: kem
+
+  - id: go.crypto.mlkem.bytes
+    message: Detected ML-KEM key serialization, algorithm=ML-KEM
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-inside: |
+          import "crypto/mlkem"
+          ...
+      - pattern-either:
+          - patterns:
+              - pattern-inside: |
+                  $KEY := mlkem.$FUNC(...)
+                  ...
+              - pattern: $KEY.Bytes()
+          - patterns:
+              - pattern-inside: |
+                  $KEY, _ := mlkem.$FUNC(...)
+                  ...
+              - pattern: $KEY.Bytes()
+          - patterns:
+              - pattern-inside: |
+                  $KEY := $DECAP_KEY.EncapsulationKey()
+                  ...
+              - pattern: $KEY.Bytes()
+          - patterns:
+              - pattern-inside: |
+                  var $KEY *mlkem.$KEY_TYPE
+                  ...
+              - pattern: $KEY.Bytes()
+          - patterns:
+              - pattern-inside: |
+                  var $KEY mlkem.$KEY_TYPE
+                  ...
+              - pattern: $KEY.Bytes()
+          - pattern: $KEY.Bytes()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/mlkem
+      crypto:
+        assetType: algorithm
+        findingType: key_exchange
+        algorithmName: ML-KEM
+        algorithmFamily: ML-KEM
+        library: crypto/mlkem
+        api: mlkem.Bytes
+        algorithmPrimitive: kem

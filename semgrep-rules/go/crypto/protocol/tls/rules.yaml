@@ -1,0 +1,205 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.crypto.tls.version-ssl30
+    message: Detected SSLv3.0 TLS version
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: tls.VersionSSL30
+          - pattern: $CONFIG.MinVersion = tls.VersionSSL30
+          - pattern: $CONFIG.MaxVersion = tls.VersionSSL30
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-757
+      references:
+        - https://pkg.go.dev/crypto/tls
+      crypto:
+        assetType: protocol
+        findingType: key_exchange
+        operation: keyexchange
+        protocolName: TLS
+        protocolType: tls
+        protocolVersion: SSL3.0
+        library: crypto/tls
+        api: tls.VersionSSL30
+
+  - id: go.crypto.tls.version-tls10
+    message: Detected TLS 1.0 version
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: tls.VersionTLS10
+          - pattern: $CONFIG.MinVersion = tls.VersionTLS10
+          - pattern: $CONFIG.MaxVersion = tls.VersionTLS10
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-757
+      references:
+        - https://pkg.go.dev/crypto/tls
+      crypto:
+        assetType: protocol
+        findingType: key_exchange
+        operation: keyexchange
+        protocolName: TLS
+        protocolType: tls
+        protocolVersion: "1.0"
+        library: crypto/tls
+        api: tls.VersionTLS10
+
+  - id: go.crypto.tls.version-tls11
+    message: Detected TLS 1.1 version
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: tls.VersionTLS11
+          - pattern: $CONFIG.MinVersion = tls.VersionTLS11
+          - pattern: $CONFIG.MaxVersion = tls.VersionTLS11
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-757
+      references:
+        - https://pkg.go.dev/crypto/tls
+      crypto:
+        assetType: protocol
+        findingType: key_exchange
+        operation: keyexchange
+        protocolName: TLS
+        protocolType: tls
+        protocolVersion: "1.1"
+        library: crypto/tls
+        api: tls.VersionTLS11
+
+  - id: go.crypto.tls.version-tls12
+    message: Detected TLS 1.2 version
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: tls.VersionTLS12
+          - pattern: $CONFIG.MinVersion = tls.VersionTLS12
+          - pattern: $CONFIG.MaxVersion = tls.VersionTLS12
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/tls
+      crypto:
+        assetType: protocol
+        findingType: key_exchange
+        operation: keyexchange
+        protocolName: TLS
+        protocolType: tls
+        protocolVersion: "1.2"
+        library: crypto/tls
+        api: tls.VersionTLS12
+
+  - id: go.crypto.tls.version-tls13
+    message: Detected TLS 1.3 version
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: tls.VersionTLS13
+          - pattern: $CONFIG.MinVersion = tls.VersionTLS13
+          - pattern: $CONFIG.MaxVersion = tls.VersionTLS13
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/tls
+      crypto:
+        assetType: protocol
+        findingType: key_exchange
+        operation: keyexchange
+        protocolName: TLS
+        protocolType: tls
+        protocolVersion: "1.3"
+        library: crypto/tls
+        api: tls.VersionTLS13
+
+  - id: go.crypto.tls.cipher-suite
+    message: Detected TLS cipher suite
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: tls.$SUITE
+              - metavariable-regex:
+                  metavariable: $SUITE
+                  regex: "^TLS_[A-Z0-9_]+$"
+          - pattern: $CONFIG.CipherSuites = $SUITES
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/tls
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: encrypt
+        protocolName: TLS
+        protocolType: tls
+        protocolVersion: unknown
+        protocolCipherSuites: $SUITES
+        library: crypto/tls
+        api: tls.CipherSuite
+        algorithmName: TLS
+
+  - id: go.crypto.tls.curve-preferences
+    message: Detected TLS curve preferences
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: |
+                      $CONFIG.CurvePreferences = []tls.CurveID{..., tls.$CURVE, ...}
+                  - pattern: |
+                      CurvePreferences: []tls.CurveID{..., tls.$CURVE, ...}
+                  - pattern: tls.$CURVE
+              - metavariable-regex:
+                  metavariable: $CURVE
+                  regex: "^(?:CurveP(?<curve>224|256|384|521)|X25519|X25519MLKEM768)$"
+          - pattern: $CONFIG.CurvePreferences = $CURVES
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/tls
+      crypto:
+        assetType: protocol
+        findingType: key_exchange
+        operation: keyexchange
+        protocolName: TLS
+        protocolType: tls
+        parameterSetIdentifier: $CURVE
+        library: crypto/tls
+        api: tls.CurvePreferences

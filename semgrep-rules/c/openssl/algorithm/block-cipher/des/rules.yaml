@@ -1,0 +1,189 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+- id: c.openssl.algorithm.block-cipher.des
+  message: Detected DES family block cipher usage
+  mode: taint
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $FUNC()
+    - metavariable-regex:
+        metavariable: $FUNC
+        regex: ^EVP_(?<variant>des_cbc|des_ecb|des_cfb|des_ofb)$
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<variant>DES-CBC|DES-ECB|DES-CFB|DES-OFB|des-cbc|des-ecb|des-cfb|des-ofb)"'
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_cipherbyname|EVP_CipherInit_ex|EVP_EncryptInit_ex|EVP_DecryptInit_ex|EVP_CIPHER_fetch)$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: DES
+      algorithmName: $variant
+      library: OpenSSL
+      api: $API
+- id: c.openssl.algorithm.block-cipher.3des
+  message: Detected 3DES family block cipher usage
+  mode: taint
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $FUNC()
+    - metavariable-regex:
+        metavariable: $FUNC
+        regex: ^EVP_(?<variant>des_ede|des_ede_cbc|des_ede3|des_ede3_cbc)$
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<variant>DES-EDE|DES-EDE-CBC|DES-EDE3|DES-EDE3-CBC|des-ede|des-ede-cbc|des-ede3|des-ede3-cbc)"'
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_cipherbyname|EVP_CipherInit_ex|EVP_EncryptInit_ex|EVP_DecryptInit_ex|EVP_CIPHER_fetch)$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: 3DES
+      algorithmName: $variant
+      library: OpenSSL
+      api: $API
+- id: c.openssl.algorithm.block-cipher.des.low-level
+  message: Detected low-level DES family block cipher usage
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $API(...)
+  - metavariable-regex:
+      metavariable: $API
+      regex: ^(?:DES_set_odd_parity|DES_set_key|DES_ecb_encrypt)$
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: DES
+      algorithmName: DES
+      library: OpenSSL
+      api: $API
+- id: c.openssl.algorithm.block-cipher.des.constructor
+  message: Detected DES family block cipher constructor usage
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $FUNC()
+  - metavariable-regex:
+      metavariable: $FUNC
+      regex: ^EVP_(?<variant>des_cbc|des_ecb|des_cfb|des_ofb)$
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: DES
+      algorithmName: $variant
+      library: OpenSSL
+      api: $FUNC
+- id: c.openssl.algorithm.block-cipher.3des.constructor
+  message: Detected 3DES family block cipher constructor usage
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $FUNC()
+  - metavariable-regex:
+      metavariable: $FUNC
+      regex: ^EVP_(?<variant>des_ede|des_ede_cbc|des_ede3|des_ede3_cbc)$
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: 3DES
+      algorithmName: $variant
+      library: OpenSSL
+      api: $FUNC
+- id: c.openssl.algorithm.block-cipher.des.generic
+  message: Detected DES family block cipher algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>DES-CBC|DES-ECB|DES-CFB|DES-OFB|des-cbc|des-ecb|des-cfb|des-ofb)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: DES
+      algorithmName: $variant
+      library: OpenSSL
+- id: c.openssl.algorithm.block-cipher.3des.generic
+  message: Detected 3DES family block cipher algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>DES-EDE|DES-EDE-CBC|DES-EDE3|DES-EDE3-CBC|des-ede|des-ede-cbc|des-ede3|des-ede3-cbc)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: 3DES
+      algorithmName: $variant
+      library: OpenSSL

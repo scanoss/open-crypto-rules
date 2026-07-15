@@ -1,0 +1,70 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+- id: c.openssl.algorithm.key-agree.x448
+  message: Detected X448 key agreement usage
+  mode: taint
+  options:
+    interfile: true
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<variant>X448|x448)"'
+  - pattern: EVP_PKEY_X448
+  pattern-sinks:
+  - patterns:
+    - pattern: $API($ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^EVP_PKEY_CTX_new_id$
+    - focus-metavariable: $ALGO
+  - patterns:
+    - pattern-either:
+      - pattern: $API($A, $ALGO, ...)
+      - pattern: $API($A, $B, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen)$'
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: key-agree
+      algorithmFamily: X448
+      algorithmName: X448
+      library: OpenSSL
+      oid: 1.3.101.111
+      api: $API
+- id: c.openssl.algorithm.key-agree.x448.generic
+  message: Detected X448 key agreement algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>X448|x448)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: key-agree
+      algorithmFamily: X448
+      algorithmName: X448
+      library: OpenSSL
+      oid: 1.3.101.111

@@ -1,0 +1,87 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.xcrypto.chacha20.stream-cipher
+    message: Detected ChaCha20 stream cipher usage, algorithm=ChaCha20
+    severity: INFO
+    languages: [go]
+    pattern-either:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/chacha20"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/chacha20"
+                  ...
+          - pattern: chacha20.NewUnauthenticatedCipher(make([]byte, $KEYSIZE), ...)
+          - metavariable-regex:
+              metavariable: $KEYSIZE
+              regex: "^(?<keysize>32)$"
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/chacha20"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/chacha20"
+                  ...
+          - pattern: chacha20.NewUnauthenticatedCipher(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/chacha20
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        algorithmPrimitive: stream-cipher
+        algorithmName: ChaCha20
+        algorithmFamily: ChaCha20
+        algorithmParameterSetIdentifier: $keysize
+        library: golang.org/x/crypto/chacha20
+        api: chacha20.NewUnauthenticatedCipher
+
+  - id: go.xcrypto.chacha20.hchacha20
+    message: Detected HChaCha20 hash function usage, algorithm=HChaCha20
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/chacha20"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/chacha20"
+              ...
+      - pattern: chacha20.HChaCha20(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/chacha20
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmPrimitive: hash
+        algorithmName: HChaCha20
+        algorithmFamily: ChaCha20
+        library: golang.org/x/crypto/chacha20
+        api: chacha20.HChaCha20

@@ -1,0 +1,45 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.xcrypto.scrypt.key-derivation
+    message: Detected scrypt key derivation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/scrypt"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/scrypt"
+              ...
+      - pattern-either:
+          - patterns:
+              - pattern: scrypt.Key($PASSWORD, $SALT, $N, $R, $P, $KEY_LENGTH)
+              - metavariable-regex:
+                  metavariable: $KEY_LENGTH
+                  regex: "^(?<keylen>16|24|32|64)$"
+          - pattern: scrypt.Key(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/scrypt
+      crypto:
+        assetType: algorithm
+        findingType: kdf
+        operation: "keyderive"
+        algorithmPrimitive: kdf
+        algorithmName: scrypt
+        algorithmFamily: scrypt
+        algorithmParameterSetIdentifier: $keylen
+        library: golang.org/x/crypto/scrypt
+        api: scrypt.Key
+        materialSource: derived

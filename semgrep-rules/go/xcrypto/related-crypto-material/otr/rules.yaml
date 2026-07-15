@@ -1,0 +1,375 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.xcrypto.otr.privatekey-generation
+    message: Detected OTR private key generation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/otr"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/otr"
+              ...
+      - pattern: $KEY.Generate(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: key_generation
+        operation: other
+        materialType: private-key
+        library: golang.org/x/crypto/otr
+        api: otr.PrivateKey.Generate
+
+  - id: go.xcrypto.otr.privatekey-operations
+    message: Detected OTR private key operation
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/otr"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/otr"
+                  ...
+          - pattern-either:
+              - pattern: |
+                  ($KEY : otr.PrivateKey)
+              - pattern: |
+                  ($KEY : *otr.PrivateKey)
+              - pattern: |
+                  var $KEY otr.PrivateKey
+              - pattern: |
+                  var $KEY *otr.PrivateKey
+              - pattern: |
+                  otr.PrivateKey{...}
+              - pattern: |
+                  &otr.PrivateKey{...}
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., PrivateKey: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.PrivateKey
+        from: $OBJ
+        to: $OBJ.PrivateKey
+      - pattern: |
+          &$TYPE{..., Key: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Key
+        from: $OBJ
+        to: $OBJ.Key
+    pattern-sinks:
+      - patterns:
+          - pattern: $PRIVKEY.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>Import|Serialize|Parse)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: key_generation
+        operation: other
+        materialType: private-key
+        library: golang.org/x/crypto/otr
+        api: otr.PrivateKey.$func
+
+  - id: go.xcrypto.otr.sign
+    message: Detected OTR signing operation
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/otr"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/otr"
+                  ...
+          - pattern-either:
+              - pattern: |
+                  ($KEY : otr.PrivateKey)
+              - pattern: |
+                  ($KEY : *otr.PrivateKey)
+              - pattern: |
+                  var $KEY otr.PrivateKey
+              - pattern: |
+                  var $KEY *otr.PrivateKey
+              - pattern: |
+                  otr.PrivateKey{...}
+              - pattern: |
+                  &otr.PrivateKey{...}
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., PrivateKey: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.PrivateKey
+        from: $OBJ
+        to: $OBJ.PrivateKey
+      - pattern: |
+          &$TYPE{..., Key: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Key
+        from: $OBJ
+        to: $OBJ.Key
+    pattern-sinks:
+      - patterns:
+          - pattern: $PRIVKEY.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>Sign)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: signature
+        operation: sign
+        materialType: private-key
+        library: golang.org/x/crypto/otr
+        api: otr.PrivateKey.$func
+
+  - id: go.xcrypto.otr.publickey-operations
+    message: Detected OTR public key operation
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/otr"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/otr"
+                  ...
+          - pattern-either:
+              - pattern: |
+                  ($KEY : otr.PublicKey)
+              - pattern: |
+                  ($KEY : *otr.PublicKey)
+              - pattern: |
+                  var $KEY otr.PublicKey
+              - pattern: |
+                  var $KEY *otr.PublicKey
+              - pattern: |
+                  otr.PublicKey{...}
+              - pattern: |
+                  &otr.PublicKey{...}
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., PublicKey: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.PublicKey
+        from: $OBJ
+        to: $OBJ.PublicKey
+      - pattern: |
+          &$TYPE{..., Key: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Key
+        from: $OBJ
+        to: $OBJ.Key
+    pattern-sinks:
+      - patterns:
+          - pattern: $PUBKEY.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>Serialize|Parse)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: key_generation
+        operation: other
+        materialType: public-key
+        library: golang.org/x/crypto/otr
+        api: otr.PublicKey.$func
+
+  - id: go.xcrypto.otr.verify
+    message: Detected OTR signature verification operation
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/otr"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/otr"
+                  ...
+          - pattern-either:
+              - pattern: |
+                  ($KEY : otr.PublicKey)
+              - pattern: |
+                  ($KEY : *otr.PublicKey)
+              - pattern: |
+                  var $KEY otr.PublicKey
+              - pattern: |
+                  var $KEY *otr.PublicKey
+              - pattern: |
+                  otr.PublicKey{...}
+              - pattern: |
+                  &otr.PublicKey{...}
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., PublicKey: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.PublicKey
+        from: $OBJ
+        to: $OBJ.PublicKey
+      - pattern: |
+          &$TYPE{..., Key: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Key
+        from: $OBJ
+        to: $OBJ.Key
+    pattern-sinks:
+      - patterns:
+          - pattern: $PUBKEY.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>Verify)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: signature
+        operation: verify
+        materialType: public-key
+        library: golang.org/x/crypto/otr
+        api: otr.PublicKey.$func
+
+  - id: go.xcrypto.otr.fingerprint
+    message: Detected OTR public key fingerprint generation
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/otr"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/otr"
+                  ...
+          - pattern-either:
+              - pattern: |
+                  ($KEY : otr.PublicKey)
+              - pattern: |
+                  ($KEY : *otr.PublicKey)
+              - pattern: |
+                  var $KEY otr.PublicKey
+              - pattern: |
+                  var $KEY *otr.PublicKey
+              - pattern: |
+                  otr.PublicKey{...}
+              - pattern: |
+                  &otr.PublicKey{...}
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., PublicKey: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.PublicKey
+        from: $OBJ
+        to: $OBJ.PublicKey
+      - pattern: |
+          &$TYPE{..., Key: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Key
+        from: $OBJ
+        to: $OBJ.Key
+    pattern-sinks:
+      - patterns:
+          - pattern: $PUBKEY.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>Fingerprint)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: related-crypto-material
+        findingType: hash
+        operation: digest
+        materialType: digest
+        library: golang.org/x/crypto/otr
+        api: otr.PublicKey.$func

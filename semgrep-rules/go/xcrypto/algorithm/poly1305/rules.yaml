@@ -1,0 +1,103 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.xcrypto.poly1305.mac
+    message: Detected Poly1305 MAC usage, algorithm=Poly1305
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/poly1305"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/poly1305"
+              ...
+      - pattern: poly1305.New(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/poly1305
+      crypto:
+        assetType: algorithm
+        findingType: mac
+        operation: "tag"
+        algorithmPrimitive: mac
+        algorithmName: Poly1305
+        algorithmFamily: Poly1305
+        library: golang.org/x/crypto/poly1305
+        api: poly1305.New
+
+  - id: go.xcrypto.poly1305.sum
+    message: Detected Poly1305 Sum MAC computation, algorithm=Poly1305
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/poly1305"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/poly1305"
+              ...
+      - pattern: poly1305.Sum(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/poly1305
+      crypto:
+        assetType: algorithm
+        findingType: mac
+        operation: "tag"
+        algorithmPrimitive: mac
+        algorithmName: Poly1305
+        algorithmFamily: Poly1305
+        library: golang.org/x/crypto/poly1305
+        api: poly1305.Sum
+
+  - id: go.xcrypto.poly1305.verify
+    message: Detected Poly1305 MAC verification, algorithm=Poly1305
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/poly1305"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/poly1305"
+              ...
+      - pattern: poly1305.Verify(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/poly1305
+      crypto:
+        assetType: algorithm
+        findingType: mac
+        operation: "verify"
+        algorithmPrimitive: mac
+        algorithmName: Poly1305
+        algorithmFamily: Poly1305
+        library: golang.org/x/crypto/poly1305
+        api: poly1305.Verify

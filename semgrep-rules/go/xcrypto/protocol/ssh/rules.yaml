@@ -1,0 +1,181 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.xcrypto.ssh.key-parsing
+    message: Detected SSH key parsing operations
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ssh"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ssh"
+              ...
+      - pattern: ssh.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>ParsePrivateKey|ParsePrivateKeyWithPassphrase|ParseRawPrivateKey|ParseRawPrivateKeyWithPassphrase|ParseDSAPrivateKey|ParsePublicKey|ParseAuthorizedKey|ParseKnownHosts)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ssh
+      crypto:
+        assetType: protocol
+        protocolType: ssh
+        protocolName: SSH
+        findingType: key_generation
+        operation: keygen
+        library: golang.org/x/crypto/ssh
+        api: ssh.$func
+        materialSource: imported
+
+  - id: go.xcrypto.ssh.key-marshaling
+    message: Detected SSH key marshaling operations
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ssh"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ssh"
+              ...
+      - pattern: ssh.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>MarshalPrivateKey|MarshalPrivateKeyWithPassphrase|MarshalAuthorizedKey|NewPublicKey)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ssh
+      crypto:
+        assetType: protocol
+        protocolType: ssh
+        protocolName: SSH
+        findingType: key_generation
+        operation: keygen
+        library: golang.org/x/crypto/ssh
+        api: ssh.$func
+        materialSource: generated
+
+  - id: go.xcrypto.ssh.signing
+    message: Detected SSH signer creation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ssh"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ssh"
+              ...
+      - pattern: ssh.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>NewSignerFromKey|NewSignerFromSigner|NewCertSigner)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ssh
+      crypto:
+        assetType: protocol
+        protocolType: ssh
+        protocolName: SSH
+        findingType: signature
+        operation: sign
+        library: golang.org/x/crypto/ssh
+        api: ssh.$func
+
+  - id: go.xcrypto.ssh.fingerprint
+    message: Detected SSH fingerprint generation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ssh"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ssh"
+              ...
+      - pattern: ssh.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>FingerprintSHA256|FingerprintLegacyMD5)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ssh
+      crypto:
+        assetType: protocol
+        protocolType: ssh
+        protocolName: SSH
+        findingType: key_generation
+        operation: keygen
+        library: golang.org/x/crypto/ssh
+        api: ssh.$func
+
+  - id: go.xcrypto.ssh.connection
+    message: Detected SSH connection operations
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ssh"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ssh"
+              ...
+      - pattern: ssh.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>Dial|NewClientConn|NewClient|NewServerConn)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ssh
+      crypto:
+        assetType: protocol
+        protocolType: ssh
+        protocolName: SSH
+        findingType: key_exchange
+        operation: keyexchange
+        library: golang.org/x/crypto/ssh
+        api: ssh.$func

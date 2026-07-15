@@ -1,0 +1,37 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.xcrypto.x509roots.fallback-import
+    message: Detected X.509 fallback root certificates import, library=x509roots/fallback
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                  ...
+                  _ "golang.org/x/crypto/x509roots/fallback"
+                  ...
+              )
+          - pattern-inside: |
+              import (
+                  _ "golang.org/x/crypto/x509roots/fallback"
+              )
+          - pattern: |
+              import _ "golang.org/x/crypto/x509roots/fallback"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/x509roots/fallback
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: verify
+        algorithmName: X.509
+        algorithmFamily: X.509
+        library: golang.org/x/crypto/x509roots/fallback
+        api: x509roots/fallback.init

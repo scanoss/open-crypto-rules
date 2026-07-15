@@ -1,0 +1,151 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: rust.openssl.ecdsa.sign
+    message: Detected ECDSA signature creation using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ecdsa::EcdsaSig::sign($DATA, $KEY)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcdsaSig::sign($DATA, $KEY)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "sign"
+        algorithmName: ECDSA
+        algorithmFamily: ECDSA
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.ecdsa.verify
+    message: Detected ECDSA signature verification using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ecdsa::EcdsaSig::from_der($DATA)
+          - pattern: openssl::ecdsa::EcdsaSig::from_private_components($R, $S)
+          - pattern: EcdsaSig::from_der($DATA)
+          - pattern: EcdsaSig::from_private_components($R, $S)
+    pattern-sinks:
+      - pattern: $SIG.verify($DATA, $KEY)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "verify"
+        algorithmName: ECDSA
+        algorithmFamily: ECDSA
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.ecdsa.sig-from-der
+    message: Detected ECDSA signature loading from DER using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ecdsa::EcdsaSig::from_der($DER)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcdsaSig::from_der($DER)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        algorithmName: ECDSA
+        algorithmFamily: ECDSA
+        library: openssl
+        algorithmPrimitive: signature
+        signatureFormat: DER
+
+  - id: rust.openssl.ecdsa.sig-from-components
+    message: Detected ECDSA signature construction from components using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ecdsa::EcdsaSig::from_private_components($R, $S)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: EcdsaSig::from_private_components($R, $S)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        algorithmName: ECDSA
+        algorithmFamily: ECDSA
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.ecdsa.sig-to-der
+    message: Detected ECDSA signature serialization to DER using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ecdsa::EcdsaSig::sign($DATA, $KEY)
+          - pattern: openssl::ecdsa::EcdsaSig::from_der($DER)
+          - pattern: openssl::ecdsa::EcdsaSig::from_private_components($R, $S)
+          - pattern: EcdsaSig::sign($DATA, $KEY)
+          - pattern: EcdsaSig::from_der($DER)
+          - pattern: EcdsaSig::from_private_components($R, $S)
+    pattern-sinks:
+      - pattern: $SIG.to_der()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        algorithmName: ECDSA
+        algorithmFamily: ECDSA
+        library: openssl
+        algorithmPrimitive: signature
+        signatureFormat: DER

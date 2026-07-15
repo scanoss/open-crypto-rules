@@ -1,0 +1,92 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+- id: c.openssl.algorithm.block-cipher.aes
+  message: Detected AES block cipher usage
+  mode: taint
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $FUNC()
+    - metavariable-regex:
+        metavariable: $FUNC
+        regex: ^EVP_aes_(?<keysize>128|192|256)_(?<mode>cbc|ecb|cfb|ofb|ctr|xts)$
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<variant>AES-(?<keysize>128|192|256)-(?<mode>CBC|ECB|CFB|OFB|CTR|XTS)|aes-(?<keysize2>128|192|256)-(?<mode2>cbc|ecb|cfb|ofb|ctr|xts))"'
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_cipherbyname|EVP_CipherInit_ex|EVP_EncryptInit_ex|EVP_DecryptInit_ex|EVP_CIPHER_fetch)$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: AES
+      algorithmName: AES-$keysize-$mode
+      algorithmMode: $mode
+      algorithmParameterSetIdentifier: $keysize
+      library: OpenSSL
+      api: $API
+- id: c.openssl.algorithm.block-cipher.aes.constructor
+  message: Detected AES block cipher constructor usage
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $FUNC()
+  - metavariable-regex:
+      metavariable: $FUNC
+      regex: ^EVP_aes_(?<keysize>128|192|256)_(?<mode>cbc|ecb|cfb|ofb|ctr|xts)$
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: AES
+      algorithmName: AES-$keysize-$mode
+      algorithmMode: $mode
+      algorithmParameterSetIdentifier: $keysize
+      library: OpenSSL
+      api: $FUNC
+- id: c.openssl.algorithm.block-cipher.aes.generic
+  message: Detected AES block cipher algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>AES-(?<keysize>128|192|256)-(?<mode>CBC|ECB|CFB|OFB|CTR|XTS)|aes-(?<keysize2>128|192|256)-(?<mode2>cbc|ecb|cfb|ofb|ctr|xts))"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: block-cipher
+      algorithmFamily: AES
+      algorithmName: AES-$keysize-$mode
+      algorithmMode: $mode
+      algorithmParameterSetIdentifier: $keysize
+      library: OpenSSL

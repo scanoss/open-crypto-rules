@@ -1,0 +1,713 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: rust.openssl.rsa.keygen
+    message: Detected RSA key generation using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Rsa::generate($BITS)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+      - metavariable-regex:
+          metavariable: $BITS
+          regex: "(?P<bits>1024|2048|3072|4096|8192)"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        operation: "keygen"
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        algorithmParameterSetIdentifier: $bits
+
+  - id: rust.openssl.rsa.keygen-variable
+    message: Detected RSA key generation using openssl with variable key size
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Rsa::generate($BITS)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+      - metavariable-regex:
+          metavariable: $BITS
+          regex: "^[a-zA-Z_][a-zA-Z0-9_]*$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        operation: "keygen"
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+
+  - id: rust.openssl.rsa.keygen-with-exponent
+    message: Detected RSA key generation with custom exponent using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate_with_e($BITS, $E)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Rsa::generate_with_e($BITS, $E)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        operation: "keygen"
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+
+  - id: rust.openssl.rsa.from-public-components
+    message: Detected RSA public key construction from components
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::from_public_components($N, $E)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Rsa::from_public_components($N, $E)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+
+  - id: rust.openssl.rsa.from-private-components
+    message: Detected RSA private key construction from components
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+
+  - id: rust.openssl.rsa.private-key-builder
+    message: Detected RSA private key builder using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::rsa::RsaPrivateKeyBuilder::new($N, $E, $D)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: RsaPrivateKeyBuilder::new($N, $E, $D)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+
+  - id: rust.openssl.rsa.private-key-from-pem
+    message: Detected RSA private key loading from PEM using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::private_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::private_key_from_pem_passphrase($PEM, $PASSPHRASE)
+          - pattern: openssl::rsa::Rsa::private_key_from_pem_callback($PEM, $CALLBACK)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: Rsa::private_key_from_pem($PEM)
+                  - pattern: Rsa::private_key_from_pem_passphrase($PEM, $PASSPHRASE)
+                  - pattern: Rsa::private_key_from_pem_callback($PEM, $CALLBACK)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        keyFormat: PEM
+
+  - id: rust.openssl.rsa.private-key-from-der
+    message: Detected RSA private key loading from DER using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::private_key_from_der($DER)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Rsa::private_key_from_der($DER)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        keyFormat: DER
+
+  - id: rust.openssl.rsa.public-key-from-pem
+    message: Detected RSA public key loading from PEM using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::public_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::public_key_from_pem_pkcs1($PEM)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: Rsa::public_key_from_pem($PEM)
+                  - pattern: Rsa::public_key_from_pem_pkcs1($PEM)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        keyFormat: PEM
+
+  - id: rust.openssl.rsa.public-key-from-der
+    message: Detected RSA public key loading from DER using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::public_key_from_der($DER)
+          - pattern: openssl::rsa::Rsa::public_key_from_der_pkcs1($DER)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: Rsa::public_key_from_der($DER)
+                  - pattern: Rsa::public_key_from_der_pkcs1($DER)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        keyFormat: DER
+
+  - id: rust.openssl.rsa.private-key-to-der
+    message: Detected RSA private key export to DER using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - pattern: openssl::rsa::Rsa::generate_with_e($BITS, $E)
+          - pattern: openssl::rsa::Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+          - pattern: openssl::rsa::Rsa::private_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::private_key_from_der($DER)
+          - pattern: Rsa::generate($BITS)
+          - pattern: Rsa::generate_with_e($BITS, $E)
+          - pattern: Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+          - pattern: Rsa::private_key_from_pem($PEM)
+          - pattern: Rsa::private_key_from_der($DER)
+    pattern-sinks:
+      - pattern: $RSA.private_key_to_der()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        keyFormat: DER
+
+  - id: rust.openssl.rsa.private-key-to-pem
+    message: Detected RSA private key export to PEM using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - pattern: openssl::rsa::Rsa::generate_with_e($BITS, $E)
+          - pattern: openssl::rsa::Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+          - pattern: openssl::rsa::Rsa::private_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::private_key_from_der($DER)
+          - pattern: Rsa::generate($BITS)
+          - pattern: Rsa::generate_with_e($BITS, $E)
+          - pattern: Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+          - pattern: Rsa::private_key_from_pem($PEM)
+          - pattern: Rsa::private_key_from_der($DER)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $RSA.private_key_to_pem()
+          - pattern: $RSA.private_key_to_pem_passphrase($CIPHER, $PASSPHRASE)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        keyFormat: PEM
+
+  - id: rust.openssl.rsa.public-key-to-der
+    message: Detected RSA public key export to DER using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - pattern: openssl::rsa::Rsa::from_public_components($N, $E)
+          - pattern: openssl::rsa::Rsa::public_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::public_key_from_der($DER)
+          - pattern: Rsa::generate($BITS)
+          - pattern: Rsa::from_public_components($N, $E)
+          - pattern: Rsa::public_key_from_pem($PEM)
+          - pattern: Rsa::public_key_from_der($DER)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $RSA.public_key_to_der()
+          - pattern: $RSA.public_key_to_der_pkcs1()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        keyFormat: DER
+
+  - id: rust.openssl.rsa.public-key-to-pem
+    message: Detected RSA public key export to PEM using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - pattern: openssl::rsa::Rsa::from_public_components($N, $E)
+          - pattern: openssl::rsa::Rsa::public_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::public_key_from_der($DER)
+          - pattern: Rsa::generate($BITS)
+          - pattern: Rsa::from_public_components($N, $E)
+          - pattern: Rsa::public_key_from_pem($PEM)
+          - pattern: Rsa::public_key_from_der($DER)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $RSA.public_key_to_pem()
+          - pattern: $RSA.public_key_to_pem_pkcs1()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        keyFormat: PEM
+
+  - id: rust.openssl.rsa.decrypt-oaep
+    message: Detected RSA-OAEP decryption using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - pattern: openssl::rsa::Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+          - pattern: openssl::rsa::Rsa::private_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::private_key_from_der($DER)
+          - pattern: Rsa::generate($BITS)
+          - pattern: Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+          - pattern: Rsa::private_key_from_pem($PEM)
+          - pattern: Rsa::private_key_from_der($DER)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $RSA.private_decrypt($CIPHERTEXT, $PLAINTEXT, openssl::rsa::Padding::PKCS1_OAEP)
+          - pattern: $RSA.private_decrypt($CIPHERTEXT, $PLAINTEXT, Padding::PKCS1_OAEP)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        operation: "decrypt"
+        algorithmName: RSA-OAEP
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        padding: oaep
+
+  - id: rust.openssl.rsa.decrypt-pkcs1
+    message: Detected RSA PKCS#1 v1.5 decryption using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - pattern: openssl::rsa::Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+          - pattern: openssl::rsa::Rsa::private_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::private_key_from_der($DER)
+          - pattern: Rsa::generate($BITS)
+          - pattern: Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+          - pattern: Rsa::private_key_from_pem($PEM)
+          - pattern: Rsa::private_key_from_der($DER)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $RSA.private_decrypt($CIPHERTEXT, $PLAINTEXT, openssl::rsa::Padding::PKCS1)
+          - pattern: $RSA.private_decrypt($CIPHERTEXT, $PLAINTEXT, Padding::PKCS1)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        operation: "decrypt"
+        algorithmName: RSA-PKCS1-1.5
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        padding: pkcs1v15
+
+  - id: rust.openssl.rsa.encrypt-oaep
+    message: Detected RSA-OAEP encryption using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - pattern: openssl::rsa::Rsa::from_public_components($N, $E)
+          - pattern: openssl::rsa::Rsa::public_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::public_key_from_der($DER)
+          - pattern: Rsa::generate($BITS)
+          - pattern: Rsa::from_public_components($N, $E)
+          - pattern: Rsa::public_key_from_pem($PEM)
+          - pattern: Rsa::public_key_from_der($DER)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $RSA.public_encrypt($PLAINTEXT, $CIPHERTEXT, openssl::rsa::Padding::PKCS1_OAEP)
+          - pattern: $RSA.public_encrypt($PLAINTEXT, $CIPHERTEXT, Padding::PKCS1_OAEP)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        operation: "encrypt"
+        algorithmName: RSA-OAEP
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        padding: oaep
+
+  - id: rust.openssl.rsa.encrypt-pkcs1
+    message: Detected RSA PKCS#1 v1.5 encryption using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - pattern: openssl::rsa::Rsa::from_public_components($N, $E)
+          - pattern: openssl::rsa::Rsa::public_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::public_key_from_der($DER)
+          - pattern: Rsa::generate($BITS)
+          - pattern: Rsa::from_public_components($N, $E)
+          - pattern: Rsa::public_key_from_pem($PEM)
+          - pattern: Rsa::public_key_from_der($DER)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $RSA.public_encrypt($PLAINTEXT, $CIPHERTEXT, openssl::rsa::Padding::PKCS1)
+          - pattern: $RSA.public_encrypt($PLAINTEXT, $CIPHERTEXT, Padding::PKCS1)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        operation: "encrypt"
+        algorithmName: RSA-PKCS1-1.5
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+        padding: pkcs1v15
+
+  - id: rust.openssl.rsa.private-encrypt
+    message: Detected RSA private key encryption (signing) using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - pattern: openssl::rsa::Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+          - pattern: openssl::rsa::Rsa::private_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::private_key_from_der($DER)
+          - pattern: Rsa::generate($BITS)
+          - pattern: Rsa::from_private_components($N, $E, $D, $P, $Q, $DMP1, $DMQ1, $IQMP)
+          - pattern: Rsa::private_key_from_pem($PEM)
+          - pattern: Rsa::private_key_from_der($DER)
+    pattern-sinks:
+      - pattern: $RSA.private_encrypt($FROM, $TO, $PADDING)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "encrypt"
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.rsa.public-decrypt
+    message: Detected RSA public key decryption (signature verification) using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::rsa::Rsa::generate($BITS)
+          - pattern: openssl::rsa::Rsa::from_public_components($N, $E)
+          - pattern: openssl::rsa::Rsa::public_key_from_pem($PEM)
+          - pattern: openssl::rsa::Rsa::public_key_from_der($DER)
+          - pattern: Rsa::generate($BITS)
+          - pattern: Rsa::from_public_components($N, $E)
+          - pattern: Rsa::public_key_from_pem($PEM)
+          - pattern: Rsa::public_key_from_der($DER)
+    pattern-sinks:
+      - pattern: $RSA.public_decrypt($FROM, $TO, $PADDING)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "decrypt"
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: signature
+
+  - id: rust.openssl.rsa.encrypt-high-level
+    message: Detected RSA encryption using openssl Encrypter
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::encrypt::Encrypter::new($KEY)
+          - pattern: Encrypter::new($KEY)
+    pattern-sinks:
+      - pattern: $ENC.encrypt($FROM, $TO)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        operation: "encrypt"
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke
+
+  - id: rust.openssl.rsa.decrypt-high-level
+    message: Detected RSA decryption using openssl Decrypter
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::encrypt::Decrypter::new($KEY)
+          - pattern: Decrypter::new($KEY)
+    pattern-sinks:
+      - pattern: $DEC.decrypt($FROM, $TO)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: pke
+        operation: "decrypt"
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: openssl
+        algorithmPrimitive: pke

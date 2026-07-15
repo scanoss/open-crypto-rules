@@ -1,0 +1,91 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+- id: c.openssl.algorithm.key-agree.ecdh
+  message: Detected ECDH key agreement usage
+  mode: taint
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<variant>id-ecPublicKey|EC|ec|ecdh)"'
+  - pattern: EVP_PKEY_EC
+  pattern-sinks:
+  - patterns:
+    - pattern: $API($ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^EVP_PKEY_CTX_new_id$
+    - focus-metavariable: $ALGO
+  - patterns:
+    - pattern-either:
+      - pattern: $API($A, $ALGO, ...)
+      - pattern: $API($A, $B, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen)$'
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: key-agree
+      algorithmFamily: ECDH
+      algorithmName: ECDH
+      library: OpenSSL
+      oid: 1.2.840.10045.2.1
+      api: $API
+- id: c.openssl.algorithm.key-agree.ecdh.low-level
+  message: Detected low-level ECDH key agreement usage
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $API(...)
+  - metavariable-regex:
+      metavariable: $API
+      regex: ^(?:EC_KEY_new_by_curve_name|EC_KEY_generate_key|EC_POINT_mul)$
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: key-agree
+      algorithmFamily: ECDH
+      algorithmName: ECDH
+      library: OpenSSL
+      oid: 1.2.840.10045.2.1
+      api: $API
+- id: c.openssl.algorithm.key-agree.ecdh.generic
+  message: Detected ECDH key agreement algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>id-ecPublicKey|EC|ec|ecdh)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: key-agree
+      algorithmFamily: ECDH
+      algorithmName: ECDH
+      library: OpenSSL
+      oid: 1.2.840.10045.2.1

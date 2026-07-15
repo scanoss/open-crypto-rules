@@ -1,0 +1,59 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.crypto.pbkdf2.key-derivation
+    message: Detected PBKDF2 key derivation
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: pbkdf2.Key($HASH_FUNC, $PASSWORD, $SALT, $ITERATIONS, $KEY_LENGTH)
+              - metavariable-regex:
+                  metavariable: $HASH_FUNC
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.New|sha256\.New224|sha512\.New384|sha512\.New512_224|sha512\.New512_256|crypto\.(SHA256|SHA512|SHA224|SHA384|SHA512_224|SHA512_256|SHA1|MD5)\.New'
+              - metavariable-regex:
+                  metavariable: $ITERATIONS
+                  regex: '^(?<iterations>\d+)$'
+              - metavariable-regex:
+                  metavariable: $KEY_LENGTH
+                  regex: "^(?<keylen>16|24|32|64)$"
+          - patterns:
+              - pattern: pbkdf2.Key($HASH_FUNC, $PASSWORD, $SALT, $ITERATIONS, $KEY_LENGTH)
+              - metavariable-regex:
+                  metavariable: $HASH_FUNC
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.New|sha256\.New224|sha512\.New384|sha512\.New512_224|sha512\.New512_256|crypto\.(SHA256|SHA512|SHA224|SHA384|SHA512_224|SHA512_256|SHA1|MD5)\.New'
+              - metavariable-regex:
+                  metavariable: $ITERATIONS
+                  regex: '^(?<iterations>\d+)$'
+          - patterns:
+              - pattern: pbkdf2.Key($HASH_FUNC, $PASSWORD, $SALT, $ITERATIONS, $KEY_LENGTH)
+              - metavariable-regex:
+                  metavariable: $HASH_FUNC
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.New|sha256\.New224|sha512\.New384|sha512\.New512_224|sha512\.New512_256|crypto\.(SHA256|SHA512|SHA224|SHA384|SHA512_224|SHA512_256|SHA1|MD5)\.New'
+              - metavariable-regex:
+                  metavariable: $KEY_LENGTH
+                  regex: "^(?<keylen>16|24|32|64)$"
+          - pattern: pbkdf2.Key($HASH_FUNC, $PASSWORD, $SALT, $ITERATIONS, $KEY_LENGTH)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/pbkdf2
+      crypto:
+        assetType: algorithm
+        findingType: kdf
+        operation: "keyderive"
+        algorithmName: PBKDF2-$hash-$iterations-$keylen
+        algorithmFamily: PBKDF2
+        iterations: $iterations
+        library: crypto/pbkdf2
+        api: pbkdf2.Key
+        custom:hashAlgorithm: $hash
+        materialSource: derived
+        algorithmPrimitive: kdf
+        algorithmParameterSetIdentifier: $iterations-$keylen

@@ -1,0 +1,115 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+- id: c.openssl.algorithm.hash.sha-2
+  message: Detected SHA-2 family hash function usage
+  mode: taint
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<variant>SHA-?224|SHA-?256|SHA-?384|SHA-?512|SHA2-224|SHA2-256|SHA2-384|SHA2-512|SHA2-512/256|RSA-SHA224|RSA-SHA256|RSA-SHA384|RSA-SHA512|sha224WithRSAEncryption|sha256WithRSAEncryption|sha384WithRSAEncryption|sha512WithRSAEncryption)"'
+  - pattern-either:
+    - pattern: EVP_sha224()
+    - pattern: EVP_sha256()
+    - pattern: EVP_sha384()
+    - pattern: EVP_sha512()
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit(?:_ex2?)?|EVP_MD_fetch)$
+    - focus-metavariable: $ALGO
+  - patterns:
+    - pattern: EVP_Digest($DATA, $LEN, $MD, $MDLEN, $ALGO, ...)
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      operation: "digest"
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-2
+      algorithmName: $variant
+      library: OpenSSL
+      api: $API
+- id: c.openssl.algorithm.hash.sha-2.digestinit
+  message: Detected SHA-2 family hash function usage via EVP_DigestInit
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: EVP_DigestInit($CTX, $FUNC())
+  - metavariable-regex:
+      metavariable: $FUNC
+      regex: ^EVP_sha(?<bits>224|256|384|512)$
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      operation: "digest"
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-2
+      algorithmName: SHA-$bits
+      algorithmParameterSetIdentifier: $bits
+      library: OpenSSL
+      api: EVP_DigestInit
+- id: c.openssl.algorithm.hash.sha-2.generic
+  message: Detected SHA-2 family hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>SHA-?224|SHA-?256|SHA-?384|SHA-?512|SHA2-224|SHA2-256|SHA2-384|SHA2-512|SHA2-512/256|RSA-SHA224|RSA-SHA256|RSA-SHA384|RSA-SHA512|sha224WithRSAEncryption|sha256WithRSAEncryption|sha384WithRSAEncryption|sha512WithRSAEncryption)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-2
+      algorithmName: $variant
+      library: OpenSSL
+- id: c.openssl.algorithm.hash.sha-2.constructor
+  message: Detected SHA-2 family hash constructor usage
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $FUNC()
+  - metavariable-regex:
+      metavariable: $FUNC
+      regex: ^EVP_sha(?<bits>224|256|384|512)$
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-2
+      algorithmName: SHA-$bits
+      algorithmParameterSetIdentifier: $bits
+      library: OpenSSL
+      api: $FUNC

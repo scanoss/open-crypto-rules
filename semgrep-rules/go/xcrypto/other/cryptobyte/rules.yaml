@@ -1,0 +1,37 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.xcrypto.cryptobyte.usage
+    message: Detected cryptobyte usage for encoding/decoding cryptographic data structures
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/cryptobyte"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/cryptobyte"
+              ...
+      - pattern: cryptobyte.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>NewBuilder|String)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/cryptobyte
+      crypto:
+        assetType: other
+        findingType: other
+        operation: other
+        library: golang.org/x/crypto/cryptobyte
+        api: cryptobyte.$func

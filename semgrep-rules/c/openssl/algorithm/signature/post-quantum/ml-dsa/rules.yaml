@@ -1,0 +1,72 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: c.openssl.algorithm.signature.ml-dsa
+    message: Detected ML-DSA post-quantum signature algorithm usage
+    mode: taint
+    severity: INFO
+    languages: [c, cpp]
+    options:
+      interfile: true
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>id-ml-dsa-(?<keysize>44|65|87))"'
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>ML-DSA-(?<keysize>44|65|87))"'
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>MLDSA(?<keysize>44|65|87))"'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $API($A, $ALGO, ...)
+              - pattern: $API($A, $B, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen|EVP_SIGNATURE_fetch|EVP_PKEY_new_raw_private_key_ex|EVP_PKEY_new_raw_public_key_ex|EVP_PKEY_sign_message_init|EVP_PKEY_verify_message_init)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: ML-DSA
+        algorithmName: ML-DSA-$keysize
+        algorithmParameterSetIdentifier: $keysize
+        library: OpenSSL
+        api: $API
+  - id: c.openssl.algorithm.signature.ml-dsa.generic
+    message: Detected ML-DSA post-quantum signature algorithm name
+    severity: INFO
+    languages: [c, cpp]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>(?:id-ml-dsa-|ML-DSA-|MLDSA)(?<keysize>44|65|87))"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: ML-DSA
+        algorithmName: ML-DSA-$keysize
+        algorithmParameterSetIdentifier: $keysize
+        library: OpenSSL

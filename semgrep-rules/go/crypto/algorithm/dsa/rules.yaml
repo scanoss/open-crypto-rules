@@ -1,0 +1,229 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.crypto.dsa.parameter-generation
+    message: Detected DSA parameter generation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: dsa.GenerateParameters($PARAMS, $RANDOM, dsa.$CONST)
+              - metavariable-regex:
+                  metavariable: $CONST
+                  regex: "^L(?<keysize>1024|2048|3072)N(160|224|256)$"
+          - pattern: dsa.GenerateParameters($PARAMS, $RANDOM, $BITS)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327, CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/dsa
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        algorithmPrimitive: signature
+        algorithmName: DSA
+        algorithmFamily: DSA
+        algorithmParameterSetIdentifier: $keysize
+        library: crypto/dsa
+        api: dsa.GenerateParameters
+        materialSource: generated
+
+  - id: go.crypto.dsa.key-generation
+    message: Detected DSA key generation, algorithm=DSA
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern: dsa.GenerateKey($PRIVATE_KEY, $RANDOM)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327, CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/dsa
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: "keygen"
+        algorithmPrimitive: signature
+        algorithmName: DSA
+        algorithmFamily: DSA
+        library: crypto/dsa
+        api: dsa.GenerateKey
+        materialSource: generated
+
+  - id: go.crypto.dsa.sign-with-params
+    message: Detected DSA signature operation with keysize=$keysize bits, algorithm=DSA
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-inside: |
+          dsa.GenerateParameters($PARAMS, $RANDOM, dsa.$CONST)
+          ...
+          dsa.Sign($RANDOM3, $KEY, $HASH)
+      - metavariable-regex:
+          metavariable: $CONST
+          regex: "^L(?<keysize>1024|2048|3072)N(160|224|256)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327]
+      references:
+        - https://pkg.go.dev/crypto/dsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "sign"
+        algorithmPrimitive: signature
+        algorithmName: DSA
+        algorithmFamily: DSA
+        algorithmParameterSetIdentifier: $keysize
+        library: crypto/dsa
+        api: dsa.Sign
+
+  - id: go.crypto.dsa.sign
+    message: Detected DSA signature operation, algorithm=DSA
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern: dsa.Sign($RANDOM, $PRIVATE_KEY, $HASH)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327]
+      references:
+        - https://pkg.go.dev/crypto/dsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "sign"
+        algorithmPrimitive: signature
+        algorithmName: DSA
+        algorithmFamily: DSA
+        library: crypto/dsa
+        api: dsa.Sign
+
+  - id: go.crypto.dsa.verify-with-params
+    message: Detected DSA signature verification with keysize=$keysize bits, algorithm=DSA
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-inside: |
+          dsa.GenerateParameters($PARAMS, $RANDOM, dsa.$CONST)
+          ...
+          dsa.Verify($PUBKEY, $HASH, $R, $S)
+      - metavariable-regex:
+          metavariable: $CONST
+          regex: "^L(?<keysize>1024|2048|3072)N(160|224|256)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327]
+      references:
+        - https://pkg.go.dev/crypto/dsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "verify"
+        algorithmPrimitive: signature
+        algorithmName: DSA
+        algorithmFamily: DSA
+        algorithmParameterSetIdentifier: $keysize
+        library: crypto/dsa
+        api: dsa.Verify
+
+  - id: go.crypto.dsa.verify
+    message: Detected DSA signature verification, algorithm=DSA
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern: dsa.Verify($PUBLIC_KEY, $HASH, $R, $S)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327]
+      references:
+        - https://pkg.go.dev/crypto/dsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "verify"
+        algorithmPrimitive: signature
+        algorithmName: DSA
+        algorithmFamily: DSA
+        library: crypto/dsa
+        api: dsa.Verify
+
+  - id: go.crypto.dsa.key-type
+    message: Detected DSA key type declaration, keyType=$KEY_TYPE, algorithm=DSA
+    severity: INFO
+    languages: [go]
+    patterns:
+      - patterns:
+          - pattern-either:
+              - pattern: var $VAR *dsa.$KEY_TYPE
+              - pattern: var $VAR dsa.$KEY_TYPE
+              - pattern: $VAR := &dsa.$KEY_TYPE{...}
+              - pattern: var $VAR = &dsa.$KEY_TYPE{...}
+              - pattern: var $VAR = new(dsa.$KEY_TYPE)
+              - pattern: $VAR := new(dsa.$KEY_TYPE)
+              - pattern: var $VAR = dsa.$KEY_TYPE{...}
+              - pattern: $VAR := dsa.$KEY_TYPE{...}
+          - metavariable-regex:
+              metavariable: $KEY_TYPE
+              regex: "^(?<keytype>Private|Public)Key$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      cwe: [CWE-327, CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/dsa
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        algorithmPrimitive: signature
+        algorithmName: DSA
+        algorithmFamily: DSA
+        library: crypto/dsa
+        api: dsa.$keytype
+
+  - id: go.crypto.dsa.parameters-type
+    message: Detected DSA parameters type declaration, algorithm=DSA
+    severity: INFO
+    languages: [go]
+    patterns:
+      - patterns:
+          - pattern-either:
+              - pattern: var $VAR *dsa.Parameters
+              - pattern: var $VAR dsa.Parameters
+              - pattern: $VAR := &dsa.Parameters{...}
+              - pattern: var $VAR = &dsa.Parameters{...}
+              - pattern: var $VAR = new(dsa.Parameters)
+              - pattern: $VAR := new(dsa.Parameters)
+              - pattern: var $VAR = dsa.Parameters{...}
+              - pattern: $VAR := dsa.Parameters{...}
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      cwe: [CWE-327, CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/dsa
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        algorithmPrimitive: signature
+        algorithmName: DSA
+        algorithmFamily: DSA
+        library: crypto/dsa
+        api: dsa.Parameters

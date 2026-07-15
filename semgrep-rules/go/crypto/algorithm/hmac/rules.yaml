@@ -1,0 +1,82 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.crypto.hmac.usage
+    message: Detected HMAC usage algorithm=HMAC
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: hmac.New($HASH, $KEY)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.New'
+          - patterns:
+              - pattern: hmac.New($HASH, $KEY)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'sha256\.New224'
+          - patterns:
+              - pattern: hmac.New($HASH, $KEY)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'sha512\.New384'
+          - patterns:
+              - pattern: hmac.New($HASH, $KEY)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'sha512\.New512_224'
+          - patterns:
+              - pattern: hmac.New($HASH, $KEY)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'sha512\.New512_256'
+          - patterns:
+              - pattern: hmac.New($HASH, $KEY)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(SHA256|SHA512|SHA224|SHA384|SHA512_224|SHA512_256|SHA1|MD5)\.New'
+          - pattern: hmac.New($HASH, $KEY)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/hmac
+      crypto:
+        assetType: algorithm
+        findingType: mac
+        operation: "tag"
+        algorithmName: HMAC-$hash
+        algorithmFamily: HMAC
+        library: crypto/hmac
+        api: hmac.New
+        hashAlgorithm: $hash
+        algorithmPrimitive: mac
+
+  - id: go.crypto.hmac.equal
+    message: Detected HMAC constant-time comparison, algorithm=HMAC
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern: hmac.Equal($MAC1, $MAC2)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/hmac
+      crypto:
+        assetType: algorithm
+        findingType: mac
+        operation: "tag"
+        algorithmName: HMAC
+        algorithmFamily: HMAC
+        library: crypto/hmac
+        api: hmac.Equal
+        algorithmPrimitive: mac

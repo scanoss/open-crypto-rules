@@ -1,0 +1,41 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: c.nss.algorithm.key-agree.ecdh
+    message: Detected ECDH key agreement usage
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c, cpp]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $MECH
+          - metavariable-regex:
+              metavariable: $MECH
+              regex: '^CKM_ECDH.*$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $API($A, $MECH, ...)
+              - pattern: $API($A, $B, $C, $MECH, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(PK11_GenerateKeyPair|PK11_PubDerive)$'
+          - focus-metavariable: $MECH
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: key-agree
+        algorithmFamily: ECDH
+        algorithmName: ECDH
+        library: NSS
+        api: $API

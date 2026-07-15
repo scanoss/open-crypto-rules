@@ -1,0 +1,136 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.crypto.aes.key-generation
+    message: Detected AES key generation, algorithm=AES
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: aes.NewCipher(make([]byte, $BYTESIZE))
+                  - pattern: |
+                      $KEY := make([]byte, $BYTESIZE)
+                      ...
+                      aes.NewCipher($KEY)
+              - metavariable-regex:
+                  metavariable: $BYTESIZE
+                  regex: "^(?<bytesize>16|24|32)$"
+          - pattern: aes.NewCipher([]byte($STRING))
+          - pattern: aes.NewCipher($KEY)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/aes
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: "keygen"
+        algorithmPrimitive: block-cipher
+        algorithmName: AES
+        algorithmFamily: AES
+        algorithmParameterSetIdentifier: $bytesize
+        library: crypto/aes
+        api: aes.NewCipher
+        materialSource: generated
+
+  - id: go.crypto.aes.gcm-mode
+    message: Detected AES-GCM mode (AEAD), algorithm=AES-GCM, cipher=AES, mode=GCM
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $BLOCK, $ERR := aes.NewCipher($KEY)
+              ...
+              cipher.$FUNC($BLOCK, ...)
+          - pattern: cipher.$FUNC(aes.NewCipher($KEY), ...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>NewGCM(?:WithNonceSize|WithTagSize|WithRandomNonce)?)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/cipher
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        algorithmPrimitive: ae
+        algorithmName: AES-GCM
+        algorithmFamily: AES
+        library: crypto/cipher
+        api: cipher.$func
+        cipher: AES
+        algorithmMode: gcm
+
+  - id: go.crypto.aes.block-cipher-mode-encrypt
+    message: Detected AES block cipher mode
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $BLOCK, $ERR := aes.NewCipher($KEY)
+              ...
+              cipher.$FUNC($BLOCK, ...)
+          - pattern: cipher.$FUNC(aes.NewCipher($KEY), ...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^New(?<mode>CBC|CTR|OFB|CFB)(Encrypter)?$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/cipher
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "encrypt"
+        algorithmPrimitive: block-cipher
+        algorithmName: AES-$mode
+        algorithmFamily: AES
+        library: crypto/cipher
+        api: cipher.$FUNC
+        cipher: AES
+        algorithmMode: $mode
+
+  - id: go.crypto.aes.block-cipher-mode-decrypt
+    message: Detected AES block cipher mode decryption
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $BLOCK, $ERR := aes.NewCipher($KEY)
+              ...
+              cipher.$FUNC($BLOCK, ...)
+          - pattern: cipher.$FUNC(aes.NewCipher($KEY), ...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^New(?<mode>CBC|CFB)Decrypter$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/cipher
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "decrypt"
+        algorithmPrimitive: block-cipher
+        algorithmName: AES-$mode
+        algorithmFamily: AES
+        library: crypto/cipher
+        api: cipher.$FUNC
+        cipher: AES
+        algorithmMode: $mode

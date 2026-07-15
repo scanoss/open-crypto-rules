@@ -1,0 +1,67 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: c.openssl.algorithm.signature.slh-dsa
+    message: Detected SLH-DSA post-quantum signature algorithm usage
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c, cpp]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>id-slh-dsa-(?<hash>sha2|shake)-(?<security>128|192|256)(?<speed>s|f))"'
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>SLH-DSA-(?<hash>SHA2|SHAKE)-(?<security>128|192|256)(?<speed>s|f))"'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $API($A, $ALGO, ...)
+              - pattern: $API($A, $B, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen|EVP_SIGNATURE_fetch)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: SLH-DSA
+        algorithmName: SLH-DSA-$hash-$security$speed
+        algorithmParameterSetIdentifier: $hash-$security$speed
+        library: OpenSSL
+        api: $API
+  - id: c.openssl.algorithm.signature.slh-dsa.generic
+    message: Detected SLH-DSA post-quantum signature algorithm name
+    severity: INFO
+    languages: [c, cpp]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>(?:id-slh-dsa-|SLH-DSA-)(?<hash>sha2|SHA2|shake|SHAKE)-(?<security>128|192|256)(?<speed>s|f))"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: SLH-DSA
+        algorithmName: SLH-DSA-$hash-$security$speed
+        algorithmParameterSetIdentifier: $hash-$security$speed
+        library: OpenSSL

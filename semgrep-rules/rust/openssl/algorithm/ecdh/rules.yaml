@@ -1,0 +1,87 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: rust.openssl.ecdh.deriver-new
+    message: Detected ECDH key derivation context creation using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::derive::Deriver::new($KEY)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Deriver::new($KEY)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: keyderive
+        algorithmName: ECDH
+        algorithmFamily: ECDH
+        library: openssl
+        algorithmPrimitive: key-agree
+
+  - id: rust.openssl.ecdh.set-peer
+    message: Detected ECDH peer key setting using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::derive::Deriver::new($KEY)
+          - pattern: Deriver::new($KEY)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $DERIVER.set_peer($KEY)
+          - pattern: $DERIVER.set_peer_ex($KEY, $VALIDATE)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: keyderive
+        algorithmName: ECDH
+        algorithmFamily: ECDH
+        library: openssl
+        algorithmPrimitive: key-agree
+
+  - id: rust.openssl.ecdh.derive
+    message: Detected ECDH key derivation using openssl
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::derive::Deriver::new($KEY)
+          - pattern: Deriver::new($KEY)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $DERIVER.derive($BUF)
+          - pattern: $DERIVER.derive_to_vec()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: keyderive
+        algorithmName: ECDH
+        algorithmFamily: ECDH
+        library: openssl
+        algorithmPrimitive: key-agree

@@ -1,0 +1,74 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: go.xcrypto.otr.privatekey-generate
+    message: Detected OTR private key generation, algorithm=OTR
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern: $PRIVKEY.Generate(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: "keygen"
+        algorithmPrimitive: signature
+        algorithmName: OTR
+        algorithmFamily: OTR
+        library: golang.org/x/crypto/otr
+        api: otr.PrivateKey.Generate
+        materialSource: generated
+
+  - id: go.xcrypto.otr.privatekey-sign
+    message: Detected OTR private key signing, algorithm=OTR
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern: $PRIVKEY.Sign(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "sign"
+        algorithmPrimitive: signature
+        algorithmName: OTR
+        algorithmFamily: OTR
+        library: golang.org/x/crypto/otr
+        api: otr.PrivateKey.Sign
+
+  - id: go.xcrypto.otr.publickey-verify
+    message: Detected OTR public key signature verification, algorithm=OTR
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern: $PUBKEY.Verify(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/otr
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "verify"
+        algorithmPrimitive: signature
+        algorithmName: OTR
+        algorithmFamily: OTR
+        library: golang.org/x/crypto/otr
+        api: otr.PublicKey.Verify

@@ -1,15 +1,31 @@
-// TEST-RULE: go.crypto.md5.hash-usage
-// TEST-METADATA: algorithmName=MD5, algorithmFamily=MD5, library=crypto/md5
-
-package main
+package md5_test
 
 import (
+	"crypto"
 	"crypto/md5"
-	"fmt"
 )
 
-func main() {
-	h := md5.New()
-	h.Write([]byte("hello world"))
-	fmt.Printf("%x\n", h.Sum(nil))
+// TEST-RULE: go.crypto.md5.hash-usage
+// TEST-METADATA: operation:digest findingType:hash algorithmName:MD5 api:crypto.MD5
+func testMD5New() {
+	// ruleid: go.crypto.md5.hash-usage
+	hasher := md5.New()
+	_ = hasher
+}
+
+// TEST-RULE: go.crypto.md5.hash-usage
+// TEST-METADATA: operation:digest findingType:hash algorithmName:MD5 api:crypto.MD5
+func testMD5Sum() {
+	data := []byte("test message")
+	// ruleid: go.crypto.md5.hash-usage
+	hash := md5.Sum(data)
+	_ = hash
+}
+
+// TEST-RULE: go.crypto.md5.hash-usage
+// TEST-METADATA: operation:digest findingType:hash algorithmName:MD5 api:crypto.MD5
+func testMD5CryptoConst() {
+	// ruleid: go.crypto.md5.hash-usage
+	hasher := crypto.MD5.New()
+	_ = hasher
 }

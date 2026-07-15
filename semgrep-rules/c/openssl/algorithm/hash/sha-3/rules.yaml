@@ -1,0 +1,69 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: c.openssl.algorithm.hash.sha-3
+    message: Detected SHA-3 family hash function usage
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c, cpp]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>SHA3-224|SHA3-256|SHA3-384|SHA3-512)"'
+      - pattern-either:
+          - pattern: EVP_sha3_224()
+          - pattern: EVP_sha3_256()
+          - pattern: EVP_sha3_384()
+          - pattern: EVP_sha3_512()
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $API($ALGO)
+              - pattern: $API($CTX, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit_ex2?|EVP_MD_fetch)$'
+          - focus-metavariable: $ALGO
+      - patterns:
+          - pattern: EVP_Digest($DATA, $LEN, $MD, $MDLEN, $ALGO, ...)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        operation: "digest"
+        algorithmPrimitive: hash
+        algorithmFamily: SHA-3
+        algorithmName: $variant
+        library: OpenSSL
+        api: $API
+  - id: c.openssl.algorithm.hash.sha-3.generic
+    message: Detected SHA-3 family hash algorithm name
+    severity: INFO
+    languages: [c, cpp]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>SHA3-224|SHA3-256|SHA3-384|SHA3-512)"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: hash
+        algorithmFamily: SHA-3
+        algorithmName: $variant
+        library: OpenSSL

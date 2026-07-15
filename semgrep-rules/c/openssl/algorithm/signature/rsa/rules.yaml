@@ -1,0 +1,167 @@
+# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
+# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
+# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
+
+rules:
+  - id: c.openssl.algorithm.signature.rsa-pkcs1
+    message: Detected RSA-PKCS1 signature algorithm usage
+    mode: taint
+    severity: INFO
+    languages: [c, cpp]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>rsaEncryption|RSA|rsa)"'
+      - pattern: EVP_PKEY_RSA
+
+    pattern-sinks:
+      - patterns:
+          - pattern: $API($ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^EVP_PKEY_CTX_new_id$'
+          - focus-metavariable: $ALGO
+      - patterns:
+          - pattern-either:
+              - pattern: $API($A, $ALGO, ...)
+              - pattern: $API($A, $B, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PKCS1
+        algorithmName: RSA-PKCS1
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.1
+        api: $API
+
+  - id: c.openssl.algorithm.signature.rsa-pss
+    message: Detected RSA-PSS signature algorithm usage
+    mode: taint
+    severity: INFO
+    languages: [c, cpp]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>rsassaPss|RSA-PSS|rsa-pss)"'
+      - pattern: EVP_PKEY_RSA_PSS
+
+    pattern-sinks:
+      - patterns:
+          - pattern: $API($ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^EVP_PKEY_CTX_new_id$'
+          - focus-metavariable: $ALGO
+      - patterns:
+          - pattern-either:
+              - pattern: $API($A, $ALGO, ...)
+              - pattern: $API($A, $B, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PSS
+        algorithmName: RSA-PSS
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.10
+        api: $API
+
+  - id: c.openssl.algorithm.signature.rsa-pss.padding
+    message: Detected RSA-PSS signature padding configuration
+    severity: INFO
+    languages: [c, cpp]
+    patterns:
+      - pattern: EVP_PKEY_CTX_set_rsa_padding($CTX, RSA_PKCS1_PSS_PADDING)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PSS
+        algorithmName: RSA-PSS
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.10
+        api: EVP_PKEY_CTX_set_rsa_padding
+
+  - id: c.openssl.algorithm.signature.rsa-pss.saltlen
+    message: Detected RSA-PSS signature salt length configuration
+    severity: INFO
+    languages: [c, cpp]
+    patterns:
+      - pattern: EVP_PKEY_CTX_set_rsa_pss_saltlen($CTX, $LEN)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PSS
+        algorithmName: RSA-PSS
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.10
+        api: EVP_PKEY_CTX_set_rsa_pss_saltlen
+
+  - id: c.openssl.algorithm.signature.rsa-pss.mgf1-md
+    message: Detected RSA-PSS MGF1 digest configuration
+    severity: INFO
+    languages: [c, cpp]
+    patterns:
+      - pattern: EVP_PKEY_CTX_set_rsa_mgf1_md($CTX, $MD)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PSS
+        algorithmName: RSA-PSS
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.10
+        api: EVP_PKEY_CTX_set_rsa_mgf1_md
+  - id: c.openssl.algorithm.signature.rsa-pss.generic
+    message: Detected RSA-PSS signature algorithm name
+    severity: INFO
+    languages: [c, cpp]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"(?<variant>rsassaPss|RSA-PSS|rsa-pss)"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSASSA-PSS
+        algorithmName: RSA-PSS
+        library: OpenSSL
+        oid: 1.2.840.113549.1.1.10
