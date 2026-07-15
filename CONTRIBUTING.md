@@ -4,7 +4,7 @@ Thanks for your interest in improving SCANOSS Open Crypto Rules! This guide
 covers how the repository is organized and how to test your changes.
 
 By contributing, you agree that your contributions are licensed under the
-project's [GPL-2.0 license](LICENSE).
+project's [GPL-3.0 license](LICENSE).
 
 ## Ways to contribute
 

@@ -1,6 +1,6 @@
 # SCANOSS Open Crypto Rules
 
-[![License: GPL v2](https://img.shields.io/badge/License-GPLv2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![Tests](https://github.com/scanoss/open-crypto-rules/actions/workflows/test.yml/badge.svg)](https://github.com/scanoss/open-crypto-rules/actions/workflows/test.yml)
 
 Open source [Semgrep](https://semgrep.dev/) / [OpenGrep](https://github.com/opengrep/opengrep)
@@ -79,7 +79,7 @@ To report a security issue, please follow the process in [SECURITY.md](SECURITY.
 
 ## License
 
-This project is licensed under the **GNU General Public License v2.0**.
+This project is licensed under the **GNU General Public License v3.0**.
 See [LICENSE](LICENSE) for the full text.
 
 ---
