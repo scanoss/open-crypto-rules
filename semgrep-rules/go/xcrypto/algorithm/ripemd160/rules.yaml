@@ -1,0 +1,35 @@
+rules:
+  - id: go.xcrypto.ripemd160.hash-usage
+    message: Detected RIPEMD-160 hash usage, algorithm=RIPEMD-160
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ripemd160"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ripemd160"
+              ...
+      - pattern: ripemd160.New(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327]
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ripemd160
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmPrimitive: hash
+        algorithmName: RIPEMD-160
+        algorithmFamily: RIPEMD
+        algorithmParameterSetIdentifier: "160"
+        library: golang.org/x/crypto/ripemd160
+        api: ripemd160.New

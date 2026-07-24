@@ -1,0 +1,61 @@
+rules:
+  - id: go.crypto.sha3.hash-usage
+    message: Detected SHA-3 hash usage
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: sha3.$FUNC
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^(?:New|Sum)(?<variant>224|256|384|512)$"
+          - patterns:
+              - pattern: crypto.$CONST
+              - metavariable-regex:
+                  metavariable: $CONST
+                  regex: "^SHA3_(?<variant>224|256|384|512)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmName: SHA-3-$variant
+        algorithmFamily: SHA-3
+        library: crypto/sha3
+        api: crypto.SHA3_$variant
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: $variant
+
+  - id: go.crypto.sha3.shake-usage
+    message: Detected SHAKE extendable output function usage
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern: sha3.$FUNC
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?:New|Sum)(?<shakevariant>(?:C?)SHAKE(?<variant>128|256))$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmName: $shakevariant
+        algorithmFamily: SHA-3
+        library: crypto/sha3
+        api: $shakevariant
+        algorithmPrimitive: xof
+        algorithmParameterSetIdentifier: $variant

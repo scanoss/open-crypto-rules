@@ -1,0 +1,38 @@
+rules:
+  - id: c.nss.algorithm.key-agree.dh
+    message: Detected Diffie-Hellman key agreement usage
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c, cpp]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $MECH
+          - metavariable-regex:
+              metavariable: $MECH
+              regex: '^CKM_DH.*$'
+      - pattern: SECKEY_CreateDHPrivateKey(...)
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $API($A, $MECH, ...)
+              - pattern: $API($A, $B, $C, $MECH, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(PK11_GenerateKeyPair|PK11_PubDerive)$'
+          - focus-metavariable: $MECH
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: key-agree
+        algorithmFamily: FFDH
+        algorithmName: DH
+        library: NSS
+        api: $API

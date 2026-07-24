@@ -1,0 +1,21 @@
+// TEST-RULE: go.crypto.3des.block-cipher-mode-encrypt
+// TEST-METADATA: assetType=algorithm, findingType=cipher, operation=encrypt, algorithmPrimitive=block-cipher, algorithmName=3DES-CTR, algorithmFamily=3DES, library=crypto/cipher, api=cipher.NewCTR, cipher=3DES
+
+package main
+
+import (
+	"crypto/cipher"
+	"crypto/des"
+)
+
+// Scenario: 3DES-CTR mode
+func main() {
+	key := make([]byte, 24)
+	iv := make([]byte, 8)
+	plaintext := make([]byte, 100)
+
+	block, _ := des.NewTripleDESCipher(key)
+	ctr := cipher.NewCTR(block, iv)
+	ctr.XORKeyStream(plaintext, plaintext)
+}
+

@@ -1,0 +1,34 @@
+rules:
+  - id: c.nss.algorithm.hash.md2
+    message: Detected MD2 hash function usage
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c, cpp]
+    pattern-sources:
+      - patterns:
+          - pattern: $MECH
+          - metavariable-regex:
+              metavariable: $MECH
+              regex: '^SEC_OID_MD2$'
+    pattern-sinks:
+      - patterns:
+          - pattern: $API($MECH)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^PK11_CreateDigestContext$'
+          - focus-metavariable: $MECH
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        operation: "digest"
+        algorithmPrimitive: hash
+        algorithmFamily: MD2
+        algorithmName: MD2
+        algorithmParameterSetIdentifier: "128"
+        library: NSS
+        api: $API

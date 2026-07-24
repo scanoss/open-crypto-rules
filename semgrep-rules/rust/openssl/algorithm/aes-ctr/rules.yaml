@@ -1,0 +1,124 @@
+rules:
+  - id: rust.openssl.aes-ctr.cipher
+    message: Detected AES-CTR cipher instantiation using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::symm::Cipher::$METHOD()
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Cipher::$METHOD()
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: "aes_(?P<bits>128|192|256)_ctr"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        algorithmName: AES-$bits-CTR
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: block-cipher
+        algorithmParameterSetIdentifier: $bits
+        algorithmMode: CTR
+
+  - id: rust.openssl.symm.encrypt
+    message: Detected symmetric encryption using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::symm::encrypt($CIPHER, $KEY, $IV, $DATA)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: symm::encrypt($CIPHER, $KEY, $IV, $DATA)
+                  - pattern: encrypt($CIPHER, $KEY, $IV, $DATA)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl::symm.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "encrypt"
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: block-cipher
+
+  - id: rust.openssl.symm.decrypt
+    message: Detected symmetric decryption using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::symm::decrypt($CIPHER, $KEY, $IV, $DATA)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: symm::decrypt($CIPHER, $KEY, $IV, $DATA)
+                  - pattern: decrypt($CIPHER, $KEY, $IV, $DATA)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl::symm.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "decrypt"
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: block-cipher
+
+  - id: rust.openssl.symm.crypter-new
+    message: Detected low-level symmetric cipher context creation using openssl
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::symm::Crypter::new($CIPHER, $MODE, $KEY, $IV)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Crypter::new($CIPHER, $MODE, $KEY, $IV)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        algorithmFamily: AES
+        library: openssl
+        algorithmPrimitive: block-cipher

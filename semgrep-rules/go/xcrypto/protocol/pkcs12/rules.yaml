@@ -1,0 +1,34 @@
+rules:
+  - id: go.xcrypto.pkcs12.decode
+    message: Detected PKCS#12 decoding, protocol=PKCS#12
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/pkcs12"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/pkcs12"
+              ...
+      - pattern: pkcs12.Decode(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/pkcs12
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: decrypt
+        protocolType: other
+        protocolName: PKCS#12
+        algorithmName: PKCS#12
+        algorithmFamily: PKCS#12
+        library: golang.org/x/crypto/pkcs12
+        api: pkcs12.Decode

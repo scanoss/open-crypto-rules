@@ -1,0 +1,101 @@
+rules:
+  - id: go.xcrypto.ocsp.operations
+    message: Detected OCSP operations
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/ocsp"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/ocsp"
+              ...
+      - pattern: ocsp.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>CreateRequest|ParseRequest|CreateResponse|ParseResponse|ParseResponseForCert)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ocsp
+      crypto:
+        assetType: protocol
+        findingType: certificate_handling
+        operation: verify
+        protocolName: OCSP
+        protocolType: other
+        library: golang.org/x/crypto/ocsp
+        api: ocsp.$func
+
+  - id: go.xcrypto.ocsp.verify
+    message: Detected OCSP response signature verification
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/ocsp"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/ocsp"
+                  ...
+          - pattern-either:
+              - pattern: ocsp.ParseResponse(...)
+              - pattern: ocsp.ParseResponseForCert(...)
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Response: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Response
+        from: $OBJ
+        to: $OBJ.Response
+      - pattern: |
+          &$TYPE{..., Resp: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Resp
+        from: $OBJ
+        to: $OBJ.Resp
+      - pattern: |
+          &$TYPE{..., OCSPResponse: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.OCSPResponse
+        from: $OBJ
+        to: $OBJ.OCSPResponse
+    pattern-sinks:
+      - patterns:
+          - pattern: $RESP.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: "^(?<func>CheckSignatureFrom)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/ocsp
+      crypto:
+        assetType: protocol
+        findingType: certificate_handling
+        operation: verify
+        protocolName: OCSP
+        protocolType: other
+        library: golang.org/x/crypto/ocsp
+        api: ocsp.Response.$func

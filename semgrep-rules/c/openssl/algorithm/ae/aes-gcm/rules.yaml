@@ -1,0 +1,88 @@
+rules:
+- id: c.openssl.algorithm.ae.aes
+  message: Detected AES authenticated encryption usage
+  mode: taint
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $FUNC()
+    - metavariable-regex:
+        metavariable: $FUNC
+        regex: ^EVP_aes_(?<keysize>128|192|256)_(?<mode>gcm|ccm)$
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<variant>AES-(?<keysize>128|192|256)-(?<mode>GCM|CCM)|aes-(?<keysize2>128|192|256)-(?<mode2>gcm|ccm))"'
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_cipherbyname|EVP_CipherInit_ex|EVP_EncryptInit_ex|EVP_DecryptInit_ex|EVP_CIPHER_fetch)$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: ae
+      algorithmFamily: AES
+      algorithmName: AES-$keysize-$mode
+      algorithmMode: $mode
+      algorithmParameterSetIdentifier: $keysize
+      library: OpenSSL
+      api: $API
+- id: c.openssl.algorithm.ae.aes.constructor
+  message: Detected AES authenticated encryption constructor usage
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $FUNC()
+  - metavariable-regex:
+      metavariable: $FUNC
+      regex: ^EVP_aes_(?<keysize>128|192|256)_(?<mode>gcm|ccm)$
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: ae
+      algorithmFamily: AES
+      algorithmName: AES-$keysize-$mode
+      algorithmMode: $mode
+      algorithmParameterSetIdentifier: $keysize
+      library: OpenSSL
+      api: $FUNC
+- id: c.openssl.algorithm.ae.aes.generic
+  message: Detected AES authenticated encryption algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>AES-(?<keysize>128|192|256)-(?<mode>GCM|CCM)|aes-(?<keysize2>128|192|256)-(?<mode2>gcm|ccm))"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: ae
+      algorithmFamily: AES
+      algorithmName: AES-$keysize-$mode
+      algorithmMode: $mode
+      algorithmParameterSetIdentifier: $keysize
+      library: OpenSSL

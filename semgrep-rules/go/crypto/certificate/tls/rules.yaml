@@ -1,0 +1,23 @@
+rules:
+  - id: go.crypto.tls.load-key-pair
+    message: Detected X.509 certificate and key loading for TLS
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: tls.LoadX509KeyPair(...)
+          - pattern: tls.X509KeyPair(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/tls
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: other
+        library: crypto/tls
+        api: tls.LoadX509KeyPair
+        materialSource: loaded

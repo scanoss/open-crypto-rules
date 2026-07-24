@@ -1,0 +1,23 @@
+rules:
+  - id: c.openssl.certificate.x509
+    message: Detected X.509 certificate usage
+    severity: INFO
+    languages: [c, cpp]
+    patterns:
+      - pattern-either:
+          - pattern: d2i_X509(...)
+          - pattern: d2i_X509_bio(...)
+          - pattern: PEM_read_X509(...)
+          - pattern: PEM_read_bio_X509(...)
+          - pattern: X509_STORE_new(...)
+          - pattern: X509_verify_cert(...)
+          - pattern: X509_get_pubkey(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: certificate
+        certificateFormat: X.509
+        library: OpenSSL
+

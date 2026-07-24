@@ -1,0 +1,61 @@
+rules:
+- id: c.openssl.algorithm.hash.blake2
+  message: Detected BLAKE2 hash function usage
+  mode: taint
+  options:
+    interfile: true
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<variant>BLAKE2b512|BLAKE2s256)"'
+  - pattern-either:
+    - pattern: EVP_blake2b512()
+    - pattern: EVP_blake2s256()
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit_ex2?|EVP_MD_fetch)$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      operation: "digest"
+      algorithmPrimitive: hash
+      algorithmFamily: BLAKE2
+      algorithmName: BLAKE2-$variant
+      library: OpenSSL
+      api: $API
+- id: c.openssl.algorithm.hash.blake2.generic
+  message: Detected BLAKE2 hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<variant>BLAKE2b512|BLAKE2s256)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: BLAKE2
+      algorithmName: BLAKE2-$variant
+      library: OpenSSL

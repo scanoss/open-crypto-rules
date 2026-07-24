@@ -1,0 +1,218 @@
+rules:
+  - id: go.crypto.des.key-generation
+    message: Detected DES key generation, algorithm=DES
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: des.NewCipher(make([]byte, $BYTESIZE))
+                  - pattern: |
+                      $KEY := make([]byte, $BYTESIZE)
+                      ...
+                      des.NewCipher($KEY)
+              - metavariable-regex:
+                  metavariable: $BYTESIZE
+                  regex: "^8$"
+          - pattern: des.NewCipher([]byte($STRING))
+          - pattern: des.NewCipher($KEY)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327, CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/des
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: "keygen"
+        algorithmPrimitive: block-cipher
+        algorithmName: DES
+        algorithmFamily: DES
+        algorithmParameterSetIdentifier: "56"
+        library: crypto/des
+        api: des.NewCipher
+        materialSource: generated
+
+  # ============================================================================
+  # 3DES (Triple DES) - crypto/des
+  # ============================================================================
+
+  - id: go.crypto.3des.key-generation
+    message: Detected 3DES key generation, algorithm=3DES
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: des.NewTripleDESCipher(make([]byte, $BYTESIZE))
+                  - pattern: |
+                      $KEY := make([]byte, $BYTESIZE)
+                      ...
+                      des.NewTripleDESCipher($KEY)
+              - metavariable-regex:
+                  metavariable: $BYTESIZE
+                  regex: "^24$"
+          - pattern: des.NewTripleDESCipher([]byte($STRING))
+          - pattern: des.NewTripleDESCipher($KEY)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327, CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/des
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: "keygen"
+        algorithmPrimitive: block-cipher
+        algorithmName: 3DES
+        algorithmFamily: 3DES
+        algorithmParameterSetIdentifier: "168"
+        library: crypto/des
+        api: des.NewTripleDESCipher
+        materialSource: generated
+
+  # ============================================================================
+  # DES Cipher Modes - crypto/cipher
+  # ============================================================================
+
+  - id: go.crypto.des.block-cipher-mode-encrypt
+    message: Detected DES block cipher mode
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $BLOCK, $ERR := des.NewCipher($KEY)
+              ...
+              cipher.$FUNC($BLOCK, ...)
+          - pattern: cipher.$FUNC(des.NewCipher($KEY), ...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^New(?<mode>CBC|CTR|OFB|CFB)(Encrypter)?$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327, CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/cipher
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "encrypt"
+        algorithmPrimitive: block-cipher
+        algorithmName: DES-$mode
+        algorithmFamily: DES
+        library: crypto/cipher
+        api: cipher.$FUNC
+        cipher: DES
+        algorithmMode: $mode
+
+  - id: go.crypto.des.block-cipher-mode-decrypt
+    message: Detected DES block cipher mode decryption
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $BLOCK, $ERR := des.NewCipher($KEY)
+              ...
+              cipher.$FUNC($BLOCK, ...)
+          - pattern: cipher.$FUNC(des.NewCipher($KEY), ...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^New(?<mode>CBC|CFB)Decrypter$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327, CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/cipher
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "decrypt"
+        algorithmPrimitive: block-cipher
+        algorithmName: DES-$mode
+        algorithmFamily: DES
+        library: crypto/cipher
+        api: cipher.$FUNC
+        cipher: DES
+        algorithmMode: $mode
+
+  # ============================================================================
+  # 3DES Cipher Modes - crypto/cipher
+  # ============================================================================
+
+  - id: go.crypto.3des.block-cipher-mode-encrypt
+    message: Detected 3DES block cipher mode
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $BLOCK, $ERR := des.NewTripleDESCipher($KEY)
+              ...
+              cipher.$FUNC($BLOCK, ...)
+          - pattern: cipher.$FUNC(des.NewTripleDESCipher($KEY), ...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^New(?<mode>CBC|CTR|OFB|CFB)(Encrypter)?$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327, CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/cipher
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "encrypt"
+        algorithmPrimitive: block-cipher
+        algorithmName: 3DES-$mode
+        algorithmFamily: 3DES
+        library: crypto/cipher
+        api: cipher.$FUNC
+        cipher: 3DES
+        algorithmMode: $mode
+
+  - id: go.crypto.3des.block-cipher-mode-decrypt
+    message: Detected 3DES block cipher mode decryption
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $BLOCK, $ERR := des.NewTripleDESCipher($KEY)
+              ...
+              cipher.$FUNC($BLOCK, ...)
+          - pattern: cipher.$FUNC(des.NewTripleDESCipher($KEY), ...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^New(?<mode>CBC|CFB)Decrypter$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-327, CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/cipher
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "decrypt"
+        algorithmPrimitive: block-cipher
+        algorithmName: 3DES-$mode
+        algorithmFamily: 3DES
+        library: crypto/cipher
+        api: cipher.$FUNC
+        cipher: 3DES
+        algorithmMode: $mode

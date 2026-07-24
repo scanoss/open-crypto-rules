@@ -1,0 +1,33 @@
+rules:
+  - id: go.xcrypto.x509roots.fallback-import
+    message: Detected X.509 fallback root certificates import, library=x509roots/fallback
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                  ...
+                  _ "golang.org/x/crypto/x509roots/fallback"
+                  ...
+              )
+          - pattern-inside: |
+              import (
+                  _ "golang.org/x/crypto/x509roots/fallback"
+              )
+          - pattern: |
+              import _ "golang.org/x/crypto/x509roots/fallback"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/x509roots/fallback
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: verify
+        algorithmName: X.509
+        algorithmFamily: X.509
+        library: golang.org/x/crypto/x509roots/fallback
+        api: x509roots/fallback.init

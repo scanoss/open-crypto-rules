@@ -1,0 +1,86 @@
+rules:
+  - id: go.xcrypto.xts.cipher-creation
+    message: Detected XTS block cipher mode creation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/xts"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/xts"
+              ...
+      - pattern-either:
+          - patterns:
+              - pattern: xts.NewCipher($CIPHERFUNC, make([]byte, $KEYSIZE))
+              - metavariable-regex:
+                  metavariable: $KEYSIZE
+                  regex: '^(?<keysize>\d+)$'
+          - patterns:
+              - pattern: |
+                  $KEY := make([]byte, $KEYSIZE)
+                  ...
+                  xts.NewCipher($CIPHERFUNC, $KEY)
+              - metavariable-regex:
+                  metavariable: $KEYSIZE
+                  regex: '^(?<keysize>\d+)$'
+          - pattern: xts.NewCipher(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/xts
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        algorithmPrimitive: block-cipher
+        algorithmName: XTS
+        algorithmFamily: XTS
+        algorithmParameterSetIdentifier: $keysize
+        library: golang.org/x/crypto/xts
+        api: xts.NewCipher
+
+  - id: go.xcrypto.xts.encrypt-decrypt
+    message: Detected XTS cipher operation
+    severity: INFO
+    languages: [go]
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - pattern: xts.NewCipher(...)
+    pattern-propagators:
+      - pattern: |
+          &$TYPE{..., Cipher: $SRC, ...}
+        from: $SRC
+        to: $TYPE
+      - pattern: $OBJ.Cipher
+        from: $OBJ
+        to: $OBJ.Cipher
+    pattern-sinks:
+      - patterns:
+          - pattern: $CIPHER.$METHOD(...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: ^(?<method>Encrypt|Decrypt)$
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/xts
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "decrypt"
+        algorithmPrimitive: block-cipher
+        algorithmName: XTS
+        algorithmFamily: XTS
+        library: golang.org/x/crypto/xts
+        api: xts.Cipher.$method

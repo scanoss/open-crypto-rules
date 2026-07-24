@@ -1,0 +1,36 @@
+rules:
+  - id: c.nss.algorithm.hash.sha-2
+    message: Detected SHA-2 family hash function usage
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c, cpp]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $MECH
+          - metavariable-regex:
+              metavariable: $MECH
+              regex: '^SEC_OID_(?<variant>SHA224|SHA256|SHA384|SHA512)$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern: $API($MECH)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^PK11_CreateDigestContext$'
+          - focus-metavariable: $MECH
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        operation: "digest"
+        algorithmPrimitive: hash
+        algorithmFamily: SHA-2
+        algorithmName: $variant
+        library: NSS
+        api: $API

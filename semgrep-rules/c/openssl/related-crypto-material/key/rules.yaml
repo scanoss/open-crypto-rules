@@ -1,0 +1,18 @@
+rules:
+  - id: c.openssl.related-crypto-material.private-key.pem
+    message: Detected PEM private key loading
+    severity: INFO
+    languages: [c, cpp]
+    patterns:
+      - pattern-either:
+          - pattern: PEM_read_PrivateKey(...)
+          - pattern: PEM_read_bio_PrivateKey(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: related-crypto-material
+        materialType: private-key
+        materialFormat: PEM
+        library: OpenSSL

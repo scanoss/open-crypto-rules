@@ -1,0 +1,152 @@
+rules:
+  - id: go.xcrypto.sha3.hash
+    message: Detected SHA-3 hash usage
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/sha3"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/sha3"
+              ...
+      - patterns:
+          - pattern: sha3.$FUNC
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?:New|Sum)(?<variant>224|256|384|512)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmPrimitive: hash
+        algorithmName: SHA-3-$variant
+        algorithmFamily: SHA-3
+        algorithmParameterSetIdentifier: $variant
+        library: golang.org/x/crypto/sha3
+        api: sha3.$FUNC
+
+  - id: go.xcrypto.sha3.legacy-keccak
+    message: Detected legacy Keccak hash usage
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/sha3"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/sha3"
+              ...
+      - patterns:
+          - pattern: sha3.$FUNC
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^NewLegacyKeccak(?<variant>256|512)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmPrimitive: hash
+        algorithmName: Keccak-$variant
+        algorithmFamily: SHA-3
+        algorithmParameterSetIdentifier: $variant
+        library: golang.org/x/crypto/sha3
+        api: sha3.$FUNC
+
+  - id: go.xcrypto.sha3.shake
+    message: Detected SHAKE extendable output function usage
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/sha3"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/sha3"
+              ...
+      - patterns:
+          - pattern: sha3.$FUNC
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?:NewShake|ShakeSum)(?<variant>128|256)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmPrimitive: xof
+        algorithmName: SHAKE-$variant
+        algorithmFamily: SHA-3
+        algorithmParameterSetIdentifier: $variant
+        library: golang.org/x/crypto/sha3
+        api: sha3.$FUNC
+
+  - id: go.xcrypto.sha3.cshake
+    message: Detected cSHAKE extendable output function usage
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/sha3"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/sha3"
+              ...
+      - patterns:
+          - pattern: sha3.$FUNC
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^NewCShake(?<variant>128|256)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/sha3
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmPrimitive: xof
+        algorithmName: cSHAKE-$variant
+        algorithmFamily: SHA-3
+        algorithmParameterSetIdentifier: $variant
+        library: golang.org/x/crypto/sha3
+        api: sha3.$FUNC

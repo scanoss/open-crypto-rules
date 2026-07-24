@@ -1,0 +1,308 @@
+rules:
+  - id: go.crypto.x509.parse-certificate
+    message: Detected X.509 certificate parsing
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>ParseCertificate(?:s)?)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: other
+        library: crypto/x509
+        api: x509.$func
+        materialSource: loaded
+
+  - id: go.crypto.x509.create-certificate
+    message: Detected X.509 certificate creation
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.CreateCertificate(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: other
+        library: crypto/x509
+        api: x509.CreateCertificate
+        materialSource: generated
+
+  - id: go.crypto.x509.certificate-request
+    message: Detected X.509 certificate request operation
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>Create|Parse)CertificateRequest$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: other
+        library: crypto/x509
+        api: x509.$func
+        materialSource: loaded
+
+  - id: go.crypto.x509.crl
+    message: Detected X.509 CRL operation
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>ParseDERCRL|CreateRevocationList|ParseCRL|ParseRevocationList)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: other
+        library: crypto/x509
+        api: x509.$func
+        materialSource: loaded
+
+  - id: go.crypto.x509.certificate-verify
+    message: Detected X.509 certificate verification
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-inside: |
+          import (
+            ...
+            "crypto/x509"
+            ...
+          )
+          ...
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: $CERT.Verify(...)
+      - pattern-not: |
+          $VERIFIER.Verify($CTX, $DIGEST)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: verify
+        library: crypto/x509
+        api: Certificate.Verify
+        materialSource: loaded
+
+  - id: go.crypto.x509.certificate-check-signature
+    message: Detected X.509 certificate signature checking
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: $CERT.$METHOD(...)
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: "^(?<method>CheckSignature|CheckSignatureFrom|CheckCRLSignature)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: verify
+        library: crypto/x509
+        api: Certificate.$method
+        materialSource: loaded
+
+  - id: go.crypto.x509.new-cert-pool
+    message: Detected X.509 certificate pool creation
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.NewCertPool()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: other
+        library: crypto/x509
+        api: x509.NewCertPool
+        materialSource: generated
+
+  - id: go.crypto.x509.cert-pool-add-cert
+    message: Detected certificate addition to certificate pool
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: $POOL.AddCert(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: other
+        library: crypto/x509
+        api: CertPool.AddCert
+        materialSource: loaded
+
+  - id: go.crypto.x509.verify-options
+    message: Detected X.509 certificate verification options configuration
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "crypto/x509"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "crypto/x509"
+              ...
+      - pattern: x509.VerifyOptions{...}
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: certificate
+        findingType: certificate_handling
+        operation: verify
+        library: crypto/x509
+        api: x509.VerifyOptions

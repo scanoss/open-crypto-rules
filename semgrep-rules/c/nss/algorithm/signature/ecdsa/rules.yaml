@@ -1,0 +1,36 @@
+rules:
+  - id: c.nss.algorithm.signature.ecdsa
+    message: Detected ECDSA signature algorithm usage
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c, cpp]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $MECH
+          - metavariable-regex:
+              metavariable: $MECH
+              regex: '^CKM_EC.*$'
+      - pattern: SECKEY_CreateECPrivateKey(...)
+
+    pattern-sinks:
+      - patterns:
+          - pattern: $API($A, $MECH, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^PK11_GenerateKeyPair$'
+          - focus-metavariable: $MECH
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: ECDSA
+        algorithmName: ECDSA
+        library: NSS
+        api: $API

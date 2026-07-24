@@ -1,0 +1,66 @@
+rules:
+  - id: c.openssl.algorithm.kem.hybrid-ml-kem
+    message: Detected hybrid ML-KEM post-quantum key encapsulation mechanism usage
+    mode: taint
+    options:
+      interfile: true
+    severity: INFO
+    languages: [c, cpp]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"(?<variant>(?<classical>X25519|SecP256r1|SecP384r1|X448)MLKEM(?<keysize>768|1024))"'
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '"[^"]*(?<variant>(?<classical>X25519|SecP256r1|SecP384r1|X448)MLKEM(?<keysize>768|1024))[^"]*"'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $API($A, $ALGO, ...)
+              - pattern: $API($A, $B, $ALGO, ...)
+          - metavariable-regex:
+              metavariable: $API
+              regex: '^(?:EVP_PKEY_CTX_new_from_name|EVP_PKEY_Q_keygen|EVP_KEM_fetch|SSL_CTX_set1_groups_list|SSL_set1_groups_list)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      crypto:
+        assetType: algorithm
+        operation: "encapsulate"
+        algorithmPrimitive: kem
+        algorithmFamily: ML-KEM
+        algorithmName: $variant
+        algorithmParameterSetIdentifier: $keysize
+        classicalAlgorithm: $classical
+        library: OpenSSL
+        api: $API
+  - id: c.openssl.algorithm.kem.hybrid-ml-kem.generic
+    message: Detected hybrid ML-KEM post-quantum key encapsulation mechanism name
+    severity: INFO
+    languages: [c, cpp]
+    patterns:
+      - pattern: $ALGO
+      - metavariable-regex:
+          metavariable: $ALGO
+          regex: '"[^"]*(?<variant>(?<classical>X25519|SecP256r1|SecP384r1|X448)MLKEM(?<keysize>768|1024))[^"]*"'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: kem
+        algorithmFamily: ML-KEM
+        algorithmName: $variant
+        algorithmParameterSetIdentifier: $keysize
+        classicalAlgorithm: $classical
+        library: OpenSSL
