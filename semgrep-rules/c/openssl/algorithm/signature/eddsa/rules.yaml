@@ -1,7 +1,3 @@
-# Copyright © 2026 Scan Open Source Solutions SL (SCANOSS). All Rights Reserved.
-# This rules defined in this file are proprietary and confidential. No part may be used, copied, reproduced, modified, distributed, or transmitted in any form without a valid written commercial license agreement with SCANOSS.
-# Use of this software requires such an agreement. To obtain a license, visit scanoss.com
-
 rules:
 - id: c.openssl.algorithm.signature.eddsa
   message: Detected EdDSA signature algorithm usage
