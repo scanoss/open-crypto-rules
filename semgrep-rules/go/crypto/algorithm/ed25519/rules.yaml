@@ -1,0 +1,144 @@
+rules:
+  - id: go.crypto.ed25519.generatekey
+    message: Detected Ed25519 key generation, algorithm=Ed25519, curve=Ed25519
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: ed25519.GenerateKey($RAND)
+          - pattern: ed25519.NewKeyFromSeed($SEED)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ed25519
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: "keygen"
+        algorithmName: Ed25519
+        algorithmFamily: EdDSA
+        library: crypto/ed25519
+        api: ed25519.GenerateKey
+        algorithm: Ed25519
+        curve: Ed25519
+        materialSource: generated
+        algorithmPrimitive: signature
+        algorithmParameterSetIdentifier: Ed25519
+
+  - id: go.crypto.ed25519.newkey-from-seed
+    message: Detected Ed25519 key generation from seed, algorithm=Ed25519, curve=Ed25519
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern: ed25519.NewKeyFromSeed($SEED)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ed25519
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: "keygen"
+        algorithmName: Ed25519
+        algorithmFamily: EdDSA
+        library: crypto/ed25519
+        api: ed25519.NewKeyFromSeed
+        algorithm: Ed25519
+        curve: Ed25519
+        materialSource: derived
+        algorithmPrimitive: signature
+        algorithmParameterSetIdentifier: Ed25519
+
+  - id: go.crypto.ed25519.sign
+    message: Detected Ed25519 signature operation, algorithm=Ed25519
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: ed25519.$FUNC(...)
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^(?<func>Sign)$"
+          - pattern: ed25519.Sign(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ed25519
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "sign"
+        algorithmName: Ed25519
+        algorithmFamily: EdDSA
+        library: crypto/ed25519
+        api: ed25519.Sign
+        algorithm: Ed25519
+        curve: Ed25519
+        algorithmPrimitive: signature
+        algorithmParameterSetIdentifier: Ed25519
+
+  - id: go.crypto.ed25519.verify
+    message: Detected Ed25519 signature verification, algorithm=Ed25519
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern: ed25519.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>Verify|VerifyWithOptions)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/ed25519
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "verify"
+        algorithmName: Ed25519
+        algorithmFamily: EdDSA
+        library: crypto/ed25519
+        api: ed25519.$func
+        algorithm: Ed25519
+        curve: Ed25519
+        algorithmPrimitive: signature
+        algorithmParameterSetIdentifier: Ed25519
+
+  - id: go.crypto.ed25519.key-type
+    message: Detected Ed25519 key type declaration, algorithm=Ed25519
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern: ed25519.$KEY_TYPE(...)
+          - metavariable-regex:
+              metavariable: $KEY_TYPE
+              regex: "^(?<keytype>Private|Public)Key$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      references:
+        - https://pkg.go.dev/crypto/ed25519
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        algorithmName: Ed25519
+        algorithmFamily: EdDSA
+        library: crypto/ed25519
+        api: ed25519.$keytype
+        algorithmPrimitive: signature

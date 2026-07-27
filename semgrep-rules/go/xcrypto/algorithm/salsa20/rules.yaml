@@ -1,0 +1,100 @@
+rules:
+  - id: go.xcrypto.salsa20.stream-cipher
+    message: Detected Salsa20 stream cipher usage, algorithm=Salsa20
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/salsa20/salsa"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/salsa20/salsa"
+              ...
+      - pattern: salsa.XORKeyStream(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/salsa20/salsa
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        algorithmPrimitive: stream-cipher
+        algorithmName: Salsa20
+        algorithmFamily: Salsa20
+        algorithmParameterSetIdentifier: "256"
+        library: golang.org/x/crypto/salsa20/salsa
+        api: salsa.XORKeyStream
+
+  - id: go.xcrypto.salsa20.hsalsa20
+    message: Detected HSalsa20 hash function usage, algorithm=HSalsa20
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/salsa20/salsa"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/salsa20/salsa"
+              ...
+      - pattern: salsa.HSalsa20(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/salsa20/salsa
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmPrimitive: hash
+        algorithmName: HSalsa20
+        algorithmFamily: Salsa20
+        algorithmParameterSetIdentifier: "256"
+        library: golang.org/x/crypto/salsa20/salsa
+        api: salsa.HSalsa20
+
+  - id: go.xcrypto.salsa20.core208
+    message: Detected Salsa20/8 core function usage, algorithm=Salsa20/8
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/salsa20/salsa"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/salsa20/salsa"
+              ...
+      - pattern: salsa.Core208(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/salsa20/salsa
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        algorithmPrimitive: stream-cipher
+        algorithmName: Salsa20/8
+        algorithmFamily: Salsa20
+        algorithmParameterSetIdentifier: "256"
+        library: golang.org/x/crypto/salsa20/salsa
+        api: salsa.Core208

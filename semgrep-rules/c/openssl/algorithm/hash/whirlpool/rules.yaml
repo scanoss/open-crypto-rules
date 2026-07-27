@@ -1,0 +1,63 @@
+rules:
+- id: c.openssl.algorithm.hash.whirlpool
+  message: Detected Whirlpool hash function usage
+  mode: taint
+  options:
+    interfile: true
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<algorithmname>whirlpool|WHIRLPOOL)"'
+  - pattern: EVP_whirlpool()
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit_ex2?|EVP_MD_fetch)$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      operation: "digest"
+      algorithmPrimitive: hash
+      algorithmFamily: Whirlpool
+      algorithmName: Whirlpool
+      algorithmParameterSetIdentifier: '512'
+      library: OpenSSL
+      oid: 1.0.10118.3.0.55
+      api: $API
+- id: c.openssl.algorithm.hash.whirlpool.generic
+  message: Detected Whirlpool hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<algorithmname>whirlpool|WHIRLPOOL)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: Whirlpool
+      algorithmName: Whirlpool
+      algorithmParameterSetIdentifier: '512'
+      library: OpenSSL
+      oid: 1.0.10118.3.0.55

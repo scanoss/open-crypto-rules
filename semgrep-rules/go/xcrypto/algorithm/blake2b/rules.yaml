@@ -1,0 +1,51 @@
+rules:
+  - id: go.xcrypto.blake2b.hash-usage
+    message: Detected BLAKE2b hash usage
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/blake2b"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/blake2b"
+              ...
+      - pattern-either:
+          - patterns:
+              - pattern: blake2b.$FUNC
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^(?:New|Sum)(?<size>256|384|512)$"
+          - patterns:
+              - pattern: blake2b.New($SIZE, ...)
+              - metavariable-regex:
+                  metavariable: $SIZE
+                  regex: '^(?<size>\d+)$'
+          - patterns:
+              - pattern: blake2b.NewXOF($SIZE, ...)
+              - metavariable-regex:
+                  metavariable: $SIZE
+                  regex: '^(?<size>\d+)$'
+          - pattern: blake2b.New(...)
+          - pattern: blake2b.NewXOF(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/blake2b
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmPrimitive: hash
+        algorithmName: BLAKE2b-$size
+        algorithmFamily: BLAKE2b
+        algorithmParameterSetIdentifier: $size
+        library: golang.org/x/crypto/blake2b
+        api: blake2b.$FUNC

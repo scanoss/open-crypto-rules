@@ -1,0 +1,58 @@
+rules:
+  - id: go.crypto.x509.parse-pkcs1-key
+    message: Detected PKCS1 RSA key parsing/marshaling, algorithm=RSA
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern: x509.$FUNC($ARG)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>Parse|Marshal)PKCS1(?:Private|Public)Key$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-326
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: crypto/x509
+        api: x509.$func
+        materialSource: loaded
+        algorithmPrimitive: pke
+
+  - id: go.crypto.x509.parse-ec-private-key
+    message: Detected EC private key parsing via x509, algorithm=ECDSA
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern: x509.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>Parse|Marshal)ECPrivateKey$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-326
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        algorithmName: ECDSA
+        algorithmFamily: ECDSA
+        library: crypto/x509
+        api: x509.$func
+        materialSource: loaded
+        algorithmPrimitive: signature

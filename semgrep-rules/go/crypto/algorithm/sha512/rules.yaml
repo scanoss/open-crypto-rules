@@ -1,0 +1,108 @@
+rules:
+  - id: go.crypto.sha512.hash-usage-512
+    message: Detected SHA-512 hash usage
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha512.New
+          - pattern: sha512.Sum512
+          - pattern: crypto.SHA512
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/sha512
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmName: SHA-512
+        algorithmFamily: SHA-2
+        library: crypto/sha512
+        api: crypto.SHA512
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "512"
+
+  - id: go.crypto.sha512.hash-usage-384
+    message: Detected SHA-384 hash usage
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha512.New384
+          - pattern: sha512.Sum384
+          - pattern: crypto.SHA384
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/sha512
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmName: SHA-384
+        algorithmFamily: SHA-2
+        library: crypto/sha512
+        api: crypto.SHA384
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "384"
+
+  - id: go.crypto.sha512.hash-usage-512-224
+    message: Detected SHA-512/224 hash usage
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha512.New512_224
+          - pattern: sha512.Sum512_224
+          - pattern: crypto.SHA512_224
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/sha512
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmName: SHA-512/224
+        algorithmFamily: SHA-2
+        library: crypto/sha512
+        api: crypto.SHA512_224
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "224"
+
+  - id: go.crypto.sha512.hash-usage-512-256
+    message: Detected SHA-512/256 hash usage
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha512.New512_256
+          - pattern: sha512.Sum512_256
+          - pattern: crypto.SHA512_256
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/sha512
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmName: SHA-512/256
+        algorithmFamily: SHA-2
+        library: crypto/sha512
+        api: crypto.SHA512_256
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "256"

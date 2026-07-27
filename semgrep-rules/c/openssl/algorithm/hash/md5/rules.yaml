@@ -1,0 +1,82 @@
+rules:
+- id: c.openssl.algorithm.hash.md5
+  message: Detected MD5 hash function usage
+  mode: taint
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<algorithmname>MD5|RSA-MD5|md5WithRSAEncryption|ssl3-md5|SSL3-MD5)"'
+  - pattern: EVP_md5()
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit(?:_ex2?)?|EVP_MD_fetch)$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      operation: "digest"
+      algorithmPrimitive: hash
+      algorithmFamily: MD5
+      algorithmName: MD5
+      algorithmParameterSetIdentifier: '128'
+      library: OpenSSL
+      oid: 1.2.840.113549.2.5
+      api: $API
+- id: c.openssl.algorithm.hash.md5.generic
+  message: Detected MD5 hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<algorithmname>MD5|RSA-MD5|md5WithRSAEncryption|ssl3-md5|SSL3-MD5)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: MD5
+      algorithmName: MD5
+      algorithmParameterSetIdentifier: '128'
+      library: OpenSSL
+      oid: 1.2.840.113549.2.5
+- id: c.openssl.algorithm.hash.md5.constructor
+  message: Detected MD5 hash constructor usage
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: EVP_md5()
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: MD5
+      algorithmName: MD5
+      algorithmParameterSetIdentifier: '128'
+      library: OpenSSL
+      oid: 1.2.840.113549.2.5
+      api: EVP_md5

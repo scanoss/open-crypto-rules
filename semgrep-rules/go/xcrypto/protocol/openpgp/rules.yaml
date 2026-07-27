@@ -1,0 +1,206 @@
+rules:
+  - id: go.xcrypto.openpgp.encrypt
+    message: Detected OpenPGP encryption operation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/openpgp"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/openpgp"
+              ...
+      - pattern: openpgp.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>Encrypt|SymmetricallyEncrypt)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: encrypt
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.$func
+
+  - id: go.xcrypto.openpgp.decrypt
+    message: Detected OpenPGP decryption operation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/openpgp"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/openpgp"
+              ...
+      - pattern: openpgp.ReadMessage(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: cipher
+        operation: decrypt
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.ReadMessage
+
+  - id: go.xcrypto.openpgp.sign
+    message: Detected OpenPGP signing operation
+    severity: INFO
+    languages: [go]
+    pattern-either:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/openpgp"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/openpgp"
+                  ...
+          - pattern: openpgp.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>Sign|DetachSign|DetachSignText|ArmoredDetachSign|ArmoredDetachSignText)$"
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/openpgp"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/openpgp"
+                  ...
+          - pattern: $ENTITY.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>SignIdentity)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: signature
+        operation: sign
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.$func
+
+  - id: go.xcrypto.openpgp.verify
+    message: Detected OpenPGP signature verification operation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/openpgp"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/openpgp"
+              ...
+      - pattern: openpgp.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(?<func>CheckDetachedSignature|CheckArmoredDetachedSignature)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: signature
+        operation: verify
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.$func
+
+  - id: go.xcrypto.openpgp.keygen
+    message: Detected OpenPGP key generation or key material operation
+    severity: INFO
+    languages: [go]
+    pattern-either:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/openpgp"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/openpgp"
+                  ...
+          - pattern: openpgp.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>NewEntity|ReadEntity|ReadKeyRing|ReadArmoredKeyRing)$"
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/openpgp"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/openpgp"
+                  ...
+          - pattern: $ENTITY.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>Serialize|SerializePrivate)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/openpgp
+      crypto:
+        assetType: protocol
+        findingType: key_generation
+        operation: keygen
+        protocolName: OpenPGP
+        protocolType: other
+        library: golang.org/x/crypto/openpgp
+        api: openpgp.$func

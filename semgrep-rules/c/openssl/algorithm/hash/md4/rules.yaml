@@ -1,0 +1,82 @@
+rules:
+- id: c.openssl.algorithm.hash.md4
+  message: Detected MD4 hash function usage
+  mode: taint
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<algorithmname>MD4|RSA-MD4|md4WithRSAEncryption)"'
+  - pattern: EVP_md4()
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit(?:_ex2?)?|EVP_MD_fetch)$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      operation: "digest"
+      algorithmPrimitive: hash
+      algorithmFamily: MD4
+      algorithmName: MD4
+      algorithmParameterSetIdentifier: '128'
+      library: OpenSSL
+      oid: 1.2.840.113549.2.4
+      api: $API
+- id: c.openssl.algorithm.hash.md4.generic
+  message: Detected MD4 hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<algorithmname>MD4|RSA-MD4|md4WithRSAEncryption)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: MD4
+      algorithmName: MD4
+      algorithmParameterSetIdentifier: '128'
+      library: OpenSSL
+      oid: 1.2.840.113549.2.4
+- id: c.openssl.algorithm.hash.md4.constructor
+  message: Detected MD4 hash constructor usage
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: EVP_md4()
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: MD4
+      algorithmName: MD4
+      algorithmParameterSetIdentifier: '128'
+      library: OpenSSL
+      oid: 1.2.840.113549.2.4
+      api: EVP_md4

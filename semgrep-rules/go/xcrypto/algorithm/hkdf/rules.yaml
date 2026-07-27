@@ -1,0 +1,126 @@
+rules:
+  - id: go.xcrypto.hkdf.new
+    message: Detected HKDF key derivation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/hkdf"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/hkdf"
+              ...
+      - pattern-either:
+          - patterns:
+              - pattern: hkdf.New($HASH, ...)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.New'
+          - pattern: hkdf.New(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/hkdf
+      crypto:
+        assetType: algorithm
+        findingType: kdf
+        operation: "keyderive"
+        algorithmPrimitive: kdf
+        algorithmName: HKDF-$hash
+        algorithmFamily: HKDF
+        algorithmParameterSetIdentifier: HKDF-$hash
+        library: golang.org/x/crypto/hkdf
+        api: hkdf.New
+        custom:hashAlgorithm: $hash
+        materialSource: derived
+
+  - id: go.xcrypto.hkdf.extract
+    message: Detected HKDF extract operation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/hkdf"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/hkdf"
+              ...
+      - pattern-either:
+          - patterns:
+              - pattern: hkdf.Extract($HASH, ...)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.New'
+          - pattern: hkdf.Extract(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/hkdf
+      crypto:
+        assetType: algorithm
+        findingType: kdf
+        operation: "keyderive"
+        algorithmPrimitive: kdf
+        algorithmName: HKDF-$hash
+        algorithmFamily: HKDF
+        algorithmParameterSetIdentifier: HKDF-$hash
+        library: golang.org/x/crypto/hkdf
+        api: hkdf.Extract
+        custom:hashAlgorithm: $hash
+        materialSource: derived
+
+  - id: go.xcrypto.hkdf.expand
+    message: Detected HKDF expand operation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/hkdf"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/hkdf"
+              ...
+      - pattern-either:
+          - patterns:
+              - pattern: hkdf.Expand($HASH, ...)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha224|sha384|sha512_224|sha512_256|sha1|md5)\.New'
+          - pattern: hkdf.Expand(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/hkdf
+      crypto:
+        assetType: algorithm
+        findingType: kdf
+        operation: "keyderive"
+        algorithmPrimitive: kdf
+        algorithmName: HKDF-$hash
+        algorithmFamily: HKDF
+        algorithmParameterSetIdentifier: HKDF-$hash
+        library: golang.org/x/crypto/hkdf
+        api: hkdf.Expand
+        custom:hashAlgorithm: $hash
+        materialSource: derived

@@ -1,0 +1,45 @@
+rules:
+  - id: go.xcrypto.blake2s.hash-usage
+    message: Detected BLAKE2s hash usage
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/blake2s"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/blake2s"
+              ...
+      - pattern-either:
+          - patterns:
+              - pattern: blake2s.$FUNC
+              - metavariable-regex:
+                  metavariable: $FUNC
+                  regex: "^(?:New|Sum)(?<size>128|256)$"
+          - patterns:
+              - pattern: blake2s.NewXOF($SIZE, ...)
+              - metavariable-regex:
+                  metavariable: $SIZE
+                  regex: '^(?<size>\d+)$'
+          - pattern: blake2s.NewXOF(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/blake2s
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmPrimitive: hash
+        algorithmName: BLAKE2s-$size
+        algorithmFamily: BLAKE2s
+        algorithmParameterSetIdentifier: $size
+        library: golang.org/x/crypto/blake2s
+        api: blake2s.$FUNC

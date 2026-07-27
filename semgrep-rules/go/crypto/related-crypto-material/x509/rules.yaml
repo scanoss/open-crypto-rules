@@ -1,0 +1,78 @@
+rules:
+  - id: go.crypto.x509.pkix-public-key
+    message: Detected PKIX public key operation
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern: x509.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>Parse|Marshal)PKIXPublicKey$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: related-crypto-material
+        findingType: key_generation
+        operation: keygen
+        materialType: public-key
+        library: crypto/x509
+        api: x509.$func
+        materialSource: loaded
+
+  - id: go.crypto.x509.parse-pkcs8-private-key
+    message: Detected PKCS8 private key operation
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern: x509.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>Parse|Marshal)PKCS8PrivateKey$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: related-crypto-material
+        findingType: key_generation
+        operation: keygen
+        materialType: private-key
+        library: crypto/x509
+        api: x509.$func
+        materialSource: loaded
+
+  - id: go.crypto.x509.pem-block
+    message: Detected PEM block encryption/decryption operation
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern: x509.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: "^(?<func>DecryptPEMBlock|EncryptPEMBlock|IsEncryptedPEMBlock)$"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/x509
+      crypto:
+        assetType: related-crypto-material
+        findingType: key_generation
+        operation: keygen
+        materialType: private-key
+        library: crypto/x509
+        api: x509.$func
+        materialSource: loaded

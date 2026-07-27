@@ -1,0 +1,35 @@
+rules:
+  - id: go.crypto.rc4.usage
+    message: Detected RC4 cipher usage, algorithm=RC4
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - patterns:
+          - pattern-either:
+              - pattern: rc4.NewCipher(make([]byte, $KEYSIZE))
+              - pattern: |
+                  $KEY := make([]byte, $KEYSIZE)
+                  ...
+                  rc4.NewCipher($KEY)
+              - pattern: rc4.NewCipher($KEY)
+          - metavariable-regex:
+              metavariable: $KEYSIZE
+              regex: '^(?<keysize>[1-9]|[1-9]\d|1\d{2}|2[0-4]\d|25[0-6])$'
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe:
+        - CWE-327
+      references:
+        - https://pkg.go.dev/crypto/rc4
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        algorithmName: RC4
+        algorithmFamily: RC4
+        library: crypto/rc4
+        api: rc4.NewCipher
+        algorithmPrimitive: stream-cipher
+        algorithmParameterSetIdentifier: $keysize

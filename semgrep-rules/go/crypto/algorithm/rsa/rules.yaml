@@ -1,0 +1,382 @@
+rules:
+  - id: go.crypto.rsa.key-generation
+    message: Detected RSA key generation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: rsa.GenerateKey($RANDOM, $BITS)
+              - metavariable-regex:
+                  metavariable: $BITS
+                  regex: ^(?<keysize>\d+)$
+          - pattern: rsa.GenerateKey($RANDOM, $BITS)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: "keygen"
+        algorithmPrimitive: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        algorithmParameterSetIdentifier: $keysize
+        library: crypto/rsa
+        api: rsa.GenerateKey
+        materialSource: generated
+
+  - id: go.crypto.rsa.multi-prime-key-generation
+    message: Detected RSA multi-prime key generation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - patterns:
+          - pattern: rsa.GenerateMultiPrimeKey($RANDOM, $NPRIMES, $BITS)
+          - metavariable-regex:
+              metavariable: $BITS
+              regex: ^(?<keysize>\d+)$
+          - metavariable-regex:
+              metavariable: $NPRIMES
+              regex: ^(?<nprimes>\d+)$
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      cwe: [CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        operation: "keygen"
+        algorithmPrimitive: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        algorithmParameterSetIdentifier: $keysize
+        library: crypto/rsa
+        api: rsa.GenerateMultiPrimeKey
+        materialSource: generated
+
+  - id: go.crypto.rsa.encrypt-pkcs1v15
+    message: Detected RSA-PKCS1v15 encryption
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern: rsa.EncryptPKCS1v15(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "encrypt"
+        algorithmPrimitive: pke
+        algorithmName: RSA-PKCS1v15
+        algorithmFamily: RSA
+        library: crypto/rsa
+        api: rsa.EncryptPKCS1v15
+
+  - id: go.crypto.rsa.decrypt-pkcs1v15
+    message: Detected RSA-PKCS1v15 decryption
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern: rsa.$FUNC(...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: ^DecryptPKCS1v15(?:SessionKey)?$
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "decrypt"
+        algorithmPrimitive: pke
+        algorithmName: RSA-PKCS1v15
+        algorithmFamily: RSA
+        library: crypto/rsa
+        api: rsa.$FUNC
+
+  - id: go.crypto.rsa.encrypt-oaep
+    message: Detected RSA-OAEP encryption
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: rsa.EncryptOAEP($HASH, ...)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha1|md5)\.New\(\)'
+          - patterns:
+              - pattern: rsa.EncryptOAEP($HASH, ...)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(?<hash>SHA256|SHA512|SHA1|MD5)\.New\(\)'
+          - pattern: rsa.EncryptOAEP($HASH, ...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "encrypt"
+        algorithmPrimitive: pke
+        algorithmName: RSA-OAEP-$hash
+        algorithmFamily: RSA
+        library: crypto/rsa
+        api: rsa.EncryptOAEP
+
+  - id: go.crypto.rsa.decrypt-oaep
+    message: Detected RSA-OAEP decryption
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: rsa.DecryptOAEP($HASH, ...)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: '(?<hash>sha256|sha512|sha1|md5)\.New\(\)'
+          - patterns:
+              - pattern: rsa.DecryptOAEP($HASH, ...)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(?<hash>SHA256|SHA512|SHA1|MD5)\.New\(\)'
+          - pattern: rsa.DecryptOAEP($HASH, ...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "decrypt"
+        algorithmPrimitive: pke
+        algorithmName: RSA-OAEP-$hash
+        algorithmFamily: RSA
+        library: crypto/rsa
+        api: rsa.DecryptOAEP
+
+  - id: go.crypto.rsa.sign
+    message: Detected RSA signature operation
+    severity: INFO
+    languages: [go]
+    patterns:
+      - patterns:
+          - pattern: rsa.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: ^(?<func>Sign(?:PKCS1v15|PSS))$
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "sign"
+        algorithmPrimitive: signature
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: crypto/rsa
+        api: rsa.$func
+
+  - id: go.crypto.rsa.verify
+    message: Detected RSA signature verification
+    severity: INFO
+    languages: [go]
+    patterns:
+      - patterns:
+          - pattern: rsa.$FUNC(...)
+          - metavariable-regex:
+              metavariable: $FUNC
+              regex: ^(?<func>Verify(?:PKCS1v15|PSS))$
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        operation: "verify"
+        algorithmPrimitive: signature
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: crypto/rsa
+        api: rsa.$func
+
+  - id: go.crypto.rsa.key-type
+    message: Detected RSA key type declaration
+    severity: INFO
+    languages: [go]
+    patterns:
+      - patterns:
+          - pattern-either:
+              - pattern: var $VAR *rsa.$KEY_TYPE
+              - pattern: var $VAR rsa.$KEY_TYPE
+              - pattern: $VAR := &rsa.$KEY_TYPE{...}
+              - pattern: $VAR := rsa.$KEY_TYPE{...}
+          - metavariable-regex:
+              metavariable: $KEY_TYPE
+              regex: ^(?<keytype>Private|Public)Key$
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: MEDIUM
+      cwe: [CWE-326]
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: key_generation
+        algorithmPrimitive: pke
+        algorithmName: RSA
+        algorithmFamily: RSA
+        library: crypto/rsa
+        api: rsa.$keytype
+
+  - id: go.crypto.rsa.sign-pkcs1v15
+    message: Detected RSA-PKCS1v15 signing
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: rsa.SignPKCS1v15(..., $HASH, ...)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(?<hash>SHA256|SHA512|SHA1)'
+          - pattern: rsa.SignPKCS1v15(..., $HASH, ...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        algorithmPrimitive: signature
+        algorithmName: RSA-PKCS1v15-$hash
+        algorithmFamily: RSA
+        library: crypto/rsa
+        api: rsa.SignPKCS1v15
+
+  - id: go.crypto.rsa.verify-pkcs1v15
+    message: Detected RSA-PKCS1v15 verification
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: rsa.VerifyPKCS1v15(..., $HASH, ...)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(?<hash>SHA256|SHA512|SHA1)'
+          - pattern: rsa.VerifyPKCS1v15(..., $HASH, ...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        algorithmPrimitive: signature
+        algorithmName: RSA-PKCS1v15-$hash
+        algorithmFamily: RSA
+        library: crypto/rsa
+        api: rsa.VerifyPKCS1v15
+
+  - id: go.crypto.rsa.sign-pss
+    message: Detected RSA-PSS signing
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: rsa.SignPSS(..., $HASH, ...)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(?<hash>SHA256|SHA512|SHA1)'
+          - patterns:
+              - pattern: |
+                  $OPTS := &rsa.PSSOptions{Hash: $HASH, ...}
+                  ...
+                  rsa.SignPSS(..., $OPTS)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(?<hash>SHA256|SHA512|SHA1)'
+          - pattern: rsa.SignPSS(..., $HASH, ...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        algorithmPrimitive: signature
+        algorithmName: RSA-PSS-$hash
+        algorithmFamily: RSA
+        library: crypto/rsa
+        api: rsa.SignPSS
+
+  - id: go.crypto.rsa.verify-pss
+    message: Detected RSA-PSS verification
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: rsa.VerifyPSS(..., $HASH, ...)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(?<hash>SHA256|SHA512|SHA1)'
+          - patterns:
+              - pattern: |
+                  $OPTS := &rsa.PSSOptions{Hash: $HASH, ...}
+                  ...
+                  rsa.VerifyPSS(..., $OPTS)
+              - metavariable-regex:
+                  metavariable: $HASH
+                  regex: 'crypto\.(?<hash>SHA256|SHA512|SHA1)'
+          - pattern: rsa.VerifyPSS(..., $HASH, ...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/rsa
+      crypto:
+        assetType: algorithm
+        findingType: signature
+        algorithmPrimitive: signature
+        algorithmName: RSA-PSS-$hash
+        algorithmFamily: RSA
+        library: crypto/rsa
+        api: rsa.VerifyPSS

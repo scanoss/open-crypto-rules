@@ -1,0 +1,44 @@
+rules:
+  - id: rust.openssl.sha512.hash-usage
+    message: Detected SHA-512 hash usage
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: sha::Sha512::new()
+                  - pattern: sha512(...)
+                  - pattern: MessageDigest::sha512()
+                  - pattern: Md::sha512()
+                  - pattern: md::Md::sha512()
+                  - pattern: MessageDigest::from_nid(Nid::SHA512)
+                  - pattern: Md::from_nid(Nid::SHA512)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+          - pattern: openssl::sha::sha512(...)
+          - pattern: openssl::sha::Sha512::new()
+          - pattern: openssl::hash::MessageDigest::sha512()
+          - pattern: openssl::md::Md::sha512()
+          - pattern: openssl::hash::MessageDigest::from_nid(openssl::nid::Nid::SHA512)
+          - pattern: openssl::md::Md::from_nid(openssl::nid::Nid::SHA512)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmName: SHA-512
+        algorithmFamily: SHA-2
+        library: openssl
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "512"
+

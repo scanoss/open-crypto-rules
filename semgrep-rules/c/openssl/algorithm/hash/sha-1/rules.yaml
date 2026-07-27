@@ -1,0 +1,82 @@
+rules:
+- id: c.openssl.algorithm.hash.sha-1
+  message: Detected SHA-1 hash function usage
+  mode: taint
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<algorithmname>SHA1|SHA-1|RSA-SHA1|sha1WithRSAEncryption|ssl3-sha1|SSL3-SHA1|dsaWithSHA1|DSA-SHA1|ecdsa-with-SHA1)"'
+  - pattern: EVP_sha1()
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit(?:_ex2?)?|EVP_MD_fetch)$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      operation: "digest"
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-1
+      algorithmName: SHA-1
+      algorithmParameterSetIdentifier: '160'
+      library: OpenSSL
+      oid: 1.3.14.3.2.26
+      api: $API
+- id: c.openssl.algorithm.hash.sha-1.generic
+  message: Detected SHA-1 hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<algorithmname>SHA1|SHA-1|RSA-SHA1|sha1WithRSAEncryption|ssl3-sha1|SSL3-SHA1|dsaWithSHA1|DSA-SHA1|ecdsa-with-SHA1)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-1
+      algorithmName: SHA-1
+      algorithmParameterSetIdentifier: '160'
+      library: OpenSSL
+      oid: 1.3.14.3.2.26
+- id: c.openssl.algorithm.hash.sha-1.constructor
+  message: Detected SHA-1 hash constructor usage
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: EVP_sha1()
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: SHA-1
+      algorithmName: SHA-1
+      algorithmParameterSetIdentifier: '160'
+      library: OpenSSL
+      oid: 1.3.14.3.2.26
+      api: EVP_sha1

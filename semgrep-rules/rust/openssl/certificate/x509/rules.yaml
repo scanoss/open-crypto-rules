@@ -1,0 +1,659 @@
+rules:
+  - id: rust.openssl.x509.from-pem
+    message: Detected X.509 certificate loading from PEM
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::x509::X509::from_pem($DATA)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: X509::from_pem($DATA)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: load
+        certificateFormat: PEM
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.from-der
+    message: Detected X.509 certificate loading from DER
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::x509::X509::from_der($DATA)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: X509::from_der($DATA)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: load
+        certificateFormat: DER
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.stack-from-pem
+    message: Detected multiple X.509 certificates loading from PEM
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::x509::X509::stack_from_pem($DATA)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: X509::stack_from_pem($DATA)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: load
+        certificateFormat: PEM
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.builder
+    message: Detected X.509 certificate builder creation
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::x509::X509::builder()
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: X509::builder()
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: generate
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.sign
+    message: Detected X.509 certificate signing
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509::builder()
+          - pattern: X509::builder()
+    pattern-sinks:
+      - pattern: $BUILDER.sign($KEY, $DIGEST)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: sign
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.to-pem
+    message: Detected X.509 certificate export to PEM
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509::from_pem($DATA)
+          - pattern: openssl::x509::X509::from_der($DATA)
+          - pattern: openssl::x509::X509::builder()
+          - pattern: X509::from_pem($DATA)
+          - pattern: X509::from_der($DATA)
+          - pattern: X509::builder()
+    pattern-sinks:
+      - pattern: $CERT.to_pem()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: serialize
+        certificateFormat: PEM
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.to-der
+    message: Detected X.509 certificate export to DER
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509::from_pem($DATA)
+          - pattern: openssl::x509::X509::from_der($DATA)
+          - pattern: openssl::x509::X509::builder()
+          - pattern: X509::from_pem($DATA)
+          - pattern: X509::from_der($DATA)
+          - pattern: X509::builder()
+    pattern-sinks:
+      - pattern: $CERT.to_der()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: serialize
+        certificateFormat: DER
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.verify-signature
+    message: Detected X.509 certificate signature verification
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509::from_pem($DATA)
+          - pattern: openssl::x509::X509::from_der($DATA)
+          - pattern: X509::from_pem($DATA)
+          - pattern: X509::from_der($DATA)
+    pattern-sinks:
+      - pattern: $CERT.verify($KEY)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: verify
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.store-builder
+    message: Detected X.509 trust store builder creation
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::x509::store::X509StoreBuilder::new()
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: X509StoreBuilder::new()
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: store
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.store-add-cert
+    message: Detected X.509 certificate added to trust store
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::store::X509StoreBuilder::new()
+          - pattern: X509StoreBuilder::new()
+    pattern-sinks:
+      - pattern: $STORE.add_cert($CERT)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: store
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.store-context
+    message: Detected X.509 verification context creation
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::x509::X509StoreContext::new()
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: X509StoreContext::new()
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: verify
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.verify-cert
+    message: Detected X.509 certificate chain verification
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509StoreContext::new()
+          - pattern: X509StoreContext::new()
+    pattern-sinks:
+      - pattern: $CTX.init($STORE, $CERT, $CHAIN, $CALLBACK)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: certificate
+        operation: verify
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.req-from-pem
+    message: Detected X.509 CSR loading from PEM
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::x509::X509Req::from_pem($DATA)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: X509Req::from_pem($DATA)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: csr
+        operation: load
+        certificateFormat: PEM
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.req-from-der
+    message: Detected X.509 CSR loading from DER
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::x509::X509Req::from_der($DATA)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: X509Req::from_der($DATA)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: csr
+        operation: load
+        certificateFormat: DER
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.req-builder
+    message: Detected X.509 CSR builder creation
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::x509::X509Req::builder()
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: X509Req::builder()
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: csr
+        operation: generate
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.req-sign
+    message: Detected X.509 CSR signing
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509Req::builder()
+          - pattern: X509Req::builder()
+    pattern-sinks:
+      - pattern: $BUILDER.sign($KEY, $DIGEST)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: csr
+        operation: sign
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.req-to-pem
+    message: Detected X.509 CSR export to PEM
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509Req::from_pem($DATA)
+          - pattern: openssl::x509::X509Req::from_der($DATA)
+          - pattern: openssl::x509::X509Req::builder()
+          - pattern: X509Req::from_pem($DATA)
+          - pattern: X509Req::from_der($DATA)
+          - pattern: X509Req::builder()
+    pattern-sinks:
+      - pattern: $REQ.to_pem()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: csr
+        operation: serialize
+        certificateFormat: PEM
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.req-to-der
+    message: Detected X.509 CSR export to DER
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509Req::from_pem($DATA)
+          - pattern: openssl::x509::X509Req::from_der($DATA)
+          - pattern: openssl::x509::X509Req::builder()
+          - pattern: X509Req::from_pem($DATA)
+          - pattern: X509Req::from_der($DATA)
+          - pattern: X509Req::builder()
+    pattern-sinks:
+      - pattern: $REQ.to_der()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: csr
+        operation: serialize
+        certificateFormat: DER
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.req-verify
+    message: Detected X.509 CSR signature verification
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509Req::from_pem($DATA)
+          - pattern: openssl::x509::X509Req::from_der($DATA)
+          - pattern: X509Req::from_pem($DATA)
+          - pattern: X509Req::from_der($DATA)
+    pattern-sinks:
+      - pattern: $REQ.verify($KEY)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: csr
+        operation: verify
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.crl-from-pem
+    message: Detected X.509 CRL loading from PEM
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::x509::X509Crl::from_pem($DATA)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: X509Crl::from_pem($DATA)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: crl
+        operation: load
+        certificateFormat: PEM
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.crl-from-der
+    message: Detected X.509 CRL loading from DER
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::x509::X509Crl::from_der($DATA)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: X509Crl::from_der($DATA)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: crl
+        operation: load
+        certificateFormat: DER
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.crl-verify
+    message: Detected X.509 CRL signature verification
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509Crl::from_pem($DATA)
+          - pattern: openssl::x509::X509Crl::from_der($DATA)
+          - pattern: X509Crl::from_pem($DATA)
+          - pattern: X509Crl::from_der($DATA)
+    pattern-sinks:
+      - pattern: $CRL.verify($KEY)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: crl
+        operation: verify
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.crl-to-pem
+    message: Detected X.509 CRL export to PEM
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509Crl::from_pem($DATA)
+          - pattern: openssl::x509::X509Crl::from_der($DATA)
+          - pattern: X509Crl::from_pem($DATA)
+          - pattern: X509Crl::from_der($DATA)
+    pattern-sinks:
+      - pattern: $CRL.to_pem()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: crl
+        operation: serialize
+        certificateFormat: PEM
+        library: openssl
+        algorithmFamily: X509
+
+  - id: rust.openssl.x509.crl-to-der
+    message: Detected X.509 CRL export to DER
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::x509::X509Crl::from_pem($DATA)
+          - pattern: openssl::x509::X509Crl::from_der($DATA)
+          - pattern: X509Crl::from_pem($DATA)
+          - pattern: X509Crl::from_der($DATA)
+    pattern-sinks:
+      - pattern: $CRL.to_der()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: certificate
+        findingType: crl
+        operation: serialize
+        certificateFormat: DER
+        library: openssl
+        algorithmFamily: X509

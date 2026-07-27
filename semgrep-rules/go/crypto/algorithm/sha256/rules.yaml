@@ -1,0 +1,54 @@
+rules:
+  - id: go.crypto.sha256.hash-usage-256
+    message: Detected SHA-2 hash usage
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+        - pattern: sha256.New
+        - pattern: sha256.Sum256
+        - pattern: crypto.SHA256
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/sha256
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmName: SHA-256
+        algorithmFamily: SHA-2
+        library: crypto/sha256
+        api: crypto.SHA256
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "256"
+
+  - id: go.crypto.sha256.hash-usage-224
+    message: Detected SHA-224 hash usage
+    severity: INFO
+    languages:
+      - go
+    patterns:
+      - pattern-either:
+          - pattern: sha256.New224
+          - pattern: sha256.Sum224
+          - pattern: crypto.SHA224
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/crypto/sha256
+      crypto:
+        assetType: algorithm
+        findingType: hash
+        operation: "digest"
+        algorithmName: SHA-224
+        algorithmFamily: SHA-2
+        library: crypto/sha256
+        api: crypto.SHA224
+        algorithmPrimitive: hash
+        algorithmParameterSetIdentifier: "224"

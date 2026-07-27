@@ -1,0 +1,999 @@
+rules:
+  - id: rust.openssl.tls.ssl-acceptor-modern
+    message: Detected TLS server configuration using mozilla_modern preset
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: SslAcceptor::mozilla_modern($METHOD)
+                  - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: init
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        securityProfile: mozilla_modern
+
+  - id: rust.openssl.tls.ssl-acceptor-intermediate
+    message: Detected TLS server configuration using mozilla_intermediate preset
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+                  - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: init
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        securityProfile: mozilla_intermediate
+
+  - id: rust.openssl.tls.ssl-connector-builder
+    message: Detected TLS client connector builder
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: SslConnector::builder($METHOD)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: init
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+
+  - id: rust.openssl.tls.ssl-context-builder
+    message: Detected TLS context builder
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: SslContext::builder($METHOD)
+                  - pattern: SslContextBuilder::new($METHOD)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: init
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+
+  - id: rust.openssl.tls.ssl-method-tls
+    message: Detected TLS method selection
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ssl::SslMethod::tls()
+          - pattern: openssl::ssl::SslMethod::tls_client()
+          - pattern: openssl::ssl::SslMethod::tls_server()
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: SslMethod::tls()
+                  - pattern: SslMethod::tls_client()
+                  - pattern: SslMethod::tls_server()
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: init
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+
+  - id: rust.openssl.tls.ssl-method-dtls
+    message: Detected DTLS method selection
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ssl::SslMethod::dtls()
+          - pattern: openssl::ssl::SslMethod::dtls_client()
+          - pattern: openssl::ssl::SslMethod::dtls_server()
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern-either:
+                  - pattern: SslMethod::dtls()
+                  - pattern: SslMethod::dtls_client()
+                  - pattern: SslMethod::dtls_server()
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: init
+        protocolName: DTLS
+        algorithmFamily: TLS
+        library: openssl
+
+  - id: rust.openssl.tls.set-private-key-file
+    message: Detected TLS private key file configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_private_key_file($PATH, $FILETYPE)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: private_key
+
+  - id: rust.openssl.tls.set-private-key
+    message: Detected TLS private key configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_private_key($KEY)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: private_key
+
+  - id: rust.openssl.tls.set-certificate-chain-file
+    message: Detected TLS certificate chain file configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_certificate_chain_file($PATH)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: certificate_chain
+
+  - id: rust.openssl.tls.set-certificate-file
+    message: Detected TLS certificate file configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_certificate_file($PATH, $FILETYPE)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: certificate
+
+  - id: rust.openssl.tls.set-certificate
+    message: Detected TLS certificate configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_certificate($CERT)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: certificate
+
+  - id: rust.openssl.tls.set-ca-file
+    message: Detected TLS CA file configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_ca_file($PATH)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: ca_certificate
+
+  - id: rust.openssl.tls.load-verify-locations
+    message: Detected TLS CA verification locations configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.load_verify_locations($CA_FILE, $CA_PATH)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: ca_certificate
+
+  - id: rust.openssl.tls.set-default-verify-paths
+    message: Detected TLS default system CA configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_default_verify_paths()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: ca_certificate
+
+  - id: rust.openssl.tls.set-cipher-list
+    message: Detected TLS 1.2 cipher list configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_cipher_list($CIPHERS)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: cipher_list
+
+  - id: rust.openssl.tls.set-ciphersuites
+    message: Detected TLS 1.3 cipher suites configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_ciphersuites($CIPHERS)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: cipher_suites
+
+  - id: rust.openssl.tls.set-min-proto-version
+    message: Detected TLS minimum protocol version configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_min_proto_version($VERSION)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: protocol_version
+
+  - id: rust.openssl.tls.set-max-proto-version
+    message: Detected TLS maximum protocol version configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_max_proto_version($VERSION)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: protocol_version
+
+  - id: rust.openssl.tls.set-alpn-protos
+    message: Detected TLS ALPN protocol configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_alpn_protos($PROTOS)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: alpn
+
+  - id: rust.openssl.tls.set-verify
+    message: Detected TLS verification mode configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_verify($MODE)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: verification
+
+  - id: rust.openssl.tls.set-groups-list
+    message: Detected TLS key exchange groups configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_groups_list($GROUPS)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: key_exchange_groups
+
+  - id: rust.openssl.tls.set-sigalgs-list
+    message: Detected TLS signature algorithms configuration
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: openssl::ssl::SslContext::builder($METHOD)
+          - pattern: openssl::ssl::SslContextBuilder::new($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+          - pattern: SslContext::builder($METHOD)
+          - pattern: SslContextBuilder::new($METHOD)
+    pattern-sinks:
+      - pattern: $BUILDER.set_sigalgs_list($SIGALGS)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: configure
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        configType: signature_algorithms
+
+  - id: rust.openssl.tls.ssl-new
+    message: Detected SSL object creation
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ssl::Ssl::new($CTX)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: Ssl::new($CTX)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: init
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+
+  - id: rust.openssl.tls.ssl-connect
+    message: Detected TLS client handshake
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::Ssl::new($CTX)
+          - pattern: Ssl::new($CTX)
+    pattern-sinks:
+      - pattern: $SSL.connect($STREAM)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: handshake
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        role: client
+
+  - id: rust.openssl.tls.ssl-accept
+    message: Detected TLS server handshake
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::Ssl::new($CTX)
+          - pattern: Ssl::new($CTX)
+    pattern-sinks:
+      - pattern: $SSL.accept($STREAM)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: handshake
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        role: server
+
+  - id: rust.openssl.tls.acceptor-accept
+    message: Detected TLS server accept connection
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: openssl::ssl::SslAcceptor::mozilla_intermediate_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_modern($METHOD)
+          - pattern: SslAcceptor::mozilla_modern_v5($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate($METHOD)
+          - pattern: SslAcceptor::mozilla_intermediate_v5($METHOD)
+    pattern-sinks:
+      - pattern: $ACCEPTOR.accept($STREAM)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: handshake
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        role: server
+
+  - id: rust.openssl.tls.connector-connect
+    message: Detected TLS client connect
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslConnector::builder($METHOD)
+          - pattern: SslConnector::builder($METHOD)
+    pattern-sinks:
+      - pattern: $CONNECTOR.connect($DOMAIN, $STREAM)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: handshake
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+        role: client
+
+  - id: rust.openssl.tls.stream-new
+    message: Detected TLS stream creation
+    severity: INFO
+    languages: [rust]
+    patterns:
+      - pattern-either:
+          - pattern: openssl::ssl::SslStream::new($SSL, $STREAM)
+          - patterns:
+              - pattern-inside: |
+                  use $IMPORT;
+                  ...
+              - pattern: SslStream::new($SSL, $STREAM)
+              - metavariable-regex:
+                  metavariable: $IMPORT
+                  regex: ".*openssl.*"
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: init
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl
+
+  - id: rust.openssl.tls.stream-handshake
+    message: Detected TLS stream handshake
+    severity: INFO
+    mode: taint
+    languages: [rust]
+    pattern-sources:
+      - pattern-either:
+          - pattern: openssl::ssl::SslStream::new($SSL, $STREAM)
+          - pattern: SslStream::new($SSL, $STREAM)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $STREAM.connect()
+          - pattern: $STREAM.accept()
+          - pattern: $STREAM.do_handshake()
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://docs.rs/openssl/
+      crypto:
+        assetType: protocol
+        findingType: protocol
+        operation: handshake
+        protocolName: TLS
+        algorithmFamily: TLS
+        library: openssl

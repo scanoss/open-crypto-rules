@@ -1,0 +1,63 @@
+rules:
+- id: c.openssl.algorithm.hash.sm3
+  message: Detected SM3 hash function usage
+  mode: taint
+  options:
+    interfile: true
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  pattern-sources:
+  - patterns:
+    - pattern: $ALGO
+    - metavariable-regex:
+        metavariable: $ALGO
+        regex: '"(?<algorithmname>SM3|sm3)"'
+  - pattern: EVP_sm3()
+  pattern-sinks:
+  - patterns:
+    - pattern-either:
+      - pattern: $API($ALGO)
+      - pattern: $API($CTX, $ALGO, ...)
+    - metavariable-regex:
+        metavariable: $API
+        regex: ^(?:EVP_get_digestbyname|EVP_Q_digest|EVP_DigestInit_ex2?|EVP_MD_fetch)$
+    - focus-metavariable: $ALGO
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: HIGH
+    crypto:
+      assetType: algorithm
+      operation: "digest"
+      algorithmPrimitive: hash
+      algorithmFamily: SM3
+      algorithmName: SM3
+      algorithmParameterSetIdentifier: '256'
+      library: OpenSSL
+      oid: 1.2.156.10197.1.401
+      api: $API
+- id: c.openssl.algorithm.hash.sm3.generic
+  message: Detected SM3 hash algorithm name
+  severity: INFO
+  languages:
+  - c
+  - cpp
+  patterns:
+  - pattern: $ALGO
+  - metavariable-regex:
+      metavariable: $ALGO
+      regex: '"(?<algorithmname>SM3|sm3)"'
+  metadata:
+    category: security
+    subcategory: cryptography
+    confidence: MEDIUM
+    crypto:
+      assetType: algorithm
+      algorithmPrimitive: hash
+      algorithmFamily: SM3
+      algorithmName: SM3
+      algorithmParameterSetIdentifier: '256'
+      library: OpenSSL
+      oid: 1.2.156.10197.1.401

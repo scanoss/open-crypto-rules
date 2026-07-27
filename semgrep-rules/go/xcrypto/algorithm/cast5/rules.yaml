@@ -1,0 +1,50 @@
+rules:
+  - id: go.xcrypto.cast5.block-cipher
+    message: Detected CAST5 block cipher usage, algorithm=CAST5
+    severity: INFO
+    languages: [go]
+    pattern-either:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/cast5"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/cast5"
+                  ...
+          - pattern: cast5.NewCipher(make([]byte, $SIZE))
+          - metavariable-regex:
+              metavariable: $SIZE
+              regex: '^(?<keysize>\d+)$'
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  import (
+                    ...
+                    "golang.org/x/crypto/cast5"
+                    ...
+                  )
+                  ...
+              - pattern-inside: |
+                  import "golang.org/x/crypto/cast5"
+                  ...
+          - pattern: cast5.NewCipher(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/cast5
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        algorithmPrimitive: block-cipher
+        algorithmName: CAST5
+        algorithmFamily: CAST5
+        algorithmParameterSetIdentifier: $keysize
+        library: golang.org/x/crypto/cast5
+        api: cast5.NewCipher

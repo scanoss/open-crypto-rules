@@ -1,0 +1,70 @@
+rules:
+  - id: go.xcrypto.nacl.secretbox.encrypt
+    message: Detected NaCl secretbox encryption operation, algorithm=XSalsa20-Poly1305
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/nacl/secretbox"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/nacl/secretbox"
+              ...
+      - pattern-either:
+          - pattern: secretbox.Seal(...)
+          - pattern: secretbox.Overhead
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/nacl/secretbox
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        operation: "encrypt"
+        algorithmPrimitive: ae
+        algorithmName: XSalsa20-Poly1305
+        algorithmFamily: XSalsa20
+        algorithmParameterSetIdentifier: "256"
+        library: golang.org/x/crypto/nacl/secretbox
+        api: secretbox.Seal|secretbox.Overhead
+
+  - id: go.xcrypto.nacl.secretbox.open
+    message: Detected NaCl secretbox open operation, algorithm=XSalsa20-Poly1305
+    severity: INFO
+    languages: [go]
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              import (
+                ...
+                "golang.org/x/crypto/nacl/secretbox"
+                ...
+              )
+              ...
+          - pattern-inside: |
+              import "golang.org/x/crypto/nacl/secretbox"
+              ...
+      - pattern: secretbox.Open(...)
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://pkg.go.dev/golang.org/x/crypto/nacl/secretbox
+      crypto:
+        assetType: algorithm
+        findingType: cipher
+        algorithmPrimitive: ae
+        algorithmName: XSalsa20-Poly1305
+        algorithmFamily: XSalsa20
+        algorithmParameterSetIdentifier: "256"
+        library: golang.org/x/crypto/nacl/secretbox
+        api: secretbox.Open
+
