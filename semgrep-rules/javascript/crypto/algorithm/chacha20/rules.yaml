@@ -1,0 +1,239 @@
+# ChaCha20 encryption / decryption performed through the Node.js crypto
+# Cipheriv and Decipheriv instance method update().
+#
+# crypto.createCipheriv(algorithm, key, iv) / crypto.createDecipheriv(...) select
+# the algorithm; the returned Cipheriv / Decipheriv instance performs the work in
+# update(). The rules therefore taint the algorithm string and require the
+# instance produced from it to reach an update() call, so the finding only fires
+# where data is actually enciphered. The undocumented but still exported
+# Cipheriv / Decipheriv constructors are matched alongside the factories.
+#
+# parameterCondition constrains param[0] of the createCipheriv / createDecipheriv
+# factory that produced the instance, not of update() itself.
+#
+# Node accepts both the raw stream cipher ('chacha20') and the AEAD construction
+# ('chacha20-poly1305'); both fix a 256-bit key (RFC 8439).
+rules:
+  - id: javascript.crypto.chacha20.cipheriv-update
+    message: Detected ChaCha20 encryption via Node.js crypto Cipheriv update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']chacha20["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $CIPHER = $CRYPTO.createCipheriv($ALGO, ...)
+                  ...
+                  $CIPHER.update(...)
+              - pattern: |
+                  $CIPHER = createCipheriv($ALGO, ...)
+                  ...
+                  $CIPHER.update(...)
+              - pattern: |
+                  $CIPHER = new $CRYPTO.Cipheriv($ALGO, ...)
+                  ...
+                  $CIPHER.update(...)
+              - pattern: |
+                  $CIPHER = new Cipheriv($ALGO, ...)
+                  ...
+                  $CIPHER.update(...)
+              - pattern: $CRYPTO.createCipheriv($ALGO, ...).update(...)
+              - pattern: createCipheriv($ALGO, ...).update(...)
+              - pattern: new $CRYPTO.Cipheriv($ALGO, ...).update(...)
+              - pattern: new Cipheriv($ALGO, ...).update(...)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptocreatecipherivalgorithm-key-iv-options
+        - https://nodejs.org/api/crypto.html#cipherupdatedata-inputencoding-outputencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: stream-cipher
+        algorithmFamily: ChaCha20
+        algorithmName: ChaCha20
+        algorithmParameterSetIdentifier: "256"
+        operation: "encrypt"
+        parameterCondition: param[0]~=chacha20
+        library: node:crypto
+        api: crypto.Cipheriv.update
+
+  - id: javascript.crypto.chacha20.decipheriv-update
+    message: Detected ChaCha20 decryption via Node.js crypto Decipheriv update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']chacha20["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $DECIPHER = $CRYPTO.createDecipheriv($ALGO, ...)
+                  ...
+                  $DECIPHER.update(...)
+              - pattern: |
+                  $DECIPHER = createDecipheriv($ALGO, ...)
+                  ...
+                  $DECIPHER.update(...)
+              - pattern: |
+                  $DECIPHER = new $CRYPTO.Decipheriv($ALGO, ...)
+                  ...
+                  $DECIPHER.update(...)
+              - pattern: |
+                  $DECIPHER = new Decipheriv($ALGO, ...)
+                  ...
+                  $DECIPHER.update(...)
+              - pattern: $CRYPTO.createDecipheriv($ALGO, ...).update(...)
+              - pattern: createDecipheriv($ALGO, ...).update(...)
+              - pattern: new $CRYPTO.Decipheriv($ALGO, ...).update(...)
+              - pattern: new Decipheriv($ALGO, ...).update(...)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptocreatedecipherivalgorithm-key-iv-options
+        - https://nodejs.org/api/crypto.html#decipherupdatedata-inputencoding-outputencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: stream-cipher
+        algorithmFamily: ChaCha20
+        algorithmName: ChaCha20
+        algorithmParameterSetIdentifier: "256"
+        operation: "decrypt"
+        parameterCondition: param[0]~=chacha20
+        library: node:crypto
+        api: crypto.Decipheriv.update
+
+  - id: javascript.crypto.chacha20.cipheriv-update-poly1305
+    message: Detected ChaCha20-Poly1305 authenticated encryption via Node.js crypto Cipheriv update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']chacha20-poly1305["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $CIPHER = $CRYPTO.createCipheriv($ALGO, ...)
+                  ...
+                  $CIPHER.update(...)
+              - pattern: |
+                  $CIPHER = createCipheriv($ALGO, ...)
+                  ...
+                  $CIPHER.update(...)
+              - pattern: |
+                  $CIPHER = new $CRYPTO.Cipheriv($ALGO, ...)
+                  ...
+                  $CIPHER.update(...)
+              - pattern: |
+                  $CIPHER = new Cipheriv($ALGO, ...)
+                  ...
+                  $CIPHER.update(...)
+              - pattern: $CRYPTO.createCipheriv($ALGO, ...).update(...)
+              - pattern: createCipheriv($ALGO, ...).update(...)
+              - pattern: new $CRYPTO.Cipheriv($ALGO, ...).update(...)
+              - pattern: new Cipheriv($ALGO, ...).update(...)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptocreatecipherivalgorithm-key-iv-options
+        - https://nodejs.org/api/crypto.html#cipherupdatedata-inputencoding-outputencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: ae
+        algorithmFamily: ChaCha20
+        algorithmName: ChaCha20-Poly1305
+        algorithmParameterSetIdentifier: "256"
+        operation: "encrypt"
+        parameterCondition: param[0]~=chacha20-poly1305
+        library: node:crypto
+        api: crypto.Cipheriv.update
+
+  - id: javascript.crypto.chacha20.decipheriv-update-poly1305
+    message: Detected ChaCha20-Poly1305 authenticated decryption via Node.js crypto Decipheriv update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']chacha20-poly1305["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $DECIPHER = $CRYPTO.createDecipheriv($ALGO, ...)
+                  ...
+                  $DECIPHER.update(...)
+              - pattern: |
+                  $DECIPHER = createDecipheriv($ALGO, ...)
+                  ...
+                  $DECIPHER.update(...)
+              - pattern: |
+                  $DECIPHER = new $CRYPTO.Decipheriv($ALGO, ...)
+                  ...
+                  $DECIPHER.update(...)
+              - pattern: |
+                  $DECIPHER = new Decipheriv($ALGO, ...)
+                  ...
+                  $DECIPHER.update(...)
+              - pattern: $CRYPTO.createDecipheriv($ALGO, ...).update(...)
+              - pattern: createDecipheriv($ALGO, ...).update(...)
+              - pattern: new $CRYPTO.Decipheriv($ALGO, ...).update(...)
+              - pattern: new Decipheriv($ALGO, ...).update(...)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptocreatedecipherivalgorithm-key-iv-options
+        - https://nodejs.org/api/crypto.html#decipherupdatedata-inputencoding-outputencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: ae
+        algorithmFamily: ChaCha20
+        algorithmName: ChaCha20-Poly1305
+        algorithmParameterSetIdentifier: "256"
+        operation: "decrypt"
+        parameterCondition: param[0]~=chacha20-poly1305
+        library: node:crypto
+        api: crypto.Decipheriv.update
