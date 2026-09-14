@@ -1,0 +1,201 @@
+# SHA-2 hashing performed through the Node.js crypto Hash instance method
+# digest().
+#
+# crypto.createHash(algorithm) selects the algorithm; the returned Hash instance
+# produces the digest in digest(). The rules therefore taint the algorithm string
+# and require the instance produced from it to reach a digest() call, so the
+# finding only fires where a digest is actually computed.
+#
+# Every way of obtaining that instance is matched: the createHash factory, the
+# undocumented but still exported Hash constructor, and that constructor called
+# without new, which self-instantiates. The creation expression sits inside a
+# deep-expression operator so the instance is still tracked when it arrives
+# through one of the chainable methods that return this - update(), the stream
+# setEncoding() and on(), and pipe(), which returns the Hash it piped into. The
+# one other producer of a Hash is hash.copy(), which returns a second instance
+# carrying the same algorithm and internal state; a copy taken into its own
+# variable gets its own sink pattern, since its digest() is not syntactically
+# reachable from the createHash call.
+#
+# parameterCondition constrains param[0] of the createHash factory that produced
+# the instance, not of digest() itself.
+#
+# Not covered here: the RSA-SHA256 and sha256WithRSAEncryption style OID
+# spellings, which name a signature scheme rather than a bare digest.
+# sha512-224 and sha512-256 are the truncated SHA-512 variants and carry
+# their own rule, so that algorithmName distinguishes SHA-512/256 from the
+# unrelated SHA-256. Also not covered, for every family in this library:
+# the upper- and mixed-case spellings OpenSSL also resolves ('SHA256'), since the
+# regexes are lowercase-only; streaming use where the Hash is written to or piped
+# into and read back without digest() ever being called; and a copy of a copy,
+# where the second copy() is taken from a variable holding the first.
+rules:
+  - id: javascript.crypto.sha-2.hash-digest
+    message: Detected SHA-2 hashing via Node.js crypto Hash digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']sha(?<bits>224|256|384|512)["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HASH = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HASH ...>.digest(...)
+              - pattern: |
+                  $HASH = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HASH ...>.digest(...)
+              - pattern: |
+                  $HASH = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HASH ...>.digest(...)
+              - pattern: |
+                  $HASH = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HASH ...>.digest(...)
+              - pattern: |
+                  $HASH = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  $COPY = <... $HASH.copy(...) ...>
+                  ...
+                  <... $COPY ...>.digest(...)
+              - pattern: |
+                  $HASH = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  $COPY = <... $HASH.copy(...) ...>
+                  ...
+                  <... $COPY ...>.digest(...)
+              - pattern: |
+                  $HASH = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  $COPY = <... $HASH.copy(...) ...>
+                  ...
+                  <... $COPY ...>.digest(...)
+              - pattern: |
+                  $HASH = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  $COPY = <... $HASH.copy(...) ...>
+                  ...
+                  <... $COPY ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHash|Hash)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hash
+        - https://nodejs.org/api/crypto.html#cryptocreatehashalgorithm-options
+        - https://nodejs.org/api/crypto.html#hashdigestencoding
+        - https://nodejs.org/api/crypto.html#hashcopyoptions
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: hash
+        algorithmFamily: SHA-2
+        algorithmName: SHA-$bits
+        algorithmParameterSetIdentifier: $bits
+        operation: "digest"
+        parameterCondition: param[0]~=sha(224|256|384|512)
+        library: node:crypto
+        api: crypto.Hash.digest
+
+  - id: javascript.crypto.sha-2.hash-digest-truncated
+    message: Detected truncated SHA-512 hashing via Node.js crypto Hash digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']sha512-(?<bits>224|256)["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HASH = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HASH ...>.digest(...)
+              - pattern: |
+                  $HASH = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HASH ...>.digest(...)
+              - pattern: |
+                  $HASH = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HASH ...>.digest(...)
+              - pattern: |
+                  $HASH = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HASH ...>.digest(...)
+              - pattern: |
+                  $HASH = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  $COPY = <... $HASH.copy(...) ...>
+                  ...
+                  <... $COPY ...>.digest(...)
+              - pattern: |
+                  $HASH = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  $COPY = <... $HASH.copy(...) ...>
+                  ...
+                  <... $COPY ...>.digest(...)
+              - pattern: |
+                  $HASH = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  $COPY = <... $HASH.copy(...) ...>
+                  ...
+                  <... $COPY ...>.digest(...)
+              - pattern: |
+                  $HASH = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  $COPY = <... $HASH.copy(...) ...>
+                  ...
+                  <... $COPY ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHash|Hash)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hash
+        - https://nodejs.org/api/crypto.html#cryptocreatehashalgorithm-options
+        - https://nodejs.org/api/crypto.html#hashdigestencoding
+        - https://nodejs.org/api/crypto.html#hashcopyoptions
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: hash
+        algorithmFamily: SHA-2
+        algorithmName: SHA-512/$bits
+        algorithmParameterSetIdentifier: $bits
+        operation: "digest"
+        parameterCondition: param[0]~=sha512-(224|256)
+        library: node:crypto
+        api: crypto.Hash.digest
