@@ -1,0 +1,635 @@
+# HMAC message authentication performed through the Node.js crypto Hmac
+# instance method digest().
+#
+# crypto.createHmac(algorithm, key) selects the digest that parameterises the
+# HMAC construction; the returned Hmac instance produces the tag in digest().
+# The rules therefore taint the digest-name string and require the instance
+# produced from it to reach a digest() call, so the finding only fires where a
+# tag is actually computed. One rule per underlying digest family, so that
+# algorithmName and hashAlgorithm resolve to a single specific algorithm.
+#
+# Every way of obtaining that instance is matched: the createHmac factory, the
+# exported Hmac constructor, and that constructor called without new, which
+# self-instantiates. The creation expression sits inside a deep-expression
+# operator so the instance is still tracked when it arrives through one of the
+# chainable methods that return this - update(), the stream setEncoding() and
+# on(), and pipe(), which returns the Hmac it piped into. Unlike Hash, Hmac has
+# no copy(), so there is no second producer to match.
+#
+# parameterCondition constrains param[0] of the createHmac factory that produced
+# the instance, not of digest() itself.
+#
+# No algorithmParameterSetIdentifier is emitted: for HMAC the key length is set
+# by the key argument, not by the algorithm name, so any value here would be a
+# guess. hashAlgorithm carries the digest the construction is built on.
+#
+# Not covered here: the Web Crypto spelling, subtle.sign({name: 'HMAC'}, ...),
+# which is a different API and belongs with the SubtleCrypto rules; XOF digest
+# names (shake128, shake256), which OpenSSL does not accept as an HMAC digest;
+# whirlpool, which has no algorithm family in this ruleset; tag verification,
+# which Node does not expose as an Hmac method (callers recompute and compare
+# with timingSafeEqual, and the recomputation is itself a digest() finding).
+# Also not covered, for every family in this library: the upper- and mixed-case
+# spellings OpenSSL also resolves ('SHA256'), since the regexes are
+# lowercase-only; and streaming use where the Hmac is written to or piped into
+# and read back without digest() ever being called.
+rules:
+  - id: javascript.crypto.hmac.digest-sha-1
+    message: Detected HMAC over SHA-1 via Node.js crypto Hmac digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']sha1["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HMAC = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHmac|Hmac)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hmac
+        - https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options
+        - https://nodejs.org/api/crypto.html#hmacdigestencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: mac
+        algorithmFamily: HMAC
+        algorithmName: HMAC-SHA-1
+        hashAlgorithm: SHA-1
+        operation: "tag"
+        parameterCondition: param[0]~=sha1
+        library: node:crypto
+        api: crypto.Hmac.digest
+
+  - id: javascript.crypto.hmac.digest-sha-2
+    message: Detected HMAC over SHA-2 via Node.js crypto Hmac digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']sha(?<bits>224|256|384|512)["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HMAC = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHmac|Hmac)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hmac
+        - https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options
+        - https://nodejs.org/api/crypto.html#hmacdigestencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: mac
+        algorithmFamily: HMAC
+        algorithmName: HMAC-SHA-$bits
+        hashAlgorithm: SHA-$bits
+        operation: "tag"
+        parameterCondition: param[0]~=sha(224|256|384|512)
+        library: node:crypto
+        api: crypto.Hmac.digest
+
+  - id: javascript.crypto.hmac.digest-sha-2-truncated
+    message: Detected HMAC over truncated SHA-512 via Node.js crypto Hmac digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']sha512-(?<bits>224|256)["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HMAC = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHmac|Hmac)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hmac
+        - https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options
+        - https://nodejs.org/api/crypto.html#hmacdigestencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: mac
+        algorithmFamily: HMAC
+        algorithmName: HMAC-SHA-512/$bits
+        hashAlgorithm: SHA-512/$bits
+        operation: "tag"
+        parameterCondition: param[0]~=sha512-(224|256)
+        library: node:crypto
+        api: crypto.Hmac.digest
+
+  - id: javascript.crypto.hmac.digest-sha-3
+    message: Detected HMAC over SHA-3 via Node.js crypto Hmac digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']sha3-(?<bits>224|256|384|512)["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HMAC = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHmac|Hmac)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hmac
+        - https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options
+        - https://nodejs.org/api/crypto.html#hmacdigestencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: mac
+        algorithmFamily: HMAC
+        algorithmName: HMAC-SHA3-$bits
+        hashAlgorithm: SHA3-$bits
+        operation: "tag"
+        parameterCondition: param[0]~=sha3-(224|256|384|512)
+        library: node:crypto
+        api: crypto.Hmac.digest
+
+  - id: javascript.crypto.hmac.digest-md4
+    message: Detected HMAC over MD4 via Node.js crypto Hmac digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']md4["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HMAC = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHmac|Hmac)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hmac
+        - https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options
+        - https://nodejs.org/api/crypto.html#hmacdigestencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: mac
+        algorithmFamily: HMAC
+        algorithmName: HMAC-MD4
+        hashAlgorithm: MD4
+        operation: "tag"
+        parameterCondition: param[0]~=md4
+        library: node:crypto
+        api: crypto.Hmac.digest
+
+  - id: javascript.crypto.hmac.digest-md5
+    message: Detected HMAC over MD5 via Node.js crypto Hmac digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']md5["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HMAC = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHmac|Hmac)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hmac
+        - https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options
+        - https://nodejs.org/api/crypto.html#hmacdigestencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: mac
+        algorithmFamily: HMAC
+        algorithmName: HMAC-MD5
+        hashAlgorithm: MD5
+        operation: "tag"
+        parameterCondition: param[0]~=md5
+        library: node:crypto
+        api: crypto.Hmac.digest
+
+  - id: javascript.crypto.hmac.digest-ripemd160
+    message: Detected HMAC over RIPEMD160 via Node.js crypto Hmac digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["''](?:ripemd160|ripemd|rmd160)["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HMAC = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHmac|Hmac)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hmac
+        - https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options
+        - https://nodejs.org/api/crypto.html#hmacdigestencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: mac
+        algorithmFamily: HMAC
+        algorithmName: HMAC-RIPEMD160
+        hashAlgorithm: RIPEMD160
+        operation: "tag"
+        parameterCondition: param[0]~=(ripemd160|ripemd|rmd160)
+        library: node:crypto
+        api: crypto.Hmac.digest
+
+  - id: javascript.crypto.hmac.digest-blake2-b512
+    message: Detected HMAC over BLAKE2b-512 via Node.js crypto Hmac digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']blake2b512["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HMAC = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHmac|Hmac)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hmac
+        - https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options
+        - https://nodejs.org/api/crypto.html#hmacdigestencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: mac
+        algorithmFamily: HMAC
+        algorithmName: HMAC-BLAKE2b-512
+        hashAlgorithm: BLAKE2b-512
+        operation: "tag"
+        parameterCondition: param[0]~=blake2b512
+        library: node:crypto
+        api: crypto.Hmac.digest
+
+  - id: javascript.crypto.hmac.digest-blake2-s256
+    message: Detected HMAC over BLAKE2s-256 via Node.js crypto Hmac digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']blake2s256["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HMAC = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHmac|Hmac)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hmac
+        - https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options
+        - https://nodejs.org/api/crypto.html#hmacdigestencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: mac
+        algorithmFamily: HMAC
+        algorithmName: HMAC-BLAKE2s-256
+        hashAlgorithm: BLAKE2s-256
+        operation: "tag"
+        parameterCondition: param[0]~=blake2s256
+        library: node:crypto
+        api: crypto.Hmac.digest
+
+  - id: javascript.crypto.hmac.digest-sm3
+    message: Detected HMAC over SM3 via Node.js crypto Hmac digest
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["'']sm3["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $HMAC = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: |
+                  $HMAC = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $HMAC ...>.digest(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.digest(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.digest(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createHmac|Hmac)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-hmac
+        - https://nodejs.org/api/crypto.html#cryptocreatehmacalgorithm-key-options
+        - https://nodejs.org/api/crypto.html#hmacdigestencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: mac
+        algorithmFamily: HMAC
+        algorithmName: HMAC-SM3
+        hashAlgorithm: SM3
+        operation: "tag"
+        parameterCondition: param[0]~=sm3
+        library: node:crypto
+        api: crypto.Hmac.digest
