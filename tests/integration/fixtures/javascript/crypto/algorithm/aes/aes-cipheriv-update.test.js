@@ -76,6 +76,41 @@ function decryptOfb(key, iv, ciphertext) {
     return new Decipheriv('aes-256-ofb', key, iv).update(ciphertext);
 }
 
+// The exported constructors self-instantiate, so they also return an instance
+// when called without new.
+// TEST-RULE: javascript.crypto.aes.cipheriv-update
+// TEST-METADATA: algorithmMode=cbc, algorithmParameterSetIdentifier=192, operation=encrypt
+function encryptCbcNoNew(key, iv, plaintext) {
+    const { Cipheriv } = crypto;
+    const cipher = Cipheriv('aes-192-cbc', key, iv);
+    return cipher.update(plaintext);
+}
+
+// TEST-RULE: javascript.crypto.aes.decipheriv-update
+// TEST-METADATA: algorithmMode=cbc, algorithmParameterSetIdentifier=192, operation=decrypt
+function decryptCbcNoNew(key, iv, ciphertext) {
+    return crypto.Decipheriv('aes-192-cbc', key, iv).update(ciphertext);
+}
+
+// setAutoPadding() returns the instance, so the chain still ends in update().
+// TEST-RULE: javascript.crypto.aes.cipheriv-update
+// TEST-METADATA: algorithmMode=cfb, algorithmParameterSetIdentifier=128, operation=encrypt
+function encryptCfbUnpadded(key, iv, plaintext) {
+    return crypto.createCipheriv('aes-128-cfb', key, iv)
+        .setAutoPadding(false)
+        .update(plaintext);
+}
+
+// Two chainable setters between the factory and update().
+// TEST-RULE: javascript.crypto.aes.decipheriv-update-aead
+// TEST-METADATA: algorithmPrimitive=ae, algorithmMode=gcm, algorithmParameterSetIdentifier=256, operation=decrypt
+function decryptGcmChained(key, iv, aad, tag, ciphertext) {
+    const decipher = createDecipheriv('aes-256-gcm', key, iv)
+        .setAAD(aad)
+        .setAuthTag(tag);
+    return decipher.update(ciphertext);
+}
+
 // Negative case: the algorithm is a runtime parameter, so no algorithm metadata
 // can be proven and nothing should be reported.
 function encryptDynamic(algorithm, key, iv, plaintext) {
@@ -96,6 +131,13 @@ function unrelatedUpdate(key, iv, data) {
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
     const store = { update: (value) => value };
     return store.update(data);
+}
+
+// Negative case: the instance is used as a Transform stream, so no update()
+// call exists. Deliberately out of scope for the update() rules.
+function encryptStream(key, iv, input, output) {
+    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    input.pipe(cipher).pipe(output);
 }
 
 // Negative case: the deprecated password-based crypto.createCipher(), which is

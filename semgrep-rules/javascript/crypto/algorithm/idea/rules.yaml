@@ -5,11 +5,22 @@
 # the algorithm; the returned Cipheriv / Decipheriv instance performs the work in
 # update(). The rules therefore taint the algorithm string and require the
 # instance produced from it to reach an update() call, so the finding only fires
-# where data is actually enciphered. The undocumented but still exported
-# Cipheriv / Decipheriv constructors are matched alongside the factories.
+# where data is actually enciphered.
+#
+# Every way of obtaining that instance is matched: the factories, the
+# undocumented but still exported Cipheriv / Decipheriv constructors, and those
+# same constructors called without new, which self-instantiate. The creation
+# expression sits inside a deep-expression operator so the instance is still
+# tracked when it arrives through one of the chainable methods that return this
+# - setAutoPadding(), setAAD() and, on Decipheriv, setAuthTag().
 #
 # parameterCondition constrains param[0] of the createCipheriv / createDecipheriv
 # factory that produced the instance, not of update() itself.
+#
+# Not covered: Cipheriv / Decipheriv are Transform streams, so data can also be
+# enciphered by piping into the instance or by write() / end() with no update()
+# call at all. That form carries the same algorithm metadata but is outside the
+# scope of these update() rules.
 #
 # IDEA is defined with a single 128-bit key size.
 rules:
@@ -30,25 +41,28 @@ rules:
       - patterns:
           - pattern-either:
               - pattern: |
-                  $CIPHER = $CRYPTO.createCipheriv($ALGO, ...)
+                  $CIPHER = <... $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
                   $CIPHER.update(...)
               - pattern: |
-                  $CIPHER = createCipheriv($ALGO, ...)
+                  $CIPHER = <... $MAKE($ALGO, ...) ...>
                   ...
                   $CIPHER.update(...)
               - pattern: |
-                  $CIPHER = new $CRYPTO.Cipheriv($ALGO, ...)
+                  $CIPHER = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
                   $CIPHER.update(...)
               - pattern: |
-                  $CIPHER = new Cipheriv($ALGO, ...)
+                  $CIPHER = <... new $MAKE($ALGO, ...) ...>
                   ...
                   $CIPHER.update(...)
-              - pattern: $CRYPTO.createCipheriv($ALGO, ...).update(...)
-              - pattern: createCipheriv($ALGO, ...).update(...)
-              - pattern: new $CRYPTO.Cipheriv($ALGO, ...).update(...)
-              - pattern: new Cipheriv($ALGO, ...).update(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createCipheriv|Cipheriv)$'
           - focus-metavariable: $ALGO
 
     metadata:
@@ -87,25 +101,28 @@ rules:
       - patterns:
           - pattern-either:
               - pattern: |
-                  $DECIPHER = $CRYPTO.createDecipheriv($ALGO, ...)
+                  $DECIPHER = <... $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
                   $DECIPHER.update(...)
               - pattern: |
-                  $DECIPHER = createDecipheriv($ALGO, ...)
+                  $DECIPHER = <... $MAKE($ALGO, ...) ...>
                   ...
                   $DECIPHER.update(...)
               - pattern: |
-                  $DECIPHER = new $CRYPTO.Decipheriv($ALGO, ...)
+                  $DECIPHER = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
                   $DECIPHER.update(...)
               - pattern: |
-                  $DECIPHER = new Decipheriv($ALGO, ...)
+                  $DECIPHER = <... new $MAKE($ALGO, ...) ...>
                   ...
                   $DECIPHER.update(...)
-              - pattern: $CRYPTO.createDecipheriv($ALGO, ...).update(...)
-              - pattern: createDecipheriv($ALGO, ...).update(...)
-              - pattern: new $CRYPTO.Decipheriv($ALGO, ...).update(...)
-              - pattern: new Decipheriv($ALGO, ...).update(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createDecipheriv|Decipheriv)$'
           - focus-metavariable: $ALGO
 
     metadata:
