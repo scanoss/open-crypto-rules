@@ -1,35 +1,41 @@
-# RSA signing through the Node.js crypto Sign instance methods update() and
-# sign(). createSign() takes a digest name; for most spellings ('sha256') the
-# signature algorithm comes from the key at sign() time and could equally be EC
-# or DSA, so those are not sources - the algorithm would be a guess. Only the
-# OpenSSL signature-scheme names name RSA outright. They resolve because
-# EVP_add_digest() registers each digest's pkey_type short and long name as
-# aliases of the digest, and every digest carrying a pkey_type pairs it with RSA.
+# RSA signing and verification through the Node.js crypto Sign and Verify
+# instance methods update(), sign() and verify(), and through the one-shot module
+# functions crypto.sign() and crypto.verify(). Every entry point names a digest;
+# for most spellings ('sha256') the signature algorithm comes from the key and
+# could equally be EC or DSA, so those are not sources - the algorithm would be a
+# guess. Only the OpenSSL signature-scheme names name RSA outright. They resolve
+# because EVP_add_digest() registers each digest's pkey_type short and long name
+# as aliases of the digest, and every digest carrying a pkey_type pairs it with
+# RSA.
 #
-# Sinks match all four ways to get a Sign - createSign() and the exported Sign
-# constructor, each with and without new, which self-instantiates - inside a
-# deep-expression operator to absorb the chainable this-returning methods and
-# pipe(). Sign has no copy(), so there is no second-instance producer.
+# Class sinks match all four ways to get a Sign or a Verify - the factory and the
+# exported constructor, each with and without new, which self-instantiates -
+# inside a deep-expression operator to absorb the chainable this-returning
+# methods and pipe(). Neither class has a copy(), so there is no second-instance
+# producer. One-shot sinks match the module-qualified and destructured spellings.
 #
-# parameterCondition anchors to param[0] of createSign(), not of the detected
-# call; for -pss, to the padding property of param[0] of sign().
+# parameterCondition anchors to param[0] of createSign()/createVerify() for the
+# class rules, not of the detected call, and to param[0] of the detected call for
+# the one-shots; for the -pss rules, to the padding property of param[0] of
+# sign()/verify() (class) or of param[2], the key argument (one-shot).
 #
-# Accepted by sign-update and sign-sign, case-insensitively (the OBJ_NAME table
-# compares with OPENSSL_strcasecmp):
-#   RSA-{MD4,MD5,SHA1,SHA1-2,SHA224,SHA256,SHA384,SHA512,SHA512/224,SHA512/256,
-#        SHA3-{224,256,384,512},RIPEMD160,MDC2,SM3}
-#   {md4,md5,sha1,sha224,sha256,sha384,sha512,sha512-224,sha512-256,sm3}WithRSAEncryption
-#   {ripemd160,mdc2}WithRSA
-#   id-rsassa-pkcs1-v1_5-with-sha3-{224,256,384,512}, the short name of the NID
-#     whose long name is RSA-SHA3-*: the one pair registered the other way round
+# Accepted by every rule but the four -pss ones, case-insensitively (the OBJ_NAME
+# table compares with OPENSSL_strcasecmp, so RSA-SHA256 and rsa-sha256 both
+# resolve) - the short name of each pair, which is the canonical one:
+#   RSA-{MD5,SHA1,SHA224,SHA256,SHA384,SHA512,SHA3-{224,256,384,512}}
 #
-# Not covered: the digest each name also identifies - no capture yields a
-# canonical value across three spellings and any casing, and CycloneDX models it
-# as a separate hash component; algorithmParameterSetIdentifier, a property of
-# the key; padding on sign-update and sign-sign, which sign() can override,
-# hence -pss; RSA-MD2, RSA-NP-MD5, RSA-SHA and sha1WithRSA, which no registered
-# digest points at; signing through the stream interface alone; dotted-decimal
-# OIDs; crypto.sign() and the Verify class.
+# Not covered: the long-name aliases of those same NIDs -
+# {md4,md5,sha1,sha224,sha256,sha384,sha512,sha512-224,sha512-256,sm3}WithRSA-
+# Encryption, {ripemd160,mdc2}WithRSA, and id-rsassa-pkcs1-v1_5-with-sha3-*
+# (the one pair registered the other way round), each a second alternation arm
+# for a name the short form already covers; RSA-{MD4,SHA1-2,SHA512/224,
+# SHA512/256,RIPEMD160,MDC2,SM3}; RSA-{MD2,NP-MD5,SHA} and sha1WithRSA, which no
+# registered digest points at; the digest each name also identifies - CycloneDX
+# models it as a separate hash component; algorithmParameterSetIdentifier, a
+# property of the key; padding on the non-pss rules, which the signing call can
+# override, hence -pss; a null or undefined algorithm on the one-shots, where the
+# key type alone decides; signing or verifying through the stream interface
+# alone; dotted-decimal OIDs.
 
 rules:
   - id: javascript.crypto.rsa.sign-update
@@ -43,7 +49,7 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["''](?i:RSA-(?:MD4|MD5|SHA1(?:-2)?|SHA512/(?:224|256)|SHA(?:224|256|384|512)|SHA3-(?:224|256|384|512)|RIPEMD160|MDC2|SM3)|(?:md4|md5|sha1|sha224|sha256|sha384|sha512-224|sha512-256|sha512|sm3)WithRSAEncryption|(?:ripemd160|mdc2)WithRSA|id-rsassa-pkcs1-v1_5-with-sha3-(?:224|256|384|512))["'']$'
+              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
 
     pattern-sinks:
       - patterns:
@@ -87,7 +93,7 @@ rules:
         algorithmFamily: RSA
         algorithmName: RSA
         operation: "sign"
-        parameterCondition: param[0]~=(?i)(RSA-(MD4|MD5|SHA1(-2)?|SHA512/(224|256)|SHA(224|256|384|512)|SHA3-(224|256|384|512)|RIPEMD160|MDC2|SM3)|(md4|md5|sha1|sha224|sha256|sha384|sha512-224|sha512-256|sha512|sm3)WithRSAEncryption|(ripemd160|mdc2)WithRSA|id-rsassa-pkcs1-v1_5-with-sha3-(224|256|384|512))
+        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
         library: node:crypto
         api: crypto.Sign.update
 
@@ -102,7 +108,7 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["''](?i:RSA-(?:MD4|MD5|SHA1(?:-2)?|SHA512/(?:224|256)|SHA(?:224|256|384|512)|SHA3-(?:224|256|384|512)|RIPEMD160|MDC2|SM3)|(?:md4|md5|sha1|sha224|sha256|sha384|sha512-224|sha512-256|sha512|sm3)WithRSAEncryption|(?:ripemd160|mdc2)WithRSA|id-rsassa-pkcs1-v1_5-with-sha3-(?:224|256|384|512))["'']$'
+              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
 
     pattern-sinks:
       - patterns:
@@ -146,7 +152,7 @@ rules:
         algorithmFamily: RSA
         algorithmName: RSA
         operation: "sign"
-        parameterCondition: param[0]~=(?i)(RSA-(MD4|MD5|SHA1(-2)?|SHA512/(224|256)|SHA(224|256|384|512)|SHA3-(224|256|384|512)|RIPEMD160|MDC2|SM3)|(md4|md5|sha1|sha224|sha256|sha384|sha512-224|sha512-256|sha512|sm3)WithRSAEncryption|(ripemd160|mdc2)WithRSA|id-rsassa-pkcs1-v1_5-with-sha3-(224|256|384|512))
+        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
         library: node:crypto
         api: crypto.Sign.sign
 
@@ -210,3 +216,334 @@ rules:
         parameterCondition: param[0]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING
         library: node:crypto
         api: crypto.Sign.sign
+
+  - id: javascript.crypto.rsa.verify-update
+    message: Detected RSA signature verification via Node.js crypto Verify update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $VERIFY = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.update(...)
+              - pattern: |
+                  $VERIFY = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.update(...)
+              - pattern: |
+                  $VERIFY = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.update(...)
+              - pattern: |
+                  $VERIFY = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.update(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createVerify|Verify)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-verify
+        - https://nodejs.org/api/crypto.html#cryptocreateverifyalgorithm-options
+        - https://nodejs.org/api/crypto.html#verifyupdatedata-inputencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSA
+        algorithmName: RSA
+        operation: "verify"
+        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
+        library: node:crypto
+        api: crypto.Verify.update
+
+  - id: javascript.crypto.rsa.verify-verify
+    message: Detected RSA signature verification via Node.js crypto Verify verify
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $VERIFY = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.verify(...)
+              - pattern: |
+                  $VERIFY = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.verify(...)
+              - pattern: |
+                  $VERIFY = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.verify(...)
+              - pattern: |
+                  $VERIFY = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.verify(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.verify(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.verify(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.verify(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.verify(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createVerify|Verify)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-verify
+        - https://nodejs.org/api/crypto.html#cryptocreateverifyalgorithm-options
+        - https://nodejs.org/api/crypto.html#verifyverifyobject-signature-signatureencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSA
+        algorithmName: RSA
+        operation: "verify"
+        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
+        library: node:crypto
+        api: crypto.Verify.verify
+
+  # PSS is selected by verify()'s padding option rather than the algorithm
+  # string, and that constant is RSA-only, so this rule accepts any algorithm
+  # string.
+  - id: javascript.crypto.rsa.verify-verify-pss
+    message: Detected RSA-PSS signature verification via Node.js crypto Verify verify
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $PAD
+          - metavariable-regex:
+              metavariable: $PAD
+              regex: '^(?:[A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $VERIFY = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.verify({..., padding: $PAD}, ...)
+              - pattern: |
+                  $VERIFY = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.verify({..., padding: $PAD}, ...)
+              - pattern: |
+                  $VERIFY = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.verify({..., padding: $PAD}, ...)
+              - pattern: |
+                  $VERIFY = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $VERIFY ...>.verify({..., padding: $PAD}, ...)
+              - pattern: '<... $CRYPTO.$MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
+              - pattern: '<... $MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
+              - pattern: '<... new $CRYPTO.$MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
+              - pattern: '<... new $MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createVerify|Verify)$'
+          - focus-metavariable: $PAD
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-verify
+        - https://nodejs.org/api/crypto.html#verifyverifyobject-signature-signatureencoding
+        - https://nodejs.org/api/crypto.html#cryptoconstants
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSA
+        algorithmName: RSA-PSS
+        operation: "verify"
+        parameterCondition: param[0]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING
+        library: node:crypto
+        api: crypto.Verify.verify
+
+  - id: javascript.crypto.rsa.sign
+    message: Detected RSA signing via Node.js crypto sign
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $CRYPTO.sign($ALGO, ...)
+              - pattern: sign($ALGO, ...)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptosignalgorithm-data-key-callback
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSA
+        algorithmName: RSA
+        operation: "sign"
+        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
+        library: node:crypto
+        api: crypto.sign
+
+  # PSS is selected by the padding property of the key argument rather than the
+  # algorithm string, and that constant is RSA-only, so this rule accepts any
+  # algorithm argument - including the null the Node docs pass for a key that
+  # already pins its digest.
+  - id: javascript.crypto.rsa.sign-pss
+    message: Detected RSA-PSS signing via Node.js crypto sign
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $PAD
+          - metavariable-regex:
+              metavariable: $PAD
+              regex: '^(?:[A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: '$CRYPTO.sign($ALGO, $DATA, {..., padding: $PAD}, ...)'
+              - pattern: 'sign($ALGO, $DATA, {..., padding: $PAD}, ...)'
+          - focus-metavariable: $PAD
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptosignalgorithm-data-key-callback
+        - https://nodejs.org/api/crypto.html#cryptoconstants
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSA
+        algorithmName: RSA-PSS
+        operation: "sign"
+        parameterCondition: param[2]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING
+        library: node:crypto
+        api: crypto.sign
+
+  - id: javascript.crypto.rsa.verify
+    message: Detected RSA signature verification via Node.js crypto verify
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: $CRYPTO.verify($ALGO, ...)
+              - pattern: verify($ALGO, ...)
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptoverifyalgorithm-data-key-signature-callback
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSA
+        algorithmName: RSA
+        operation: "verify"
+        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
+        library: node:crypto
+        api: crypto.verify
+
+  # As sign-pss, on the key argument of crypto.verify().
+  - id: javascript.crypto.rsa.verify-pss
+    message: Detected RSA-PSS signature verification via Node.js crypto verify
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $PAD
+          - metavariable-regex:
+              metavariable: $PAD
+              regex: '^(?:[A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: '$CRYPTO.verify($ALGO, $DATA, {..., padding: $PAD}, ...)'
+              - pattern: 'verify($ALGO, $DATA, {..., padding: $PAD}, ...)'
+          - focus-metavariable: $PAD
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptoverifyalgorithm-data-key-signature-callback
+        - https://nodejs.org/api/crypto.html#cryptoconstants
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSA
+        algorithmName: RSA-PSS
+        operation: "verify"
+        parameterCondition: param[2]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING
+        library: node:crypto
+        api: crypto.verify
