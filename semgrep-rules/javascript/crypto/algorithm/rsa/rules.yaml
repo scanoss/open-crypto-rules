@@ -36,6 +36,45 @@
 # override, hence -pss; a null or undefined algorithm on the one-shots, where the
 # key type alone decides; signing or verifying through the stream interface
 # alone; dotted-decimal OIDs.
+#
+# RSA public-key encryption through the four module functions
+# crypto.{publicEncrypt,privateEncrypt,publicDecrypt,privateDecrypt}. The docs
+# state no key-type restriction, but all four are RSA-only in practice: each
+# routes through ncrypto's RSA_Cipher/CipherImpl, which calls
+# EVP_PKEY_CTX_set_rsa_padding() unconditionally, and that control op returns -2
+# for any non-RSA key. Checked on v22 - rsa-pss, ec, x25519, ed25519 and SM2 all
+# throw. So the API names the algorithm and there is no string to match: the
+# base rules are plain patterns, carrying no parameterCondition.
+#
+# Because nothing else in these six rules narrows them, every one is gated on the
+# file importing node's crypto: a pattern-inside pairing the import with the call,
+# over require($MOD), import $C from $MOD, import * as $C from $MOD and
+# import {...} from $MOD, with $MOD accepting crypto and node:crypto ($MOD binds
+# quoted under require and bare under import, hence the optional quotes in the
+# regex). The qualified spellings additionally bind the receiver to the imported
+# alias, so a same-named method on any other object - a wrapper class's own
+# publicEncrypt(), node-forge - does not match; the bare spellings, reached by a
+# destructured require or a named import, are gated on the import alone.
+#
+# OAEP is legal only in publicEncrypt() and privateDecrypt(), where it is also
+# the default; the other two take RSA_PKCS1_PADDING (their default) or
+# RSA_NO_PADDING. The two -oaep rules are taint rules on an explicit
+# RSA_PKCS1_OAEP_PADDING, with parameterCondition anchored to the padding
+# property of param[0], the key argument. As with -pss they are additive: a call
+# naming the constant reports both RSA and RSA-OAEP.
+#
+# Not covered by the four pke rules: the OAEP default, applying whenever the key
+# argument carries no padding property - claiming it would mean claiming it for
+# an options object reached through a variable too, and over-claiming a padding
+# is worse than omitting one; RSA_PKCS1_PADDING and RSA_NO_PADDING, reported as
+# plain RSA by the base rules; {oaep,mgf1}Hash and oaepLabel, the OAEP digest
+# being a separate CycloneDX hash component; algorithmParameterSetIdentifier, a
+# property of the key. Import spellings the gate misses, each a false negative:
+# an inline require("crypto").publicEncrypt(...), which no assignment precedes;
+# a renamed ESM named import, import {publicEncrypt as pe} - the CJS renamed
+# destructure does resolve, the ESM one does not; a dynamic await import().
+# A bare same-named function in a file that does import node crypto still
+# matches, the bare spellings having no receiver to bind.
 
 rules:
   - id: javascript.crypto.rsa.sign-update
@@ -547,3 +586,309 @@ rules:
         parameterCondition: param[2]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING
         library: node:crypto
         api: crypto.verify
+
+  - id: javascript.crypto.rsa.public-encrypt
+    message: Detected RSA public key encryption via Node.js crypto publicEncrypt
+    severity: INFO
+    languages: [javascript, typescript]
+
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern-inside: |
+                      $C = require($MOD)
+                      ...
+                  - pattern-inside: |
+                      import $C from $MOD
+                      ...
+                  - pattern-inside: |
+                      import * as $C from $MOD
+                      ...
+              - pattern: $C.publicEncrypt(...)
+          - patterns:
+              - pattern-either:
+                  - pattern-inside: |
+                      $C = require($MOD)
+                      ...
+                  - pattern-inside: |
+                      import {...} from $MOD
+                      ...
+              - pattern: publicEncrypt(...)
+      - metavariable-regex:
+          metavariable: $MOD
+          regex: '^["'']?(?:node:)?crypto["'']?$'
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptopublicencryptkey-buffer
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: pke
+        algorithmFamily: RSA
+        algorithmName: RSA
+        operation: "encrypt"
+        library: node:crypto
+        api: crypto.publicEncrypt
+
+  - id: javascript.crypto.rsa.public-decrypt
+    message: Detected RSA public key decryption via Node.js crypto publicDecrypt
+    severity: INFO
+    languages: [javascript, typescript]
+
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern-inside: |
+                      $C = require($MOD)
+                      ...
+                  - pattern-inside: |
+                      import $C from $MOD
+                      ...
+                  - pattern-inside: |
+                      import * as $C from $MOD
+                      ...
+              - pattern: $C.publicDecrypt(...)
+          - patterns:
+              - pattern-either:
+                  - pattern-inside: |
+                      $C = require($MOD)
+                      ...
+                  - pattern-inside: |
+                      import {...} from $MOD
+                      ...
+              - pattern: publicDecrypt(...)
+      - metavariable-regex:
+          metavariable: $MOD
+          regex: '^["'']?(?:node:)?crypto["'']?$'
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptopublicdecryptkey-buffer
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: pke
+        algorithmFamily: RSA
+        algorithmName: RSA
+        operation: "decrypt"
+        library: node:crypto
+        api: crypto.publicDecrypt
+
+  - id: javascript.crypto.rsa.private-encrypt
+    message: Detected RSA private key encryption via Node.js crypto privateEncrypt
+    severity: INFO
+    languages: [javascript, typescript]
+
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern-inside: |
+                      $C = require($MOD)
+                      ...
+                  - pattern-inside: |
+                      import $C from $MOD
+                      ...
+                  - pattern-inside: |
+                      import * as $C from $MOD
+                      ...
+              - pattern: $C.privateEncrypt(...)
+          - patterns:
+              - pattern-either:
+                  - pattern-inside: |
+                      $C = require($MOD)
+                      ...
+                  - pattern-inside: |
+                      import {...} from $MOD
+                      ...
+              - pattern: privateEncrypt(...)
+      - metavariable-regex:
+          metavariable: $MOD
+          regex: '^["'']?(?:node:)?crypto["'']?$'
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptoprivateencryptprivatekey-buffer
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: pke
+        algorithmFamily: RSA
+        algorithmName: RSA
+        operation: "encrypt"
+        library: node:crypto
+        api: crypto.privateEncrypt
+
+  - id: javascript.crypto.rsa.private-decrypt
+    message: Detected RSA private key decryption via Node.js crypto privateDecrypt
+    severity: INFO
+    languages: [javascript, typescript]
+
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern-inside: |
+                      $C = require($MOD)
+                      ...
+                  - pattern-inside: |
+                      import $C from $MOD
+                      ...
+                  - pattern-inside: |
+                      import * as $C from $MOD
+                      ...
+              - pattern: $C.privateDecrypt(...)
+          - patterns:
+              - pattern-either:
+                  - pattern-inside: |
+                      $C = require($MOD)
+                      ...
+                  - pattern-inside: |
+                      import {...} from $MOD
+                      ...
+              - pattern: privateDecrypt(...)
+      - metavariable-regex:
+          metavariable: $MOD
+          regex: '^["'']?(?:node:)?crypto["'']?$'
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptoprivatedecryptprivatekey-buffer
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: pke
+        algorithmFamily: RSA
+        algorithmName: RSA
+        operation: "decrypt"
+        library: node:crypto
+        api: crypto.privateDecrypt
+
+  - id: javascript.crypto.rsa.public-encrypt-oaep
+    message: Detected RSA-OAEP public key encryption via Node.js crypto publicEncrypt
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $PAD
+          - metavariable-regex:
+              metavariable: $PAD
+              regex: '^(?:[A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_OAEP_PADDING$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern: '$C.publicEncrypt({..., padding: $PAD}, ...)'
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern: 'publicEncrypt({..., padding: $PAD}, ...)'
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - focus-metavariable: $PAD
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptopublicencryptkey-buffer
+        - https://nodejs.org/api/crypto.html#cryptoconstants
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: pke
+        algorithmFamily: RSA
+        algorithmName: RSA-OAEP
+        operation: "encrypt"
+        parameterCondition: param[0]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_OAEP_PADDING
+        library: node:crypto
+        api: crypto.publicEncrypt
+
+  - id: javascript.crypto.rsa.private-decrypt-oaep
+    message: Detected RSA-OAEP private key decryption via Node.js crypto privateDecrypt
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $PAD
+          - metavariable-regex:
+              metavariable: $PAD
+              regex: '^(?:[A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_OAEP_PADDING$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern: '$C.privateDecrypt({..., padding: $PAD}, ...)'
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern: 'privateDecrypt({..., padding: $PAD}, ...)'
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - focus-metavariable: $PAD
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptoprivatedecryptprivatekey-buffer
+        - https://nodejs.org/api/crypto.html#cryptoconstants
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: pke
+        algorithmFamily: RSA
+        algorithmName: RSA-OAEP
+        operation: "decrypt"
+        parameterCondition: param[0]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_OAEP_PADDING
+        library: node:crypto
+        api: crypto.privateDecrypt
