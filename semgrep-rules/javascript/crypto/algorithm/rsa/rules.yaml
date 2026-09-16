@@ -1,0 +1,212 @@
+# RSA signing through the Node.js crypto Sign instance methods update() and
+# sign(). createSign() takes a digest name; for most spellings ('sha256') the
+# signature algorithm comes from the key at sign() time and could equally be EC
+# or DSA, so those are not sources - the algorithm would be a guess. Only the
+# OpenSSL signature-scheme names name RSA outright. They resolve because
+# EVP_add_digest() registers each digest's pkey_type short and long name as
+# aliases of the digest, and every digest carrying a pkey_type pairs it with RSA.
+#
+# Sinks match all four ways to get a Sign - createSign() and the exported Sign
+# constructor, each with and without new, which self-instantiates - inside a
+# deep-expression operator to absorb the chainable this-returning methods and
+# pipe(). Sign has no copy(), so there is no second-instance producer.
+#
+# parameterCondition anchors to param[0] of createSign(), not of the detected
+# call; for -pss, to the padding property of param[0] of sign().
+#
+# Accepted by sign-update and sign-sign, case-insensitively (the OBJ_NAME table
+# compares with OPENSSL_strcasecmp):
+#   RSA-{MD4,MD5,SHA1,SHA1-2,SHA224,SHA256,SHA384,SHA512,SHA512/224,SHA512/256,
+#        SHA3-{224,256,384,512},RIPEMD160,MDC2,SM3}
+#   {md4,md5,sha1,sha224,sha256,sha384,sha512,sha512-224,sha512-256,sm3}WithRSAEncryption
+#   {ripemd160,mdc2}WithRSA
+#   id-rsassa-pkcs1-v1_5-with-sha3-{224,256,384,512}, the short name of the NID
+#     whose long name is RSA-SHA3-*: the one pair registered the other way round
+#
+# Not covered: the digest each name also identifies - no capture yields a
+# canonical value across three spellings and any casing, and CycloneDX models it
+# as a separate hash component; algorithmParameterSetIdentifier, a property of
+# the key; padding on sign-update and sign-sign, which sign() can override,
+# hence -pss; RSA-MD2, RSA-NP-MD5, RSA-SHA and sha1WithRSA, which no registered
+# digest points at; signing through the stream interface alone; dotted-decimal
+# OIDs; crypto.sign() and the Verify class.
+
+rules:
+  - id: javascript.crypto.rsa.sign-update
+    message: Detected RSA signing via Node.js crypto Sign update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["''](?i:RSA-(?:MD4|MD5|SHA1(?:-2)?|SHA512/(?:224|256)|SHA(?:224|256|384|512)|SHA3-(?:224|256|384|512)|RIPEMD160|MDC2|SM3)|(?:md4|md5|sha1|sha224|sha256|sha384|sha512-224|sha512-256|sha512|sm3)WithRSAEncryption|(?:ripemd160|mdc2)WithRSA|id-rsassa-pkcs1-v1_5-with-sha3-(?:224|256|384|512))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $SIGN = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.update(...)
+              - pattern: |
+                  $SIGN = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.update(...)
+              - pattern: |
+                  $SIGN = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.update(...)
+              - pattern: |
+                  $SIGN = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.update(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createSign|Sign)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-sign
+        - https://nodejs.org/api/crypto.html#cryptocreatesignalgorithm-options
+        - https://nodejs.org/api/crypto.html#signupdatedata-inputencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSA
+        algorithmName: RSA
+        operation: "sign"
+        parameterCondition: param[0]~=(?i)(RSA-(MD4|MD5|SHA1(-2)?|SHA512/(224|256)|SHA(224|256|384|512)|SHA3-(224|256|384|512)|RIPEMD160|MDC2|SM3)|(md4|md5|sha1|sha224|sha256|sha384|sha512-224|sha512-256|sha512|sm3)WithRSAEncryption|(ripemd160|mdc2)WithRSA|id-rsassa-pkcs1-v1_5-with-sha3-(224|256|384|512))
+        library: node:crypto
+        api: crypto.Sign.update
+
+  - id: javascript.crypto.rsa.sign-sign
+    message: Detected RSA signing via Node.js crypto Sign sign
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '^["''](?i:RSA-(?:MD4|MD5|SHA1(?:-2)?|SHA512/(?:224|256)|SHA(?:224|256|384|512)|SHA3-(?:224|256|384|512)|RIPEMD160|MDC2|SM3)|(?:md4|md5|sha1|sha224|sha256|sha384|sha512-224|sha512-256|sha512|sm3)WithRSAEncryption|(?:ripemd160|mdc2)WithRSA|id-rsassa-pkcs1-v1_5-with-sha3-(?:224|256|384|512))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $SIGN = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.sign(...)
+              - pattern: |
+                  $SIGN = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.sign(...)
+              - pattern: |
+                  $SIGN = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.sign(...)
+              - pattern: |
+                  $SIGN = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.sign(...)
+              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.sign(...)
+              - pattern: <... $MAKE($ALGO, ...) ...>.sign(...)
+              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.sign(...)
+              - pattern: <... new $MAKE($ALGO, ...) ...>.sign(...)
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createSign|Sign)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-sign
+        - https://nodejs.org/api/crypto.html#cryptocreatesignalgorithm-options
+        - https://nodejs.org/api/crypto.html#signsignprivatekey-outputencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSA
+        algorithmName: RSA
+        operation: "sign"
+        parameterCondition: param[0]~=(?i)(RSA-(MD4|MD5|SHA1(-2)?|SHA512/(224|256)|SHA(224|256|384|512)|SHA3-(224|256|384|512)|RIPEMD160|MDC2|SM3)|(md4|md5|sha1|sha224|sha256|sha384|sha512-224|sha512-256|sha512|sm3)WithRSAEncryption|(ripemd160|mdc2)WithRSA|id-rsassa-pkcs1-v1_5-with-sha3-(224|256|384|512))
+        library: node:crypto
+        api: crypto.Sign.sign
+
+  # PSS is selected by sign()'s padding option rather than the algorithm string,
+  # and that constant is RSA-only, so this rule accepts any algorithm string.
+  - id: javascript.crypto.rsa.sign-sign-pss
+    message: Detected RSA-PSS signing via Node.js crypto Sign sign
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $PAD
+          - metavariable-regex:
+              metavariable: $PAD
+              regex: '^(?:[A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: |
+                  $SIGN = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.sign({..., padding: $PAD}, ...)
+              - pattern: |
+                  $SIGN = <... $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.sign({..., padding: $PAD}, ...)
+              - pattern: |
+                  $SIGN = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.sign({..., padding: $PAD}, ...)
+              - pattern: |
+                  $SIGN = <... new $MAKE($ALGO, ...) ...>
+                  ...
+                  <... $SIGN ...>.sign({..., padding: $PAD}, ...)
+              - pattern: '<... $CRYPTO.$MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
+              - pattern: '<... $MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
+              - pattern: '<... new $CRYPTO.$MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
+              - pattern: '<... new $MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createSign|Sign)$'
+          - focus-metavariable: $PAD
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-sign
+        - https://nodejs.org/api/crypto.html#signsignprivatekey-outputencoding
+        - https://nodejs.org/api/crypto.html#cryptoconstants
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: RSA
+        algorithmName: RSA-PSS
+        operation: "sign"
+        parameterCondition: param[0]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING
+        library: node:crypto
+        api: crypto.Sign.sign
