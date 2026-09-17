@@ -1,80 +1,33 @@
-# RSA signing and verification through the Node.js crypto Sign and Verify
-# instance methods update(), sign() and verify(), and through the one-shot module
-# functions crypto.sign() and crypto.verify(). Every entry point names a digest;
-# for most spellings ('sha256') the signature algorithm comes from the key and
-# could equally be EC or DSA, so those are not sources - the algorithm would be a
-# guess. Only the OpenSSL signature-scheme names name RSA outright. They resolve
-# because EVP_add_digest() registers each digest's pkey_type short and long name
-# as aliases of the digest, and every digest carrying a pkey_type pairs it with
-# RSA.
+# RSA signing and verification through the Node.js crypto Sign / Verify methods
+# update(), sign(), verify() and the one-shot crypto.sign() / crypto.verify();
+# public-key encryption through crypto.{public,private}{Encrypt,Decrypt}.
 #
-# Class sinks match all four ways to get a Sign or a Verify - the factory and the
-# exported constructor, each with and without new, which self-instantiates -
-# inside a deep-expression operator to absorb the chainable this-returning
-# methods and pipe(). Neither class has a copy(), so there is no second-instance
-# producer. One-shot sinks match the module-qualified and destructured spellings.
+# The six sign/verify rules taint the algorithm string - only the signature
+# scheme names name RSA outright, a bare digest ('sha256') leaving the scheme to
+# the key. The four -pss and two -oaep rules taint the padding constant instead
+# and accept any algorithm argument, including the null the docs pass; they carry
+# the only algorithmName here, the padding being all that separates them from the
+# rule beside them, which matches PSS calls too and so stays silent on the scheme
+# (a call naming both is reported twice). The four base pke rules taint nothing:
+# each reaches EVP_PKEY_CTX_set_rsa_padding(), which fails for a non-RSA key.
 #
-# parameterCondition anchors to param[0] of createSign()/createVerify() for the
-# class rules, not of the detected call, and to param[0] of the detected call for
-# the one-shots; for the -pss rules, to the padding property of param[0] of
-# sign()/verify() (class) or of param[2], the key argument (one-shot).
+# Class sinks match all four ways to get a Sign or a Verify - factory and
+# exported constructor, with and without new - inside a deep-expression operator
+# absorbing the chainable methods. The six pke rules are gated on an import of
+# node's crypto, the qualified spellings also binding the receiver to its alias.
 #
-# Accepted by every rule but the four -pss ones, case-insensitively (the OBJ_NAME
-# table compares with OPENSSL_strcasecmp, so RSA-SHA256 and rsa-sha256 both
-# resolve) - the short name of each pair, which is the canonical one:
+# Accepted by the six sign/verify rules, case-insensitively:
 #   RSA-{MD5,SHA1,SHA224,SHA256,SHA384,SHA512,SHA3-{224,256,384,512}}
 #
-# Not covered: the long-name aliases of those same NIDs -
-# {md4,md5,sha1,sha224,sha256,sha384,sha512,sha512-224,sha512-256,sm3}WithRSA-
-# Encryption, {ripemd160,mdc2}WithRSA, and id-rsassa-pkcs1-v1_5-with-sha3-*
-# (the one pair registered the other way round), each a second alternation arm
-# for a name the short form already covers; RSA-{MD4,SHA1-2,SHA512/224,
-# SHA512/256,RIPEMD160,MDC2,SM3}; RSA-{MD2,NP-MD5,SHA} and sha1WithRSA, which no
-# registered digest points at; the digest each name also identifies - CycloneDX
-# models it as a separate hash component; algorithmParameterSetIdentifier, a
-# property of the key; padding on the non-pss rules, which the signing call can
-# override, hence -pss; a null or undefined algorithm on the one-shots, where the
-# key type alone decides; signing or verifying through the stream interface
-# alone; dotted-decimal OIDs.
-#
-# RSA public-key encryption through the four module functions
-# crypto.{publicEncrypt,privateEncrypt,publicDecrypt,privateDecrypt}. The docs
-# state no key-type restriction, but all four are RSA-only in practice: each
-# routes through ncrypto's RSA_Cipher/CipherImpl, which calls
-# EVP_PKEY_CTX_set_rsa_padding() unconditionally, and that control op returns -2
-# for any non-RSA key. Checked on v22 - rsa-pss, ec, x25519, ed25519 and SM2 all
-# throw. So the API names the algorithm and there is no string to match: the
-# base rules are plain patterns, carrying no parameterCondition.
-#
-# Because nothing else in these six rules narrows them, every one is gated on the
-# file importing node's crypto: a pattern-inside pairing the import with the call,
-# over require($MOD), import $C from $MOD, import * as $C from $MOD and
-# import {...} from $MOD, with $MOD accepting crypto and node:crypto ($MOD binds
-# quoted under require and bare under import, hence the optional quotes in the
-# regex). The qualified spellings additionally bind the receiver to the imported
-# alias, so a same-named method on any other object - a wrapper class's own
-# publicEncrypt(), node-forge - does not match; the bare spellings, reached by a
-# destructured require or a named import, are gated on the import alone.
-#
-# OAEP is legal only in publicEncrypt() and privateDecrypt(), where it is also
-# the default; the other two take RSA_PKCS1_PADDING (their default) or
-# RSA_NO_PADDING. The two -oaep rules are taint rules on an explicit
-# RSA_PKCS1_OAEP_PADDING, with parameterCondition anchored to the padding
-# property of param[0], the key argument. As with -pss they are additive: a call
-# naming the constant reports both RSA and RSA-OAEP.
-#
-# Not covered by the four pke rules: the OAEP default, applying whenever the key
-# argument carries no padding property - claiming it would mean claiming it for
-# an options object reached through a variable too, and over-claiming a padding
-# is worse than omitting one; RSA_PKCS1_PADDING and RSA_NO_PADDING, reported as
-# plain RSA by the base rules; {oaep,mgf1}Hash and oaepLabel, the OAEP digest
-# being a separate CycloneDX hash component; algorithmParameterSetIdentifier, a
-# property of the key. Import spellings the gate misses, each a false negative:
-# an inline require("crypto").publicEncrypt(...), which no assignment precedes;
-# a renamed ESM named import, import {publicEncrypt as pe} - the CJS renamed
-# destructure does resolve, the ESM one does not; a dynamic await import().
-# A bare same-named function in a file that does import node crypto still
-# matches, the bare spellings having no receiver to bind.
+# Not covered: the long-name aliases of those NIDs ({md4,md5,sha1,sha224,sha256,
+# sha384,sha512,sha512-224,sha512-256,sm3}WithRSAEncryption,
+# {ripemd160,mdc2}WithRSA, id-rsassa-pkcs1-v1_5-with-sha3-*);
+# RSA-{MD4,SHA1-2,SHA512/224,SHA512/256,RIPEMD160,MDC2,SM3}; RSA-{MD2,NP-MD5,SHA}
+# and sha1WithRSA, which no registered digest points at; dotted-decimal OIDs; the
+# digest each name also identifies, a separate CycloneDX hash component; the key
+# size, and the padding on calls not naming the constant; the stream interface
+# alone; and three import spellings - inline require("crypto").publicEncrypt(), a
+# renamed ESM named import (the CJS destructure does resolve), await import().
 
 rules:
   - id: javascript.crypto.rsa.sign-update
@@ -88,27 +41,27 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
+              regex: '(?i)^["'']RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512))["'']$'
 
     pattern-sinks:
       - patterns:
           - pattern-either:
               - pattern: |
-                  $SIGN = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.update(...)
+                  <... $CTX ...>.update(...)
               - pattern: |
-                  $SIGN = <... $MAKE($ALGO, ...) ...>
+                  $CTX = <... $MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.update(...)
+                  <... $CTX ...>.update(...)
               - pattern: |
-                  $SIGN = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.update(...)
+                  <... $CTX ...>.update(...)
               - pattern: |
-                  $SIGN = <... new $MAKE($ALGO, ...) ...>
+                  $CTX = <... new $MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.update(...)
+                  <... $CTX ...>.update(...)
               - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
               - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
               - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
@@ -130,9 +83,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: signature
         algorithmFamily: RSA
-        algorithmName: RSA
-        operation: "sign"
-        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
         library: node:crypto
         api: crypto.Sign.update
 
@@ -147,27 +97,27 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
+              regex: '(?i)^["'']RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512))["'']$'
 
     pattern-sinks:
       - patterns:
           - pattern-either:
               - pattern: |
-                  $SIGN = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.sign(...)
+                  <... $CTX ...>.sign(...)
               - pattern: |
-                  $SIGN = <... $MAKE($ALGO, ...) ...>
+                  $CTX = <... $MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.sign(...)
+                  <... $CTX ...>.sign(...)
               - pattern: |
-                  $SIGN = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.sign(...)
+                  <... $CTX ...>.sign(...)
               - pattern: |
-                  $SIGN = <... new $MAKE($ALGO, ...) ...>
+                  $CTX = <... new $MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.sign(...)
+                  <... $CTX ...>.sign(...)
               - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.sign(...)
               - pattern: <... $MAKE($ALGO, ...) ...>.sign(...)
               - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.sign(...)
@@ -189,9 +139,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: signature
         algorithmFamily: RSA
-        algorithmName: RSA
-        operation: "sign"
-        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
         library: node:crypto
         api: crypto.Sign.sign
 
@@ -214,21 +161,21 @@ rules:
       - patterns:
           - pattern-either:
               - pattern: |
-                  $SIGN = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.sign({..., padding: $PAD}, ...)
+                  <... $CTX ...>.sign({..., padding: $PAD}, ...)
               - pattern: |
-                  $SIGN = <... $MAKE($ALGO, ...) ...>
+                  $CTX = <... $MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.sign({..., padding: $PAD}, ...)
+                  <... $CTX ...>.sign({..., padding: $PAD}, ...)
               - pattern: |
-                  $SIGN = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.sign({..., padding: $PAD}, ...)
+                  <... $CTX ...>.sign({..., padding: $PAD}, ...)
               - pattern: |
-                  $SIGN = <... new $MAKE($ALGO, ...) ...>
+                  $CTX = <... new $MAKE($ALGO, ...) ...>
                   ...
-                  <... $SIGN ...>.sign({..., padding: $PAD}, ...)
+                  <... $CTX ...>.sign({..., padding: $PAD}, ...)
               - pattern: '<... $CRYPTO.$MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
               - pattern: '<... $MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
               - pattern: '<... new $CRYPTO.$MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
@@ -250,9 +197,7 @@ rules:
         assetType: algorithm
         algorithmPrimitive: signature
         algorithmFamily: RSA
-        algorithmName: RSA-PSS
-        operation: "sign"
-        parameterCondition: param[0]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING
+        algorithmName: RSASSA-PSS
         library: node:crypto
         api: crypto.Sign.sign
 
@@ -267,27 +212,27 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
+              regex: '(?i)^["'']RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512))["'']$'
 
     pattern-sinks:
       - patterns:
           - pattern-either:
               - pattern: |
-                  $VERIFY = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.update(...)
+                  <... $CTX ...>.update(...)
               - pattern: |
-                  $VERIFY = <... $MAKE($ALGO, ...) ...>
+                  $CTX = <... $MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.update(...)
+                  <... $CTX ...>.update(...)
               - pattern: |
-                  $VERIFY = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.update(...)
+                  <... $CTX ...>.update(...)
               - pattern: |
-                  $VERIFY = <... new $MAKE($ALGO, ...) ...>
+                  $CTX = <... new $MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.update(...)
+                  <... $CTX ...>.update(...)
               - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
               - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
               - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
@@ -309,9 +254,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: signature
         algorithmFamily: RSA
-        algorithmName: RSA
-        operation: "verify"
-        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
         library: node:crypto
         api: crypto.Verify.update
 
@@ -326,27 +268,27 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
+              regex: '(?i)^["'']RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512))["'']$'
 
     pattern-sinks:
       - patterns:
           - pattern-either:
               - pattern: |
-                  $VERIFY = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.verify(...)
+                  <... $CTX ...>.verify(...)
               - pattern: |
-                  $VERIFY = <... $MAKE($ALGO, ...) ...>
+                  $CTX = <... $MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.verify(...)
+                  <... $CTX ...>.verify(...)
               - pattern: |
-                  $VERIFY = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.verify(...)
+                  <... $CTX ...>.verify(...)
               - pattern: |
-                  $VERIFY = <... new $MAKE($ALGO, ...) ...>
+                  $CTX = <... new $MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.verify(...)
+                  <... $CTX ...>.verify(...)
               - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.verify(...)
               - pattern: <... $MAKE($ALGO, ...) ...>.verify(...)
               - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.verify(...)
@@ -368,9 +310,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: signature
         algorithmFamily: RSA
-        algorithmName: RSA
-        operation: "verify"
-        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
         library: node:crypto
         api: crypto.Verify.verify
 
@@ -394,21 +333,21 @@ rules:
       - patterns:
           - pattern-either:
               - pattern: |
-                  $VERIFY = <... $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.verify({..., padding: $PAD}, ...)
+                  <... $CTX ...>.verify({..., padding: $PAD}, ...)
               - pattern: |
-                  $VERIFY = <... $MAKE($ALGO, ...) ...>
+                  $CTX = <... $MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.verify({..., padding: $PAD}, ...)
+                  <... $CTX ...>.verify({..., padding: $PAD}, ...)
               - pattern: |
-                  $VERIFY = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
+                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.verify({..., padding: $PAD}, ...)
+                  <... $CTX ...>.verify({..., padding: $PAD}, ...)
               - pattern: |
-                  $VERIFY = <... new $MAKE($ALGO, ...) ...>
+                  $CTX = <... new $MAKE($ALGO, ...) ...>
                   ...
-                  <... $VERIFY ...>.verify({..., padding: $PAD}, ...)
+                  <... $CTX ...>.verify({..., padding: $PAD}, ...)
               - pattern: '<... $CRYPTO.$MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
               - pattern: '<... $MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
               - pattern: '<... new $CRYPTO.$MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
@@ -430,9 +369,7 @@ rules:
         assetType: algorithm
         algorithmPrimitive: signature
         algorithmFamily: RSA
-        algorithmName: RSA-PSS
-        operation: "verify"
-        parameterCondition: param[0]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING
+        algorithmName: RSASSA-PSS
         library: node:crypto
         api: crypto.Verify.verify
 
@@ -447,7 +384,7 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
+              regex: '(?i)^["'']RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512))["'']$'
 
     pattern-sinks:
       - patterns:
@@ -466,9 +403,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: signature
         algorithmFamily: RSA
-        algorithmName: RSA
-        operation: "sign"
-        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
         library: node:crypto
         api: crypto.sign
 
@@ -507,9 +441,7 @@ rules:
         assetType: algorithm
         algorithmPrimitive: signature
         algorithmFamily: RSA
-        algorithmName: RSA-PSS
-        operation: "sign"
-        parameterCondition: param[2]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING
+        algorithmName: RSASSA-PSS
         library: node:crypto
         api: crypto.sign
 
@@ -524,7 +456,7 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["''](?i:RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512)))["'']$'
+              regex: '(?i)^["'']RSA-(?:MD5|SHA1|SHA(?:3-)?(?:224|256|384|512))["'']$'
 
     pattern-sinks:
       - patterns:
@@ -543,9 +475,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: signature
         algorithmFamily: RSA
-        algorithmName: RSA
-        operation: "verify"
-        parameterCondition: param[0]~=(?i:RSA-(MD5|SHA1|SHA(3-)?(224|256|384|512)))
         library: node:crypto
         api: crypto.verify
 
@@ -581,9 +510,7 @@ rules:
         assetType: algorithm
         algorithmPrimitive: signature
         algorithmFamily: RSA
-        algorithmName: RSA-PSS
-        operation: "verify"
-        parameterCondition: param[2]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_PSS_PADDING
+        algorithmName: RSASSA-PSS
         library: node:crypto
         api: crypto.verify
 
@@ -629,8 +556,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: pke
         algorithmFamily: RSA
-        algorithmName: RSA
-        operation: "encrypt"
         library: node:crypto
         api: crypto.publicEncrypt
 
@@ -676,8 +601,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: pke
         algorithmFamily: RSA
-        algorithmName: RSA
-        operation: "decrypt"
         library: node:crypto
         api: crypto.publicDecrypt
 
@@ -723,8 +646,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: pke
         algorithmFamily: RSA
-        algorithmName: RSA
-        operation: "encrypt"
         library: node:crypto
         api: crypto.privateEncrypt
 
@@ -770,8 +691,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: pke
         algorithmFamily: RSA
-        algorithmName: RSA
-        operation: "decrypt"
         library: node:crypto
         api: crypto.privateDecrypt
 
@@ -828,9 +747,7 @@ rules:
         assetType: algorithm
         algorithmPrimitive: pke
         algorithmFamily: RSA
-        algorithmName: RSA-OAEP
-        operation: "encrypt"
-        parameterCondition: param[0]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_OAEP_PADDING
+        algorithmName: RSAES-OAEP
         library: node:crypto
         api: crypto.publicEncrypt
 
@@ -887,8 +804,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: pke
         algorithmFamily: RSA
-        algorithmName: RSA-OAEP
-        operation: "decrypt"
-        parameterCondition: param[0]~=([A-Za-z_$][A-Za-z0-9_$]*\.)*RSA_PKCS1_OAEP_PADDING
+        algorithmName: RSAES-OAEP
         library: node:crypto
         api: crypto.privateDecrypt

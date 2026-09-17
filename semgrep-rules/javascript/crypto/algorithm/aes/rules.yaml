@@ -1,31 +1,33 @@
-# AES encryption / decryption performed through the Node.js crypto Cipheriv and
-# Decipheriv instance method update().
+# AES encryption / decryption through the Node.js crypto Cipheriv and Decipheriv
+# instance method update(). The algorithm string passed to the producer is the
+# taint source and the instance it returns has to reach an update() call. Every
+# producer is matched - createCipheriv / createDecipheriv, the exported Cipheriv
+# / Decipheriv constructors, and those constructors without new - with both the
+# creation expression and the instance inside a deep-expression operator, so the
+# chainable setAutoPadding(), setAAD() and setAuthTag() are absorbed. The
+# algorithm string does not prove the library (crypto-browserify exposes the same
+# signature), so every producer is gated on an import of node's crypto; the
+# qualified spellings also bind the receiver to the imported alias, the bare ones
+# rest on the import alone, and an inline require("crypto").createCipheriv()
+# matches neither.
 #
-# crypto.createCipheriv(algorithm, key, iv) / crypto.createDecipheriv(...) select
-# the algorithm; the returned Cipheriv / Decipheriv instance performs the work in
-# update(). The rules therefore taint the algorithm string and require the
-# instance produced from it to reach an update() call, so the finding only fires
-# where data is actually enciphered.
+# Nothing is captured - every emitted field is static - so the regexes only gate
+# the match, and base / aead are separate rules only because algorithmPrimitive
+# differs: block-cipher against ae. Both regexes are a deliberately loose
+# superset of the lists below and accept spellings no Node build resolves
+# (aes256-ofb, aes-256-ctr8, anything -cts); each throws
+# ERR_CRYPTO_UNKNOWN_CIPHER, so no code that runs can match one.
 #
-# Every way of obtaining that instance is matched: the factories, the
-# undocumented but still exported Cipheriv / Decipheriv constructors, and those
-# same constructors called without new, which self-instantiate. The creation
-# expression sits inside a deep-expression operator so the instance is still
-# tracked when it arrives through one of the chainable methods that return this
-# - setAutoPadding(), setAAD() and, on Decipheriv, setAuthTag().
+# Accepted, case-insensitively:
+#   base: aes-{128,192,256}-{cbc,cfb,ctr,ecb,ofb}, plus the cfb1 / cfb8 widths
+#   aead: {id-,}aes-{128,192,256}-{gcm,ccm}
 #
-# parameterCondition constrains param[0] of the createCipheriv / createDecipheriv
-# factory that produced the instance, not of update() itself.
-#
-# Not covered: Cipheriv / Decipheriv are Transform streams, so data can also be
-# enciphered by piping into the instance or by write() / end() with no update()
-# call at all. That form carries the same algorithm metadata but is outside the
-# scope of these update() rules.
-#
-# Not covered here (OpenSSL cipher names Node also accepts): the mode-less
-# aliases (aes128, aes192, aes256 -> CBC), the OID spellings (id-aes128-GCM),
-# the cbc-hmac-sha1 / cbc-hmac-sha256 composites, and the cfb1, cfb8, xts and
-# ocb modes, which have no CycloneDX algorithmMode value.
+# Not covered: the mode-less aliases AES{128,192,256}; dotted-decimal OIDs; the
+# cbc-hmac-sha{1,256} composites; xts, ocb, siv and gcm-siv, which would emit
+# nothing the existing rules do not; aes256-wrap, which would need its own rule
+# for algorithmPrimitive key-wrap; and the Transform stream interface, where
+# pipe() or write() / end() encipher with no update() call.
+
 rules:
   - id: javascript.crypto.aes.cipheriv-update
     message: Detected AES encryption via Node.js crypto Cipheriv update
@@ -38,31 +40,55 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["'']aes-(?<keysize>128|192|256)-(?<mode>cbc|cfb|ctr|ecb|ofb)["'']$'
+              regex: '(?i)^["'']aes-?(?:128|192|256)-(?:cbc|cfb|ctr|ecb|ofb)(?:1|8)?(?:-cts)?["'']$'
 
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: |
-                  $CIPHER = <... $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  $CIPHER.update(...)
-              - pattern: |
-                  $CIPHER = <... $MAKE($ALGO, ...) ...>
-                  ...
-                  $CIPHER.update(...)
-              - pattern: |
-                  $CIPHER = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  $CIPHER.update(...)
-              - pattern: |
-                  $CIPHER = <... new $MAKE($ALGO, ...) ...>
-                  ...
-                  $CIPHER.update(...)
-              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - metavariable-regex:
               metavariable: $MAKE
               regex: '^(?:createCipheriv|Cipheriv)$'
@@ -79,11 +105,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: block-cipher
         algorithmFamily: AES
-        algorithmName: AES
-        algorithmMode: $mode
-        algorithmParameterSetIdentifier: $keysize
-        operation: "encrypt"
-        parameterCondition: param[0]~=aes-(128|192|256)-(cbc|cfb|ctr|ecb|ofb)
         library: node:crypto
         api: crypto.Cipheriv.update
 
@@ -98,31 +119,55 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["'']aes-(?<keysize>128|192|256)-(?<mode>cbc|cfb|ctr|ecb|ofb)["'']$'
+              regex: '(?i)^["'']aes-?(?:128|192|256)-(?:cbc|cfb|ctr|ecb|ofb)(?:1|8)?(?:-cts)?["'']$'
 
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: |
-                  $DECIPHER = <... $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  $DECIPHER.update(...)
-              - pattern: |
-                  $DECIPHER = <... $MAKE($ALGO, ...) ...>
-                  ...
-                  $DECIPHER.update(...)
-              - pattern: |
-                  $DECIPHER = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  $DECIPHER.update(...)
-              - pattern: |
-                  $DECIPHER = <... new $MAKE($ALGO, ...) ...>
-                  ...
-                  $DECIPHER.update(...)
-              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - metavariable-regex:
               metavariable: $MAKE
               regex: '^(?:createDecipheriv|Decipheriv)$'
@@ -139,11 +184,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: block-cipher
         algorithmFamily: AES
-        algorithmName: AES
-        algorithmMode: $mode
-        algorithmParameterSetIdentifier: $keysize
-        operation: "decrypt"
-        parameterCondition: param[0]~=aes-(128|192|256)-(cbc|cfb|ctr|ecb|ofb)
         library: node:crypto
         api: crypto.Decipheriv.update
 
@@ -158,31 +198,55 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["'']aes-(?<keysize>128|192|256)-(?<mode>gcm|ccm)["'']$'
+              regex: '(?i)^["''](?:id-)?aes-?(?:128|192|256)-(?:gcm|ccm)["'']$'
 
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: |
-                  $CIPHER = <... $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  $CIPHER.update(...)
-              - pattern: |
-                  $CIPHER = <... $MAKE($ALGO, ...) ...>
-                  ...
-                  $CIPHER.update(...)
-              - pattern: |
-                  $CIPHER = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  $CIPHER.update(...)
-              - pattern: |
-                  $CIPHER = <... new $MAKE($ALGO, ...) ...>
-                  ...
-                  $CIPHER.update(...)
-              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - metavariable-regex:
               metavariable: $MAKE
               regex: '^(?:createCipheriv|Cipheriv)$'
@@ -199,11 +263,6 @@ rules:
         assetType: algorithm
         algorithmPrimitive: ae
         algorithmFamily: AES
-        algorithmName: AES
-        algorithmMode: $mode
-        algorithmParameterSetIdentifier: $keysize
-        operation: "encrypt"
-        parameterCondition: param[0]~=aes-(128|192|256)-(gcm|ccm)
         library: node:crypto
         api: crypto.Cipheriv.update
 
@@ -218,31 +277,55 @@ rules:
           - pattern: $ALGO
           - metavariable-regex:
               metavariable: $ALGO
-              regex: '^["'']aes-(?<keysize>128|192|256)-(?<mode>gcm|ccm)["'']$'
+              regex: '(?i)^["''](?:id-)?aes-?(?:128|192|256)-(?:gcm|ccm)["'']$'
 
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: |
-                  $DECIPHER = <... $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  $DECIPHER.update(...)
-              - pattern: |
-                  $DECIPHER = <... $MAKE($ALGO, ...) ...>
-                  ...
-                  $DECIPHER.update(...)
-              - pattern: |
-                  $DECIPHER = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  $DECIPHER.update(...)
-              - pattern: |
-                  $DECIPHER = <... new $MAKE($ALGO, ...) ...>
-                  ...
-                  $DECIPHER.update(...)
-              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - metavariable-regex:
               metavariable: $MAKE
               regex: '^(?:createDecipheriv|Decipheriv)$'
@@ -259,10 +342,5 @@ rules:
         assetType: algorithm
         algorithmPrimitive: ae
         algorithmFamily: AES
-        algorithmName: AES
-        algorithmMode: $mode
-        algorithmParameterSetIdentifier: $keysize
-        operation: "decrypt"
-        parameterCondition: param[0]~=aes-(128|192|256)-(gcm|ccm)
         library: node:crypto
         api: crypto.Decipheriv.update
