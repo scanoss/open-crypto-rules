@@ -13,8 +13,10 @@
 #
 # Class sinks match all four ways to get a Sign or a Verify - factory and
 # exported constructor, with and without new - inside a deep-expression operator
-# absorbing the chainable methods. The six pke rules are gated on an import of
-# node's crypto, the qualified spellings also binding the receiver to its alias.
+# absorbing the chainable methods. Every rule is gated on an import of node's
+# crypto, the qualified spellings also binding the receiver to its alias; the
+# gate does not prove the library, since bundlers alias the bare 'crypto'
+# specifier to crypto-browserify, which exposes these APIs under these names.
 #
 # Accepted by the six sign/verify rules, case-insensitively:
 #   RSA-{MD5,SHA1,SHA224,SHA256,SHA384,SHA512,SHA3-{224,256,384,512}}
@@ -26,8 +28,8 @@
 # and sha1WithRSA, which no registered digest points at; dotted-decimal OIDs; the
 # digest each name also identifies, a separate CycloneDX hash component; the key
 # size, and the padding on calls not naming the constant; the stream interface
-# alone; and three import spellings - inline require("crypto").publicEncrypt(), a
-# renamed ESM named import (the CJS destructure does resolve), await import().
+# alone; and four import spellings - inline require("crypto").publicEncrypt(), a
+# renamed named import in ESM or CJS (plain ones resolve), await import().
 
 rules:
   - id: javascript.crypto.rsa.sign-update
@@ -46,26 +48,50 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: |
-                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.update(...)
-              - pattern: |
-                  $CTX = <... $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.update(...)
-              - pattern: |
-                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.update(...)
-              - pattern: |
-                  $CTX = <... new $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.update(...)
-              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - metavariable-regex:
               metavariable: $MAKE
               regex: '^(?:createSign|Sign)$'
@@ -102,26 +128,50 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: |
-                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.sign(...)
-              - pattern: |
-                  $CTX = <... $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.sign(...)
-              - pattern: |
-                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.sign(...)
-              - pattern: |
-                  $CTX = <... new $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.sign(...)
-              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.sign(...)
-              - pattern: <... $MAKE($ALGO, ...) ...>.sign(...)
-              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.sign(...)
-              - pattern: <... new $MAKE($ALGO, ...) ...>.sign(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign(...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.sign(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.sign(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign(...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.sign(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.sign(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - metavariable-regex:
               metavariable: $MAKE
               regex: '^(?:createSign|Sign)$'
@@ -160,26 +210,50 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: |
-                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.sign({..., padding: $PAD}, ...)
-              - pattern: |
-                  $CTX = <... $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.sign({..., padding: $PAD}, ...)
-              - pattern: |
-                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.sign({..., padding: $PAD}, ...)
-              - pattern: |
-                  $CTX = <... new $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.sign({..., padding: $PAD}, ...)
-              - pattern: '<... $CRYPTO.$MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
-              - pattern: '<... $MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
-              - pattern: '<... new $CRYPTO.$MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
-              - pattern: '<... new $MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign({..., padding: $PAD}, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign({..., padding: $PAD}, ...)
+                      - pattern: '<... $C.$MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
+                      - pattern: '<... new $C.$MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign({..., padding: $PAD}, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign({..., padding: $PAD}, ...)
+                      - pattern: '<... $MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
+                      - pattern: '<... new $MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - metavariable-regex:
               metavariable: $MAKE
               regex: '^(?:createSign|Sign)$'
@@ -217,26 +291,50 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: |
-                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.update(...)
-              - pattern: |
-                  $CTX = <... $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.update(...)
-              - pattern: |
-                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.update(...)
-              - pattern: |
-                  $CTX = <... new $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.update(...)
-              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.update(...)
-              - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - metavariable-regex:
               metavariable: $MAKE
               regex: '^(?:createVerify|Verify)$'
@@ -273,26 +371,50 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: |
-                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.verify(...)
-              - pattern: |
-                  $CTX = <... $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.verify(...)
-              - pattern: |
-                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.verify(...)
-              - pattern: |
-                  $CTX = <... new $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.verify(...)
-              - pattern: <... $CRYPTO.$MAKE($ALGO, ...) ...>.verify(...)
-              - pattern: <... $MAKE($ALGO, ...) ...>.verify(...)
-              - pattern: <... new $CRYPTO.$MAKE($ALGO, ...) ...>.verify(...)
-              - pattern: <... new $MAKE($ALGO, ...) ...>.verify(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify(...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.verify(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.verify(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify(...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.verify(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.verify(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - metavariable-regex:
               metavariable: $MAKE
               regex: '^(?:createVerify|Verify)$'
@@ -332,26 +454,50 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: |
-                  $CTX = <... $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.verify({..., padding: $PAD}, ...)
-              - pattern: |
-                  $CTX = <... $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.verify({..., padding: $PAD}, ...)
-              - pattern: |
-                  $CTX = <... new $CRYPTO.$MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.verify({..., padding: $PAD}, ...)
-              - pattern: |
-                  $CTX = <... new $MAKE($ALGO, ...) ...>
-                  ...
-                  <... $CTX ...>.verify({..., padding: $PAD}, ...)
-              - pattern: '<... $CRYPTO.$MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
-              - pattern: '<... $MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
-              - pattern: '<... new $CRYPTO.$MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
-              - pattern: '<... new $MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify({..., padding: $PAD}, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify({..., padding: $PAD}, ...)
+                      - pattern: '<... $C.$MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
+                      - pattern: '<... new $C.$MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify({..., padding: $PAD}, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify({..., padding: $PAD}, ...)
+                      - pattern: '<... $MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
+                      - pattern: '<... new $MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - metavariable-regex:
               metavariable: $MAKE
               regex: '^(?:createVerify|Verify)$'
@@ -389,8 +535,30 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: $CRYPTO.sign($ALGO, ...)
-              - pattern: sign($ALGO, ...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern: $C.sign($ALGO, ...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern: sign($ALGO, ...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - focus-metavariable: $ALGO
 
     metadata:
@@ -426,8 +594,30 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: '$CRYPTO.sign($ALGO, $DATA, {..., padding: $PAD}, ...)'
-              - pattern: 'sign($ALGO, $DATA, {..., padding: $PAD}, ...)'
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern: '$C.sign($ALGO, $DATA, {..., padding: $PAD}, ...)'
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern: 'sign($ALGO, $DATA, {..., padding: $PAD}, ...)'
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - focus-metavariable: $PAD
 
     metadata:
@@ -461,8 +651,30 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: $CRYPTO.verify($ALGO, ...)
-              - pattern: verify($ALGO, ...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern: $C.verify($ALGO, ...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern: verify($ALGO, ...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - focus-metavariable: $ALGO
 
     metadata:
@@ -495,8 +707,30 @@ rules:
     pattern-sinks:
       - patterns:
           - pattern-either:
-              - pattern: '$CRYPTO.verify($ALGO, $DATA, {..., padding: $PAD}, ...)'
-              - pattern: 'verify($ALGO, $DATA, {..., padding: $PAD}, ...)'
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern: '$C.verify($ALGO, $DATA, {..., padding: $PAD}, ...)'
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern: 'verify($ALGO, $DATA, {..., padding: $PAD}, ...)'
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
           - focus-metavariable: $PAD
 
     metadata:
