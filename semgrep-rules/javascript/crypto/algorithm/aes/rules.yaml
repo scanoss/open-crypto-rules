@@ -1,0 +1,350 @@
+# AES through the Node.js crypto Cipheriv / Decipheriv update() methods. The
+# algorithm string is the taint source; the sink is the instance, chained
+# straight into update() or assigned and used later in the same statement
+# sequence, both inside the deep-expression operator so chainable
+# setAutoPadding() / setAAD() / setAuthTag() calls are absorbed. All four
+# producers match - createCipheriv / createDecipheriv and the exported Cipheriv /
+# Decipheriv constructors, with and without new - each gated on a require() or
+# import of 'crypto' / 'node:crypto'. The gate does not prove the library:
+# bundlers alias the bare specifier to crypto-browserify, same signatures.
+#
+# Nothing is captured - every emitted field is a static literal - so the regexes
+# only gate the match, and over-match where that is free: aes-256-ctr8 and
+# id-aes-256-gcm are accepted and name no cipher Node resolves. Cipheriv and
+# Decipheriv split on api, base and -aead on algorithmPrimitive - block-cipher
+# against ae.
+#
+# Accepted, case-insensitively, with or without the separator after aes:
+#   base: aes-{128,192,256}-{cbc,cfb,ctr,ecb,ofb}, the cfb1 / cfb8 widths and an
+#         optional -cts
+#   aead: {id-,}aes-{128,192,256}-{gcm,ccm}
+#
+# Not matched: the mode-less aliases AES{128,192,256}; dotted-decimal OIDs;
+# aes-{128,192,256}-cbc-hmac-sha{1,256}; xts, ocb, siv, gcm-siv and
+# {id-,}aes{128,192,256}-wrap{,-pad}, which would emit what the base rules emit
+# already, key wrap being block-cipher for want of a key-wrap primitive;
+# backtick-quoted strings, the regexes being quote-anchored; final(), the
+# Transform stream interface and crypto.subtle as sinks; createCipher /
+# createDecipher, removed in Node 22; inline require('crypto').createCipheriv();
+# a producer and update() in different functions, or a creation inside a try with
+# the update after it; a module-scope algorithm constant read by a function
+# declaration (the same flow into an arrow function is kept); and renamed imports
+# - the ESM form always, the require() form unless a plain require of crypto sits
+# beside it.
+
+rules:
+  - id: javascript.crypto.aes.cipheriv-update
+    message: Detected AES encryption via Node.js crypto Cipheriv update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '(?i)^["'']aes-?(?:128|192|256)-(?:cbc|cfb|ctr|ecb|ofb)(?:1|8)?(?:-cts)?["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createCipheriv|Cipheriv)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptocreatecipherivalgorithm-key-iv-options
+        - https://nodejs.org/api/crypto.html#cipherupdatedata-inputencoding-outputencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: block-cipher
+        algorithmFamily: AES
+        library: node:crypto
+        api: crypto.Cipheriv.update
+
+  - id: javascript.crypto.aes.decipheriv-update
+    message: Detected AES decryption via Node.js crypto Decipheriv update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '(?i)^["'']aes-?(?:128|192|256)-(?:cbc|cfb|ctr|ecb|ofb)(?:1|8)?(?:-cts)?["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createDecipheriv|Decipheriv)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptocreatedecipherivalgorithm-key-iv-options
+        - https://nodejs.org/api/crypto.html#decipherupdatedata-inputencoding-outputencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: block-cipher
+        algorithmFamily: AES
+        library: node:crypto
+        api: crypto.Decipheriv.update
+
+  - id: javascript.crypto.aes.cipheriv-update-aead
+    message: Detected AES authenticated encryption via Node.js crypto Cipheriv update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '(?i)^["''](?:id-)?aes-?(?:128|192|256)-(?:gcm|ccm)["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createCipheriv|Cipheriv)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptocreatecipherivalgorithm-key-iv-options
+        - https://nodejs.org/api/crypto.html#cipherupdatedata-inputencoding-outputencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: ae
+        algorithmFamily: AES
+        library: node:crypto
+        api: crypto.Cipheriv.update
+
+  - id: javascript.crypto.aes.decipheriv-update-aead
+    message: Detected AES authenticated decryption via Node.js crypto Decipheriv update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $ALGO
+          - metavariable-regex:
+              metavariable: $ALGO
+              regex: '(?i)^["''](?:id-)?aes-?(?:128|192|256)-(?:gcm|ccm)["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CIPHER = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: |
+                          $CIPHER = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CIPHER ...>.update(...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createDecipheriv|Decipheriv)$'
+          - focus-metavariable: $ALGO
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptocreatedecipherivalgorithm-key-iv-options
+        - https://nodejs.org/api/crypto.html#decipherupdatedata-inputencoding-outputencoding
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: ae
+        algorithmFamily: AES
+        library: node:crypto
+        api: crypto.Decipheriv.update
