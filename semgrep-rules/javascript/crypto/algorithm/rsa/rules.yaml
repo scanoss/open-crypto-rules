@@ -1,35 +1,39 @@
-# RSA signing and verification through the Node.js crypto Sign / Verify methods
-# update(), sign(), verify() and the one-shot crypto.sign() / crypto.verify();
-# public-key encryption through crypto.{public,private}{Encrypt,Decrypt}.
+# RSA through the Node.js crypto Sign / Verify update(), sign() and verify(), the
+# one-shot crypto.sign() / crypto.verify(), and crypto.{public,private}{Encrypt,
+# Decrypt}. Six rules taint the algorithm string; the four -pss and two -oaep
+# rules taint the padding constant instead, putting no condition on the algorithm
+# argument - the null the Node docs pass included; the four base pke rules taint
+# nothing. Class sinks take all four ways to get a Sign or a Verify - factory and
+# exported constructor, with and without new - chained or assigned and used later
+# in the same statement sequence. Every rule is gated on a require() or import of
+# 'crypto' / 'node:crypto', which narrows the library without proving it.
 #
-# The six sign/verify rules taint the algorithm string - only the signature
-# scheme names name RSA outright, a bare digest ('sha256') leaving the scheme to
-# the key. The four -pss and two -oaep rules taint the padding constant instead
-# and accept any algorithm argument, including the null the docs pass; they carry
-# the only algorithmName here, the padding being all that separates them from the
-# rule beside them, which matches PSS calls too and so stays silent on the scheme
-# (a call naming both is reported twice). The four base pke rules taint nothing:
-# each reaches EVP_PKEY_CTX_set_rsa_padding(), which fails for a non-RSA key.
+# algorithmName is all that separates the -pss / -oaep six from the rule beside
+# them, which matches the same call, so a call naming a padding constant reports
+# twice; privateEncrypt / publicDecrypt have no -oaep rule, Node rejecting that
+# padding there. The ten sign/verify rules infer RSA rather than prove it - Node
+# reads a digest from the string and takes the scheme from the key, so
+# 'RSA-SHA256' signs ECDSA under an EC key and a PSS padding is ignored on a
+# non-RSA one - while the six pke rules prove it, throwing on any non-RSA key.
 #
-# Class sinks match all four ways to get a Sign or a Verify - factory and
-# exported constructor, with and without new - inside a deep-expression operator
-# absorbing the chainable methods. Every rule is gated on an import of node's
-# crypto, the qualified spellings also binding the receiver to its alias; the
-# gate does not prove the library, since bundlers alias the bare 'crypto'
-# specifier to crypto-browserify, which exposes these APIs under these names.
+# Accepted by the six algorithm-string rules, case-insensitively:
+#   RSA-{MD5,SHA1,SHA{224,256,384,512},SHA3-{224,256,384,512}}
 #
-# Accepted by the six sign/verify rules, case-insensitively:
-#   RSA-{MD5,SHA1,SHA224,SHA256,SHA384,SHA512,SHA3-{224,256,384,512}}
-#
-# Not covered: the long-name aliases of those NIDs ({md4,md5,sha1,sha224,sha256,
-# sha384,sha512,sha512-224,sha512-256,sm3}WithRSAEncryption,
-# {ripemd160,mdc2}WithRSA, id-rsassa-pkcs1-v1_5-with-sha3-*);
-# RSA-{MD4,SHA1-2,SHA512/224,SHA512/256,RIPEMD160,MDC2,SM3}; RSA-{MD2,NP-MD5,SHA}
-# and sha1WithRSA, which no registered digest points at; dotted-decimal OIDs; the
-# digest each name also identifies, a separate CycloneDX hash component; the key
-# size, and the padding on calls not naming the constant; the stream interface
-# alone; and four import spellings - inline require("crypto").publicEncrypt(), a
-# renamed named import in ESM or CJS (plain ones resolve), await import().
+# Not matched: the long names ({md4,md5,sha1,sha{224,256,384,512},sha512-{224,
+# 256},sm3}WithRSAEncryption, {ripemd160,mdc2}WithRSA,
+# id-rsassa-pkcs1-v1_5-with-sha3-*); RSA-{MD4,SHA512/{224,256},RIPEMD160,MDC2,
+# SM3}; dotted-decimal OIDs; backtick-quoted strings, the regexes being
+# quote-anchored; a bare digest name, naming no scheme without a PSS padding
+# beside it; the digest each RSA-* name also identifies, a separate hash
+# component; key size, and the PKCS#1 v1.5 and no-padding constants, none having
+# a field; key generation and crypto.subtle; a key options object held in a
+# variable, and a module-scope padding constant read by a function declaration
+# (the same flow into an arrow function is kept); a Sign or Verify whose creation
+# and use sit in different functions, or a creation inside a try with the use
+# after it; update() replaced by the stream interface, the terminating sign() /
+# verify() still reporting; inline require('crypto').publicEncrypt(); and renamed
+# imports - the ESM form always, the require() form unless a plain require of
+# crypto sits beside it.
 
 rules:
   - id: javascript.crypto.rsa.sign-update
@@ -192,8 +196,6 @@ rules:
         library: node:crypto
         api: crypto.Sign.sign
 
-  # PSS is selected by sign()'s padding option rather than the algorithm string,
-  # and that constant is RSA-only, so this rule accepts any algorithm string.
   - id: javascript.crypto.rsa.sign-sign-pss
     message: Detected RSA-PSS signing via Node.js crypto Sign sign
     severity: INFO
@@ -435,9 +437,6 @@ rules:
         library: node:crypto
         api: crypto.Verify.verify
 
-  # PSS is selected by verify()'s padding option rather than the algorithm
-  # string, and that constant is RSA-only, so this rule accepts any algorithm
-  # string.
   - id: javascript.crypto.rsa.verify-verify-pss
     message: Detected RSA-PSS signature verification via Node.js crypto Verify verify
     severity: INFO
@@ -574,10 +573,6 @@ rules:
         library: node:crypto
         api: crypto.sign
 
-  # PSS is selected by the padding property of the key argument rather than the
-  # algorithm string, and that constant is RSA-only, so this rule accepts any
-  # algorithm argument - including the null the Node docs pass for a key that
-  # already pins its digest.
   - id: javascript.crypto.rsa.sign-pss
     message: Detected RSA-PSS signing via Node.js crypto sign
     severity: INFO
@@ -690,7 +685,6 @@ rules:
         library: node:crypto
         api: crypto.verify
 
-  # As sign-pss, on the key argument of crypto.verify().
   - id: javascript.crypto.rsa.verify-pss
     message: Detected RSA-PSS signature verification via Node.js crypto verify
     severity: INFO

@@ -1,33 +1,36 @@
-# AES encryption / decryption through the Node.js crypto Cipheriv and Decipheriv
-# instance method update(). The algorithm string passed to the producer is the
-# taint source and the instance it returns has to reach an update() call. Every
-# producer is matched - createCipheriv / createDecipheriv, the exported Cipheriv
-# / Decipheriv constructors, and those constructors without new - with both the
-# creation expression and the instance inside a deep-expression operator, so the
-# chainable setAutoPadding(), setAAD() and setAuthTag() are absorbed. The
-# algorithm string does not prove the library (crypto-browserify exposes the same
-# signature), so every producer is gated on an import of node's crypto; the
-# qualified spellings also bind the receiver to the imported alias, the bare ones
-# rest on the import alone, and an inline require("crypto").createCipheriv()
-# matches neither. The gate does not prove the library either, since bundlers
-# alias the bare 'crypto' specifier to crypto-browserify.
+# AES through the Node.js crypto Cipheriv / Decipheriv update() methods. The
+# algorithm string is the taint source; the sink is the instance, chained
+# straight into update() or assigned and used later in the same statement
+# sequence, both inside the deep-expression operator so chainable
+# setAutoPadding() / setAAD() / setAuthTag() calls are absorbed. All four
+# producers match - createCipheriv / createDecipheriv and the exported Cipheriv /
+# Decipheriv constructors, with and without new - each gated on a require() or
+# import of 'crypto' / 'node:crypto'. The gate does not prove the library:
+# bundlers alias the bare specifier to crypto-browserify, same signatures.
 #
-# Nothing is captured - every emitted field is static - so the regexes only gate
-# the match, and base / aead are separate rules only because algorithmPrimitive
-# differs: block-cipher against ae. Both regexes are a deliberately loose
-# superset of the lists below and accept spellings no Node build resolves
-# (aes256-ofb, aes-256-ctr8, aes256-gcm, id-aes-256-gcm, anything -cts); each
-# throws ERR_CRYPTO_UNKNOWN_CIPHER, so no code that runs can match one.
+# Nothing is captured - every emitted field is a static literal - so the regexes
+# only gate the match, and over-match where that is free: aes-256-ctr8 and
+# id-aes-256-gcm are accepted and name no cipher Node resolves. Cipheriv and
+# Decipheriv split on api, base and -aead on algorithmPrimitive - block-cipher
+# against ae.
 #
-# Accepted, case-insensitively:
-#   base: aes-{128,192,256}-{cbc,cfb,ctr,ecb,ofb}, plus the cfb1 / cfb8 widths
-#   aead: aes-{128,192,256}-{gcm,ccm}, id-aes{128,192,256}-{gcm,ccm}
+# Accepted, case-insensitively, with or without the separator after aes:
+#   base: aes-{128,192,256}-{cbc,cfb,ctr,ecb,ofb}, the cfb1 / cfb8 widths and an
+#         optional -cts
+#   aead: {id-,}aes-{128,192,256}-{gcm,ccm}
 #
-# Not covered: the mode-less aliases AES{128,192,256}; dotted-decimal OIDs; the
-# cbc-hmac-sha{1,256} composites; xts, ocb, siv and gcm-siv, which would emit
-# nothing the existing rules do not; aes256-wrap, which would need its own rule
-# for algorithmPrimitive key-wrap; the Transform stream interface, where pipe()
-# or write() / end() encipher with no update() call; and renamed named imports.
+# Not matched: the mode-less aliases AES{128,192,256}; dotted-decimal OIDs;
+# aes-{128,192,256}-cbc-hmac-sha{1,256}; xts, ocb, siv, gcm-siv and
+# {id-,}aes{128,192,256}-wrap{,-pad}, which would emit what the base rules emit
+# already, key wrap being block-cipher for want of a key-wrap primitive;
+# backtick-quoted strings, the regexes being quote-anchored; final(), the
+# Transform stream interface and crypto.subtle as sinks; createCipher /
+# createDecipher, removed in Node 22; inline require('crypto').createCipheriv();
+# a producer and update() in different functions, or a creation inside a try with
+# the update after it; a module-scope algorithm constant read by a function
+# declaration (the same flow into an arrow function is kept); and renamed imports
+# - the ESM form always, the require() form unless a plain require of crypto sits
+# beside it.
 
 rules:
   - id: javascript.crypto.aes.cipheriv-update
