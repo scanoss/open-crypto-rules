@@ -1,0 +1,484 @@
+# ECDSA through the Node.js crypto Sign / Verify update(), sign() and verify()
+# and the one-shot crypto.sign() / crypto.verify(). Node names no ECDSA
+# algorithm string - createSign('ecdsa-with-SHA256') throws
+# ERR_CRYPTO_INVALID_DIGEST - so the family comes from the key, not the
+# algorithm argument: every rule taints the namedCurve literal and sinks on the
+# call the resulting key reaches, focused on the key argument. The digest string
+# is left unconstrained, being a hash component rather than a scheme. Class
+# sinks take all four ways to get a Sign or a Verify - factory and exported
+# constructor, with and without new - chained or assigned and used later in the
+# same statement sequence; the update() rules additionally require the
+# terminating sign() / verify() that carries the key. Every rule is gated on a
+# require() or import of 'crypto' / 'node:crypto', which narrows the library
+# without proving it.
+#
+# The six rules differ only in api, all emitting algorithmPrimitive: signature
+# and algorithmFamily: ECDSA. The curve is not a field, so it stays in the
+# matched source; a call using two curves reports once per curve.
+#
+# Accepted as curve names, case-insensitively:
+#   prime256v1, secp{256k1,256r1,384r1,521r1}, P-{256,384,521}
+#
+# Not matched: the remaining crypto.getCurves() names (prime192v1, secp224r1,
+# sect*, brainpool*, wap-wsg-*), and the bare 'ec' key type, which names no
+# curve; backtick-quoted strings, the regexes being quote-anchored; a key with
+# no curve literal in the file - crypto.createPrivateKey() on a PEM, a key read
+# from disk or passed in as a parameter; a keypair generated at module scope and
+# signed with from inside a function, and the callback form of
+# crypto.generateKeyPair(), taint crossing neither a closure nor a callback
+# parameter; ECDH and crypto.subtle; the dsaEncoding option, which names DSA as
+# readily as ECDSA; and renamed imports - the ESM form always, the require()
+# form unless a plain require of crypto sits beside it.
+
+rules:
+  - id: javascript.crypto.ecdsa.sign-update
+    message: Detected ECDSA signing via Node.js crypto Sign update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $CURVE
+          - metavariable-regex:
+              metavariable: $CURVE
+              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                          ...
+                          <... $CTX ...>.sign($KEY, ...)
+                      - pattern: <... $C.$MAKE($ALGO, ...).update(...) ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                          ...
+                          <... $CTX ...>.sign($KEY, ...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...).update(...) ...>.sign($KEY, ...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                          ...
+                          <... $CTX ...>.sign($KEY, ...)
+                      - pattern: <... $MAKE($ALGO, ...).update(...) ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                          ...
+                          <... $CTX ...>.sign($KEY, ...)
+                      - pattern: <... new $MAKE($ALGO, ...).update(...) ...>.sign($KEY, ...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createSign|Sign)$'
+          - focus-metavariable: $KEY
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-sign
+        - https://nodejs.org/api/crypto.html#signupdatedata-inputencoding
+        - https://nodejs.org/api/crypto.html#cryptogeneratekeypairsynctype-options
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: ECDSA
+        library: node:crypto
+        api: crypto.Sign.update
+
+  - id: javascript.crypto.ecdsa.sign-sign
+    message: Detected ECDSA signing via Node.js crypto Sign sign
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $CURVE
+          - metavariable-regex:
+              metavariable: $CURVE
+              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign($KEY, ...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign($KEY, ...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.sign($KEY, ...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign($KEY, ...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.sign($KEY, ...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.sign($KEY, ...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createSign|Sign)$'
+          - focus-metavariable: $KEY
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-sign
+        - https://nodejs.org/api/crypto.html#signsignprivatekey-outputencoding
+        - https://nodejs.org/api/crypto.html#cryptogeneratekeypairsynctype-options
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: ECDSA
+        library: node:crypto
+        api: crypto.Sign.sign
+
+  - id: javascript.crypto.ecdsa.verify-update
+    message: Detected ECDSA signature verification via Node.js crypto Verify update
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $CURVE
+          - metavariable-regex:
+              metavariable: $CURVE
+              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                          ...
+                          <... $CTX ...>.verify($KEY, $SIG, ...)
+                      - pattern: <... $C.$MAKE($ALGO, ...).update(...) ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                          ...
+                          <... $CTX ...>.verify($KEY, $SIG, ...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...).update(...) ...>.verify($KEY, $SIG, ...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                          ...
+                          <... $CTX ...>.verify($KEY, $SIG, ...)
+                      - pattern: <... $MAKE($ALGO, ...).update(...) ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.update(...)
+                          ...
+                          <... $CTX ...>.verify($KEY, $SIG, ...)
+                      - pattern: <... new $MAKE($ALGO, ...).update(...) ...>.verify($KEY, $SIG, ...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createVerify|Verify)$'
+          - focus-metavariable: $KEY
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-verify
+        - https://nodejs.org/api/crypto.html#verifyupdatedata-inputencoding
+        - https://nodejs.org/api/crypto.html#cryptogeneratekeypairsynctype-options
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: ECDSA
+        library: node:crypto
+        api: crypto.Verify.update
+
+  - id: javascript.crypto.ecdsa.verify-verify
+    message: Detected ECDSA signature verification via Node.js crypto Verify verify
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $CURVE
+          - metavariable-regex:
+              metavariable: $CURVE
+              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify($KEY, $SIG, ...)
+                      - pattern: <... $C.$MAKE($ALGO, ...) ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify($KEY, $SIG, ...)
+                      - pattern: <... new $C.$MAKE($ALGO, ...) ...>.verify($KEY, $SIG, ...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify($KEY, $SIG, ...)
+                      - pattern: <... $MAKE($ALGO, ...) ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          <... $CTX ...>.verify($KEY, $SIG, ...)
+                      - pattern: <... new $MAKE($ALGO, ...) ...>.verify($KEY, $SIG, ...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - metavariable-regex:
+              metavariable: $MAKE
+              regex: '^(?:createVerify|Verify)$'
+          - focus-metavariable: $KEY
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#class-verify
+        - https://nodejs.org/api/crypto.html#verifyverifyobject-signature-signatureencoding
+        - https://nodejs.org/api/crypto.html#cryptogeneratekeypairsynctype-options
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: ECDSA
+        library: node:crypto
+        api: crypto.Verify.verify
+
+  - id: javascript.crypto.ecdsa.sign
+    message: Detected ECDSA signing via Node.js crypto sign
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $CURVE
+          - metavariable-regex:
+              metavariable: $CURVE
+              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: $C.sign($ALGO, $DATA, $KEY, ...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: sign($ALGO, $DATA, $KEY, ...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - focus-metavariable: $KEY
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptosignalgorithm-data-key-callback
+        - https://nodejs.org/api/crypto.html#cryptogeneratekeypairsynctype-options
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: ECDSA
+        library: node:crypto
+        api: crypto.sign
+
+  - id: javascript.crypto.ecdsa.verify
+    message: Detected ECDSA signature verification via Node.js crypto verify
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern: $CURVE
+          - metavariable-regex:
+              metavariable: $CURVE
+              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: $C.verify($ALGO, $DATA, $KEY, $SIG, ...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern-either:
+                      - pattern: verify($ALGO, $DATA, $KEY, $SIG, ...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+          - focus-metavariable: $KEY
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptoverifyalgorithm-data-key-signature-callback
+        - https://nodejs.org/api/crypto.html#cryptogeneratekeypairsynctype-options
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: signature
+        algorithmFamily: ECDSA
+        library: node:crypto
+        api: crypto.verify
