@@ -1,0 +1,89 @@
+# X25519 key agreement through the Node.js crypto one-shot crypto.diffieHellman()
+# over generated X25519 KeyObjects. One rule. The call is the only X25519
+# agreement Node offers - createECDH() cannot reach the curve, X25519 being no EC
+# group and absent from crypto.getCurves(), and the ECDH class has no part in it.
+#
+# The call names no algorithm, taking 'ec', 'x25519', 'x448' and finite-field
+# 'dh' KeyObjects alike, and asymmetricKeyType is a runtime value no pattern can
+# read - so the rule matches the producer instead, firing only where a key the
+# call is handed is tainted by a generateKeyPair{,Sync}('x25519', ...). It is
+# gated on a require() or import of 'crypto' / 'node:crypto', which narrows the
+# library without proving it.
+#
+# The five emitted fields are static. api is shared with the ecdh and x448 rules
+# on this same call, which is why the three sit in separate directories under
+# separate families rather than splitting on algorithmName: the key type in the
+# source is the whole difference between them, and no two of the three match the
+# same call.
+#
+# Accepted: producers generateKeyPair{,Sync}; key type 'x25519'; module
+# specifiers {node:,}crypto, quoted or bare.
+#
+# Not matched: 'ec' and 'x448' keys, families with directories of their own;
+# keys from create{Private,Public}Key() or a keystore, nothing in the pattern
+# proving them X25519; the generateKeyPair callback form and the util.promisify()
+# form, neither returning the keys to taint; key generation reported on its own,
+# no agreement following it; crypto.subtle X25519; a keypair generated and used
+# in different functions; and renamed imports, the call name having to be
+# generateKeyPair or generateKeyPairSync.
+
+rules:
+  - id: javascript.crypto.x25519.diffie-hellman
+    message: Detected X25519 key agreement via Node.js crypto diffieHellman
+    severity: INFO
+    mode: taint
+    languages: [javascript, typescript]
+
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern: $K.$GEN($TYPE, ...)
+              - pattern: $GEN($TYPE, ...)
+          - metavariable-regex:
+              metavariable: $GEN
+              regex: '^generateKeyPair(?:Sync)?$'
+          - metavariable-regex:
+              metavariable: $TYPE
+              regex: '(?i)^["'']x25519["'']$'
+
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import $C from $MOD
+                          ...
+                      - pattern-inside: |
+                          import * as $C from $MOD
+                          ...
+                  - pattern: $C.diffieHellman(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern-inside: |
+                          $C = require($MOD)
+                          ...
+                      - pattern-inside: |
+                          import {...} from $MOD
+                          ...
+                  - pattern: diffieHellman(...)
+          - metavariable-regex:
+              metavariable: $MOD
+              regex: '^["'']?(?:node:)?crypto["'']?$'
+
+    metadata:
+      category: security
+      subcategory: cryptography
+      confidence: HIGH
+      references:
+        - https://nodejs.org/api/crypto.html#cryptodiffiehellmanoptions
+        - https://nodejs.org/api/crypto.html#cryptogeneratekeypairsynctype-options
+      crypto:
+        assetType: algorithm
+        algorithmPrimitive: key-agree
+        algorithmFamily: X25519
+        library: node:crypto
+        api: crypto.diffieHellman
