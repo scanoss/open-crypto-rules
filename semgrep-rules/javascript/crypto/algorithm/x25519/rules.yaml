@@ -16,16 +16,17 @@
 # source is the whole difference between them, and no two of the three match the
 # same call.
 #
-# Accepted: producers generateKeyPair{,Sync}; key type 'x25519'; module
-# specifiers {node:,}crypto, quoted or bare.
+# Accepted: producers generateKeyPair{,Sync}, case-sensitively; key type
+# 'x25519', case-insensitively; module specifiers {node:,}crypto, quoted or bare.
 #
 # Not matched: 'ec' and 'x448' keys, families with directories of their own;
 # keys from create{Private,Public}Key() or a keystore, nothing in the pattern
 # proving them X25519; the generateKeyPair callback form and the util.promisify()
 # form, neither returning the keys to taint; key generation reported on its own,
-# no agreement following it; crypto.subtle X25519; a keypair generated and used
-# in different functions; and renamed imports, the call name having to be
-# generateKeyPair or generateKeyPairSync.
+# no agreement following it; crypto.subtle X25519; a keypair generated at module
+# scope and agreed on from inside a function, taint crossing no closure; and
+# renamed imports - the ESM form always, the require() form unless a plain
+# require of crypto sits beside it.
 
 rules:
   - id: javascript.crypto.x25519.diffie-hellman

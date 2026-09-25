@@ -20,14 +20,15 @@
 #   ed25519, ed448
 #
 # Not matched: Ed25519ph / Ed25519ctx, which Node does not expose; the 'EdDSA'
-# and 'Ed25519' JOSE/COSE algorithm names, naming no Node API argument;
-# backtick-quoted strings, the regexes being quote-anchored; a key with no
-# key-type literal in the file - crypto.createPrivateKey() on a PEM, a key read
-# from disk or passed in as a parameter; a keypair generated at module scope and
-# signed with from inside a function, and the callback form of
-# crypto.generateKeyPair(), taint crossing neither a closure nor a callback
-# parameter; X25519 / X448, a key-agree family with no directory of its own; and
-# renamed imports - the ESM form always, the require() form unless a plain
+# JOSE/COSE algorithm name, naming no Node API argument - 'Ed25519' is matched,
+# the case fold reaching the JWK crv spelling; backtick-quoted strings, the
+# regexes being quote-anchored; a key with no key-type literal in the file -
+# crypto.createPrivateKey() on a PEM, a key read from disk or passed in as a
+# parameter; a keypair generated at module scope and signed with from inside a
+# function, and the callback form of crypto.generateKeyPair(), taint crossing
+# neither a closure nor a callback parameter; X25519 / X448, key-agree families
+# with directories of their own;
+# and renamed imports - the ESM form always, the require() form unless a plain
 # require of crypto sits beside it.
 
 rules:
