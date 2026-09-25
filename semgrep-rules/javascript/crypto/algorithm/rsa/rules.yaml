@@ -4,10 +4,9 @@
 # rules taint the padding constant instead, putting no condition on the algorithm
 # argument - the null the Node docs pass included; the four base pke rules taint
 # nothing. Class sinks take all four ways to get a Sign or a Verify - factory and
-# exported constructor, with and without new - chained, or assigned and used
-# later in the same statement sequence, through one intervening variable if need
-# be. Every rule is gated on a require() or import of 'crypto' / 'node:crypto',
-# which narrows the library without proving it.
+# exported constructor, with and without new - chained or assigned and used later
+# in the same statement sequence. Every rule is gated on a require() or import of
+# 'crypto' / 'node:crypto', which narrows the library without proving it.
 #
 # algorithmName is all that separates the -pss / -oaep six from the rule beside
 # them, which matches the same call, so a call naming a padding constant reports
@@ -19,10 +18,6 @@
 #
 # Accepted by the six algorithm-string rules, case-insensitively:
 #   RSA-{MD5,SHA1,SHA{224,256,384,512},SHA3-{224,256,384,512}}
-#
-# Accepted by the -pss and -oaep rules, case-sensitively, bare or under any
-# dotted prefix (crypto.constants., constants.):
-#   RSA_PKCS1_{PSS,OAEP}_PADDING
 #
 # Not matched: the long names ({md4,md5,sha1,sha{224,256,384,512},sha512-{224,
 # 256},sm3}WithRSAEncryption, {ripemd160,mdc2}WithRSA,
@@ -74,21 +69,9 @@ rules:
                           ...
                           <... $CTX ...>.update(...)
                       - pattern: |
-                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.update(...)
-                      - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.update(...)
-                      - pattern: |
-                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.update(...)
                       - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
                       - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
               - patterns:
@@ -105,21 +88,9 @@ rules:
                           ...
                           <... $CTX ...>.update(...)
                       - pattern: |
-                          $CTX = <... $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.update(...)
-                      - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.update(...)
-                      - pattern: |
-                          $CTX = <... new $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.update(...)
                       - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
                       - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
           - metavariable-regex:
@@ -178,21 +149,9 @@ rules:
                           ...
                           <... $CTX ...>.sign(...)
                       - pattern: |
-                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.sign(...)
-                      - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.sign(...)
-                      - pattern: |
-                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.sign(...)
                       - pattern: <... $C.$MAKE($ALGO, ...) ...>.sign(...)
                       - pattern: <... new $C.$MAKE($ALGO, ...) ...>.sign(...)
               - patterns:
@@ -209,21 +168,9 @@ rules:
                           ...
                           <... $CTX ...>.sign(...)
                       - pattern: |
-                          $CTX = <... $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.sign(...)
-                      - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.sign(...)
-                      - pattern: |
-                          $CTX = <... new $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.sign(...)
                       - pattern: <... $MAKE($ALGO, ...) ...>.sign(...)
                       - pattern: <... new $MAKE($ALGO, ...) ...>.sign(...)
           - metavariable-regex:
@@ -282,21 +229,9 @@ rules:
                           ...
                           <... $CTX ...>.sign({..., padding: $PAD}, ...)
                       - pattern: |
-                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.sign({..., padding: $PAD}, ...)
-                      - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.sign({..., padding: $PAD}, ...)
-                      - pattern: |
-                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.sign({..., padding: $PAD}, ...)
                       - pattern: '<... $C.$MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
                       - pattern: '<... new $C.$MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
               - patterns:
@@ -313,21 +248,9 @@ rules:
                           ...
                           <... $CTX ...>.sign({..., padding: $PAD}, ...)
                       - pattern: |
-                          $CTX = <... $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.sign({..., padding: $PAD}, ...)
-                      - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.sign({..., padding: $PAD}, ...)
-                      - pattern: |
-                          $CTX = <... new $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.sign({..., padding: $PAD}, ...)
                       - pattern: '<... $MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
                       - pattern: '<... new $MAKE($ALGO, ...) ...>.sign({..., padding: $PAD}, ...)'
           - metavariable-regex:
@@ -387,21 +310,9 @@ rules:
                           ...
                           <... $CTX ...>.update(...)
                       - pattern: |
-                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.update(...)
-                      - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.update(...)
-                      - pattern: |
-                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.update(...)
                       - pattern: <... $C.$MAKE($ALGO, ...) ...>.update(...)
                       - pattern: <... new $C.$MAKE($ALGO, ...) ...>.update(...)
               - patterns:
@@ -418,21 +329,9 @@ rules:
                           ...
                           <... $CTX ...>.update(...)
                       - pattern: |
-                          $CTX = <... $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.update(...)
-                      - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.update(...)
-                      - pattern: |
-                          $CTX = <... new $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.update(...)
                       - pattern: <... $MAKE($ALGO, ...) ...>.update(...)
                       - pattern: <... new $MAKE($ALGO, ...) ...>.update(...)
           - metavariable-regex:
@@ -491,21 +390,9 @@ rules:
                           ...
                           <... $CTX ...>.verify(...)
                       - pattern: |
-                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.verify(...)
-                      - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.verify(...)
-                      - pattern: |
-                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.verify(...)
                       - pattern: <... $C.$MAKE($ALGO, ...) ...>.verify(...)
                       - pattern: <... new $C.$MAKE($ALGO, ...) ...>.verify(...)
               - patterns:
@@ -522,21 +409,9 @@ rules:
                           ...
                           <... $CTX ...>.verify(...)
                       - pattern: |
-                          $CTX = <... $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.verify(...)
-                      - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.verify(...)
-                      - pattern: |
-                          $CTX = <... new $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.verify(...)
                       - pattern: <... $MAKE($ALGO, ...) ...>.verify(...)
                       - pattern: <... new $MAKE($ALGO, ...) ...>.verify(...)
           - metavariable-regex:
@@ -595,21 +470,9 @@ rules:
                           ...
                           <... $CTX ...>.verify({..., padding: $PAD}, ...)
                       - pattern: |
-                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.verify({..., padding: $PAD}, ...)
-                      - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.verify({..., padding: $PAD}, ...)
-                      - pattern: |
-                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.verify({..., padding: $PAD}, ...)
                       - pattern: '<... $C.$MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
                       - pattern: '<... new $C.$MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
               - patterns:
@@ -626,21 +489,9 @@ rules:
                           ...
                           <... $CTX ...>.verify({..., padding: $PAD}, ...)
                       - pattern: |
-                          $CTX = <... $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.verify({..., padding: $PAD}, ...)
-                      - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
                           <... $CTX ...>.verify({..., padding: $PAD}, ...)
-                      - pattern: |
-                          $CTX = <... new $MAKE($ALGO, ...) ...>
-                          ...
-                          $CTX2 = <... $CTX ...>
-                          ...
-                          <... $CTX2 ...>.verify({..., padding: $PAD}, ...)
                       - pattern: '<... $MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
                       - pattern: '<... new $MAKE($ALGO, ...) ...>.verify({..., padding: $PAD}, ...)'
           - metavariable-regex:
