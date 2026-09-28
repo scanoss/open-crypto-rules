@@ -1,14 +1,20 @@
 # X25519 key agreement through the Node.js crypto one-shot crypto.diffieHellman()
-# over generated X25519 KeyObjects. One rule. The call is the only X25519
-# agreement Node offers - createECDH() cannot reach the curve, X25519 being no EC
-# group and absent from crypto.getCurves(), and the ECDH class has no part in it.
+# over X25519 KeyObjects. One rule. The call is the only X25519 agreement in the
+# legacy crypto API - createECDH() cannot reach the curve, X25519 being no EC
+# group and absent from crypto.getCurves(), and the ECDH class has no part in
+# it. WebCrypto offers another, subtle.deriveBits({name:'X25519'}), stable since
+# v20.19.3 and out of scope here on a different library surface.
 #
 # The call names no algorithm, taking 'ec', 'x25519', 'x448' and finite-field
-# 'dh' KeyObjects alike, and asymmetricKeyType is a runtime value no pattern can
-# read - so the rule matches the producer instead, firing only where a key the
-# call is handed is tainted by a generateKeyPair{,Sync}('x25519', ...). It is
-# gated on a require() or import of 'crypto' / 'node:crypto', which narrows the
-# library without proving it.
+# 'dh' KeyObjects alike, and the KeyObject's asymmetricKeyType property is a
+# runtime value no pattern can read - so the rule matches the producer instead,
+# firing only where a key the call is handed is tainted by a
+# generateKeyPair{,Sync}('x25519', ...) or by a create{Private,Public}Key()
+# naming 'x25519' in its asymmetricKeyType option. The option is not the
+# property: it is a literal at the call, required for the raw-{public,private,
+# seed} formats and ignored for the others, so the rule reads it and leaves
+# format unchecked. It is gated on a require() or import of 'crypto' /
+# 'node:crypto', which narrows the library without proving it.
 #
 # The five emitted fields are static. api is shared with the ecdh and x448 rules
 # on this same call, which is why the three sit in separate directories under
@@ -16,12 +22,16 @@
 # source is the whole difference between them, and no two of the three match the
 # same call.
 #
-# Accepted: producers generateKeyPair{,Sync}, case-sensitively; key type
-# 'x25519', case-insensitively; module specifiers {node:,}crypto, quoted or bare.
+# Accepted: producers generateKeyPair{,Sync} and create{Private,Public}Key,
+# case-sensitively; key type 'x25519', case-insensitively, as the first argument
+# of the former and the asymmetricKeyType option of the latter, in any option
+# order; module specifiers {node:,}crypto, quoted or bare.
 #
 # Not matched: 'ec' and 'x448' keys, families with directories of their own;
-# keys from create{Private,Public}Key() or a keystore, nothing in the pattern
-# proving them X25519; the generateKeyPair callback form and the util.promisify()
+# PEM, DER, JWK and keystore keys from create{Private,Public}Key(), carrying no
+# asymmetricKeyType and nothing else in the pattern proving them X25519 - the
+# JWK form does name the curve, in crv, and is a candidate rather than an
+# impossibility; the generateKeyPair callback form and the util.promisify()
 # form, neither returning the keys to taint; key generation reported on its own,
 # no agreement following it; crypto.subtle X25519; a keypair generated at module
 # scope and agreed on from inside a function, taint crossing no closure; and
@@ -36,16 +46,27 @@ rules:
     languages: [javascript, typescript]
 
     pattern-sources:
-      - patterns:
-          - pattern-either:
-              - pattern: $K.$GEN($TYPE, ...)
-              - pattern: $GEN($TYPE, ...)
-          - metavariable-regex:
-              metavariable: $GEN
-              regex: '^generateKeyPair(?:Sync)?$'
-          - metavariable-regex:
-              metavariable: $TYPE
-              regex: '(?i)^["'']x25519["'']$'
+      - pattern-either:
+          - patterns:
+              - pattern-either:
+                  - pattern: $K.$GEN($TYPE, ...)
+                  - pattern: $GEN($TYPE, ...)
+              - metavariable-regex:
+                  metavariable: $GEN
+                  regex: '^generateKeyPair(?:Sync)?$'
+              - metavariable-regex:
+                  metavariable: $TYPE
+                  regex: '(?i)^["'']x25519["'']$'
+          - patterns:
+              - pattern-either:
+                  - pattern: '$K.$MK({..., asymmetricKeyType: $TYPE, ...})'
+                  - pattern: '$MK({..., asymmetricKeyType: $TYPE, ...})'
+              - metavariable-regex:
+                  metavariable: $MK
+                  regex: '^create(?:Private|Public)Key$'
+              - metavariable-regex:
+                  metavariable: $TYPE
+                  regex: '(?i)^["'']x25519["'']$'
 
     pattern-sinks:
       - patterns:
