@@ -5,47 +5,49 @@
 # Neither API names ECDH at the call, so both match on the producer instead.
 # computeSecret() fires only on an instance the same statement sequence traces
 # back to createECDH() or the exported ECDH constructor - createDiffieHellman()
-# hands back an object with the same method name and a different family - taking
-# all four ways to get one, factory and constructor, with and without new, Node's
-# legacy classes self-instantiating, chained or assigned and used later, through
-# one intervening variable if need be.
+# hands back an object with the same method name and a different family -
+# taking all four ways to get one, factory and constructor, with and without
+# new, Node's legacy classes self-instantiating, chained or assigned and used
+# later, through one intervening variable if need be: an alias, or any method
+# call on it, the name unconstrained, so the this-returning
+# set{Private,Public}Key and harmlessly the other returns too - but not an
+# assignment merely mentioning the instance.
 # diffieHellman() fires only where a key it is handed is tainted by a
 # generateKeyPair{,Sync}('ec', ...) or by a create{Private,Public}Key() naming
 # 'ec' in its asymmetricKeyType option: the call takes finite-field 'dh'
-# KeyObjects just as readily, and the KeyObject's asymmetricKeyType property is
-# a runtime value no pattern can read. The option is not the property: it is a
-# literal at the call, required for the raw-{public,private,seed} formats and
-# ignored for the others, so the rule reads it and leaves format unchecked.
-# Both are gated on a require() or import of 'crypto' / 'node:crypto', which
-# narrows the library without proving it.
+# KeyObjects just as readily and the KeyObject's asymmetricKeyType property is
+# a runtime value no pattern can read. The option is not the property but a
+# literal at the call, required for the raw-{public,private} formats EC keys
+# have, so the rule reads it, not format. Both are gated on a require() or
+# import of 'crypto' / 'node:crypto', narrowing without proving.
 #
-# The five emitted fields are static and none of them records the curve, so
-# neither the createECDH curve nor namedCurve carries any condition: a literal, a
-# variable and a runtime parameter all report the same finding. The only regexes
-# are on the producer name, the key type and the module specifier.
+# The five emitted fields are static and none records the curve, so neither the
+# createECDH curve nor namedCurve carries a condition: literal, variable and
+# runtime parameter all report alike. Regexes: producer name, key type, module.
 #
 # Accepted: producers createECDH, ECDH, generateKeyPair{,Sync} and
-# create{Private,Public}Key, case-sensitively; key type 'ec', case-insensitively,
-# as the first argument of generateKeyPair{,Sync} and the asymmetricKeyType
-# option of create{Private,Public}Key, in any option order; module specifiers
-# {node:,}crypto, quoted or bare; all curve arguments.
+# create{Private,Public}Key, case-sensitively; key type 'ec',
+# case-insensitively, as the first argument of generateKeyPair{,Sync} and the
+# asymmetricKeyType option of create{Private,Public}Key, in any option order;
+# module specifiers {node:,}crypto, quoted or bare; all curve arguments.
 #
 # Not matched: 'x25519' and 'x448' keys, families with directories of their own
-# (createECDH reaches neither curve, both being absent from crypto.getCurves());
+# (createECDH reaches neither curve, both absent from crypto.getCurves());
 # PEM, DER, JWK and keystore keys from create{Private,Public}Key(), carrying no
-# asymmetricKeyType and nothing else in the pattern proving them EC - the JWK
-# form does name the key type, in kty, and is a candidate rather than an
-# impossibility; the generateKeyPair callback form and the util.promisify()
-# form, neither returning the keys to taint; the other ECDH methods
-# (generateKeys, {get,set}{Public,Private}Key) and the static ECDH.convertKey,
-# none of them a key agreement; DH computeSecret off createDiffieHellman{,Group}
-# and diffieHellman() over 'dh' keys, a family still owed a directory;
-# crypto.subtle; an ECDH instance whose creation and use sit in different
-# functions, and a keypair generated at module scope and agreed on from inside a
-# function, taint crossing no closure; inline
-# require('crypto').createECDH(...).computeSecret(); and renamed imports - the
-# ESM form always, the require() form unless a plain require of crypto sits
-# beside it.
+# asymmetricKeyType and nothing else proving them EC - the JWK form does name
+# kty, a candidate rather than an impossibility; the generateKeyPair callback
+# form and the util.promisify() form, neither returning the keys to taint; key
+# data passed inline to diffieHellman() in place of a KeyObject, taken since
+# v26.1.0 and v24.18.0, with no create{Private,Public}Key() call to taint
+# though the asymmetricKeyType sits in plain sight at the sink; the other ECDH
+# methods (generateKeys, {get,set}{Public,Private}Key) and the static
+# ECDH.convertKey as sinks, none of them a key agreement; DH computeSecret off
+# createDiffieHellman{,Group} and diffieHellman() over 'dh' keys, a family
+# still owed a directory; crypto.subtle; an ECDH instance created and used in
+# different functions, and a module-scope keypair agreed on inside one, taint
+# crossing no closure; inline require('crypto').createECDH().computeSecret();
+# and renamed imports - the ESM form always, the require() form unless a plain
+# require of crypto sits beside it.
 
 rules:
   - id: javascript.crypto.ecdh.compute-secret
@@ -74,7 +76,13 @@ rules:
                   - pattern: |
                       $ECDH = <... $C.$MAKE(...) ...>
                       ...
-                      $ECDH2 = <... $ECDH ...>
+                      $ECDH2 = $ECDH
+                      ...
+                      <... $ECDH2 ...>.computeSecret(...)
+                  - pattern: |
+                      $ECDH = <... $C.$MAKE(...) ...>
+                      ...
+                      $ECDH2 = $ECDH.$M(...)
                       ...
                       <... $ECDH2 ...>.computeSecret(...)
                   - pattern: |
@@ -84,7 +92,13 @@ rules:
                   - pattern: |
                       $ECDH = <... new $C.$MAKE(...) ...>
                       ...
-                      $ECDH2 = <... $ECDH ...>
+                      $ECDH2 = $ECDH
+                      ...
+                      <... $ECDH2 ...>.computeSecret(...)
+                  - pattern: |
+                      $ECDH = <... new $C.$MAKE(...) ...>
+                      ...
+                      $ECDH2 = $ECDH.$M(...)
                       ...
                       <... $ECDH2 ...>.computeSecret(...)
                   - pattern: <... $C.$MAKE(...) ...>.computeSecret(...)
@@ -105,7 +119,13 @@ rules:
                   - pattern: |
                       $ECDH = <... $MAKE(...) ...>
                       ...
-                      $ECDH2 = <... $ECDH ...>
+                      $ECDH2 = $ECDH
+                      ...
+                      <... $ECDH2 ...>.computeSecret(...)
+                  - pattern: |
+                      $ECDH = <... $MAKE(...) ...>
+                      ...
+                      $ECDH2 = $ECDH.$M(...)
                       ...
                       <... $ECDH2 ...>.computeSecret(...)
                   - pattern: |
@@ -115,7 +135,13 @@ rules:
                   - pattern: |
                       $ECDH = <... new $MAKE(...) ...>
                       ...
-                      $ECDH2 = <... $ECDH ...>
+                      $ECDH2 = $ECDH
+                      ...
+                      <... $ECDH2 ...>.computeSecret(...)
+                  - pattern: |
+                      $ECDH = <... new $MAKE(...) ...>
+                      ...
+                      $ECDH2 = $ECDH.$M(...)
                       ...
                       <... $ECDH2 ...>.computeSecret(...)
                   - pattern: <... $MAKE(...) ...>.computeSecret(...)

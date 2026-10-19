@@ -12,6 +12,17 @@ function deriveSharedSecret(theirPublicKey) {
     return alice.computeSecret(theirPublicKey, 'hex', 'hex');
 }
 
+// Negative: the assignment mentions the ECDH instance, but what it binds is a
+// finite-field DH object built from that instance's public key, so the
+// computeSecret() below is DH's. An intervening variable counts only when it is
+// the instance itself - an alias, or a method call on it.
+function deriveDhFromEcdhPublic(theirPublicKey) {
+    const ecdh = crypto.createECDH('prime256v1');
+    const dh = crypto.createDiffieHellman(ecdh.getPublicKey());
+    dh.generateKeys();
+    return dh.computeSecret(theirPublicKey, 'hex', 'hex');
+}
+
 // Negative: finite-field DH exposes the same method name on an unrelated
 // object, which is why the rule matches the producer rather than the method.
 // This is Diffie-Hellman, not ECDH, and belongs to a family with no directory
@@ -22,4 +33,4 @@ function deriveDhSecret(theirPublicKey) {
     return dh.computeSecret(theirPublicKey, 'hex', 'hex');
 }
 
-module.exports = { deriveSharedSecret, deriveDhSecret };
+module.exports = { deriveSharedSecret, deriveDhFromEcdhPublic, deriveDhSecret };

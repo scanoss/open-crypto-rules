@@ -10,11 +10,11 @@
 # runtime value no pattern can read - so the rule matches the producer instead,
 # firing only where a key the call is handed is tainted by a
 # generateKeyPair{,Sync}('x448', ...) or by a create{Private,Public}Key() naming
-# 'x448' in its asymmetricKeyType option. The option is not the property: it is
-# a literal at the call, required for the raw-{public,private,seed} formats and
-# ignored for the others, so the rule reads it and leaves format unchecked. It
-# is gated on a require() or import of 'crypto' / 'node:crypto', which narrows
-# the library without proving it.
+# 'x448' in its asymmetricKeyType option. The option is not the property but a
+# literal at the call, required for the raw-{public,private} formats X448 has -
+# it has no raw-seed form, that belonging to ML-KEM and ML-DSA - so the rule
+# reads it and leaves format unchecked. It is gated on a require() or import of
+# 'crypto' / 'node:crypto', which narrows the library without proving it.
 #
 # The five emitted fields are static. api is shared with the ecdh and x25519
 # rules on this same call, which is why the three sit in separate directories
@@ -32,11 +32,14 @@
 # asymmetricKeyType and nothing else in the pattern proving them X448 - the JWK
 # form does name the curve, in crv, and is a candidate rather than an
 # impossibility; the generateKeyPair callback form and the util.promisify()
-# form, neither returning the keys to taint; key generation reported on its own,
-# no agreement following it; crypto.subtle X448; a keypair generated at module
-# scope and agreed on from inside a function, taint crossing no closure; and
-# renamed imports - the ESM form always, the require() form unless a plain
-# require of crypto sits beside it.
+# form, neither returning the keys to taint; key data passed inline to
+# diffieHellman() in place of a KeyObject, taken since v26.1.0 and v24.18.0,
+# with no create{Private,Public}Key() call to taint though the
+# asymmetricKeyType sits in plain sight at the sink; key generation reported on
+# its own, no agreement following it; crypto.subtle X448; a keypair generated
+# at module scope and agreed on from inside a function, taint crossing no
+# closure; and renamed imports - the ESM form always, the require() form unless
+# a plain require of crypto sits beside it.
 
 rules:
   - id: javascript.crypto.x448.diffie-hellman
