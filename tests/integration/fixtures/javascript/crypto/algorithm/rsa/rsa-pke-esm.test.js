@@ -1,10 +1,11 @@
 // ESM counterpart to rsa-pke.test.js. The import gate reaches require() and the
 // three ESM spellings through separate branches - $MOD binds quoted under
 // require and bare under import - so the ESM branches need their own fixture.
-// The six positive cases are split across the two files, one per rule.
+// Each of the six rules has a case here and a case there, so a gate branch that
+// only works under require() fails this file.
 import nodeCrypto from 'node:crypto';
 import * as crypto from 'crypto';
-import { publicEncrypt, constants } from 'node:crypto';
+import { publicEncrypt, privateDecrypt, constants } from 'node:crypto';
 
 // Default import under a node: specifier, receiver bound to the imported alias.
 // TEST-RULE: javascript.crypto.rsa.public-decrypt
@@ -35,4 +36,28 @@ export function encryptToPublicKeyOaep(publicKey, plaintext) {
         padding: constants.RSA_PKCS1_OAEP_PADDING,
         oaepHash: 'sha256',
     }, Buffer.from(plaintext, 'utf8'));
+}
+
+// Namespace import, key passed directly, so no padding is named and only the
+// base rule reports.
+// TEST-RULE: javascript.crypto.rsa.public-encrypt
+// TEST-METADATA: assetType=algorithm, algorithmPrimitive=pke, algorithmFamily=RSA, library=node:crypto, api=crypto.publicEncrypt
+export function encryptToPublicKey(publicKey, plaintext) {
+    return crypto.publicEncrypt(publicKey, Buffer.from(plaintext, 'utf8'));
+}
+
+// Named import, bare call.
+// TEST-RULE: javascript.crypto.rsa.private-decrypt
+// TEST-METADATA: assetType=algorithm, algorithmPrimitive=pke, algorithmFamily=RSA, library=node:crypto, api=crypto.privateDecrypt
+export function decryptWithPrivateKey(privateKey, ciphertext) {
+    return privateDecrypt(privateKey, ciphertext);
+}
+
+// Default import, padding held in a variable: the shape the taint design
+// exists for. The base private-decrypt rule matches this call too.
+// TEST-RULE: javascript.crypto.rsa.private-decrypt-oaep
+// TEST-METADATA: assetType=algorithm, algorithmPrimitive=pke, algorithmFamily=RSA, algorithmName=RSAES-OAEP, library=node:crypto, api=crypto.privateDecrypt
+export function decryptWithPrivateKeyOaep(privateKey, ciphertext) {
+    const padding = nodeCrypto.constants.RSA_PKCS1_OAEP_PADDING;
+    return nodeCrypto.privateDecrypt({ key: privateKey, padding }, ciphertext);
 }
