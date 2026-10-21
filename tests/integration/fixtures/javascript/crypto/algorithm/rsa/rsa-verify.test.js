@@ -1,22 +1,31 @@
 const crypto = require('crypto');
+const nodeCrypto = require('node:crypto');
 const { createVerify, verify } = require('crypto');
 
 // Algorithm held in a variable, exported constructor with new, two-statement
-// sink.
+// sink. The caller does the verifying, so verify-verify has this function's
+// verify() nowhere to match, and the chained case below feeds data through
+// end() rather than update(), so this is the only verify-update candidate in
+// the file. Both matter: validation is file-scoped with no line locality, so a
+// second candidate anywhere in the file would satisfy this block on its own
+// and leave the two-statement sink untested.
 // TEST-RULE: javascript.crypto.rsa.verify-update
 // TEST-METADATA: assetType=algorithm, algorithmPrimitive=signature, algorithmFamily=RSA, library=node:crypto, api=crypto.Verify.update
-function verifySha256(publicKey, data, signature) {
+// The receiver is a require alias that is not 'crypto', the only class-rule
+// case under require() that forces the gate to resolve the binding.
+function hashIntoVerifier(data) {
     const algorithm = 'RSA-SHA256';
-    const verifier = new crypto.Verify(algorithm);
+    const verifier = new nodeCrypto.Verify(algorithm);
     verifier.update(data);
-    return verifier.verify(publicKey, signature, 'hex');
+    return verifier;
 }
 
-// Inline literal, destructured import, fully chained sink.
+// Inline literal, destructured import, fully chained sink. Data goes in
+// through end(), where update() would hand verify-update a second candidate.
 // TEST-RULE: javascript.crypto.rsa.verify-verify
 // TEST-METADATA: assetType=algorithm, algorithmPrimitive=signature, algorithmFamily=RSA, library=node:crypto, api=crypto.Verify.verify
 function verifySha512(publicKey, data, signature) {
-    return createVerify('rsa-sha512').update(data).verify(publicKey, signature);
+    return createVerify('rsa-sha512').end(data).verify(publicKey, signature);
 }
 
 // PSS is named by the padding option on verify(), not by the algorithm string,
