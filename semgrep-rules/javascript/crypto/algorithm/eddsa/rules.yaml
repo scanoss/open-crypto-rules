@@ -16,20 +16,23 @@
 # rules: nothing in the block would tell the pair apart, and the variant stays
 # in the matched source.
 #
-# Accepted as key-type names, case-insensitively:
+# Accepted as key-type names, case-sensitively - generateKeyPair matches the
+# type exactly, every other casing throwing ERR_INVALID_ARG_VALUE:
 #   ed25519, ed448
 #
 # Not matched: Ed25519ph / Ed25519ctx, which Node does not expose; the 'EdDSA'
-# JOSE/COSE algorithm name, naming no Node API argument - 'Ed25519' is matched,
-# the case fold reaching the JWK crv spelling; backtick-quoted strings, the
-# regexes being quote-anchored; a key with no key-type literal in the file -
-# crypto.createPrivateKey() on a PEM, a key read from disk or passed in as a
-# parameter; a keypair generated at module scope and signed with from inside a
-# function, and the callback form of crypto.generateKeyPair(), taint crossing
-# neither a closure nor a callback parameter; X25519 / X448, key-agree families
-# with directories of their own;
-# and renamed imports - the ESM form always, the require() form unless a plain
-# require of crypto sits beside it.
+# JOSE/COSE algorithm name, naming no Node API argument, and the JWK crv
+# spelling 'Ed25519', which names no key type either; with it every other
+# casing, and so the wrongly-cased literal that is normalised before use -
+# const t = 'ED25519' / generateKeyPairSync(t.toLowerCase()) - the source regex
+# testing the literal, not what it reaches the key through; backtick-quoted
+# strings, the regexes being quote-anchored; a key with no key-type literal in
+# the file - crypto.createPrivateKey() on a PEM, a key read from disk or passed
+# in as a parameter; a keypair generated at module scope and signed with from
+# inside a function, and the callback form of crypto.generateKeyPair(), taint
+# crossing neither a closure nor a callback parameter; X25519 / X448, key-agree
+# families with directories of their own; and renamed imports - the ESM form
+# always, the require() form unless a plain require of crypto sits beside it.
 
 rules:
   - id: javascript.crypto.eddsa.sign
@@ -43,7 +46,7 @@ rules:
           - pattern: $CURVE
           - metavariable-regex:
               metavariable: $CURVE
-              regex: '(?i)^["''](?:ed25519|ed448)["'']$'
+              regex: '^["''](?:ed25519|ed448)["'']$'
 
     pattern-sinks:
       - patterns:
@@ -101,7 +104,7 @@ rules:
           - pattern: $CURVE
           - metavariable-regex:
               metavariable: $CURVE
-              regex: '(?i)^["''](?:ed25519|ed448)["'']$'
+              regex: '^["''](?:ed25519|ed448)["'']$'
 
     pattern-sinks:
       - patterns:

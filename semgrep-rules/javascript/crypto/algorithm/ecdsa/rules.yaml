@@ -7,29 +7,46 @@
 # is left unconstrained, being a hash component rather than a scheme. Class
 # sinks take all four ways to get a Sign or a Verify - factory and exported
 # constructor, with and without new - chained, or assigned and used later in the
-# same statement sequence, through one intervening variable if need be; the
-# update() rules additionally require the terminating sign() / verify() that
-# carries the key. Every rule is gated on a require() or import of 'crypto' /
-# 'node:crypto', which narrows the library without proving it.
+# same statement sequence, through one intervening variable if need be, that
+# variable taking the context directly or off a single chained call - which in
+# an -update rule may be the update() the rule requires, or an update() behind
+# one further call; the update() rules additionally require the terminating
+# sign() / verify() that carries the key. Every rule is gated on a require()
+# or import of 'crypto' / 'node:crypto', which narrows the library without
+# proving it.
 #
 # The six rules differ only in api, all emitting algorithmPrimitive: signature
 # and algorithmFamily: ECDSA. The curve is not a field, so it stays in the
 # matched source; the finding sits on the key argument, one per call however
 # many curve literals reach it.
 #
-# Accepted as curve names, case-insensitively:
-#   prime256v1, secp{256k1,256r1,384r1,521r1}, P-{256,384,521}
+# Accepted as curve names, case-sensitively - namedCurve is matched exactly,
+# every other casing throwing ERR_CRYPTO_INVALID_CURVE:
+#   prime256v1, secp{256k1,384r1,521r1}, P-{256,384,521}
 #
-# Not matched: the remaining crypto.getCurves() names (prime192v1, secp224r1,
-# sect*, brainpool*, wap-wsg-*), and the bare 'ec' key type, which names no
-# curve; backtick-quoted strings, the regexes being quote-anchored; a key with
-# no curve literal in the file - crypto.createPrivateKey() on a PEM, a key read
-# from disk or passed in as a parameter; a keypair generated at module scope and
-# signed with from inside a function, and the callback form of
+# Not matched: secp256r1, which Node does not accept at all - prime256v1 and
+# P-256 are its spellings for that curve; every other casing of the names above
+# (SECP384R1, Prime256v1, p-256), and with them the wrongly-cased literal that
+# is normalised before use - const c = 'SECP256K1' / namedCurve: c.toLowerCase()
+# - the source regex testing the literal, not what it reaches the key through;
+# the remaining crypto.getCurves() names (prime192v1, secp224r1, sect*,
+# brainpool*, wap-wsg-*), and the bare 'ec' key type, which names no curve;
+# backtick-quoted strings, the regexes being quote-anchored; a key with no curve
+# literal in the file - crypto.createPrivateKey() on a PEM, a key read from disk
+# or passed in as a parameter; a keypair generated at module scope and signed
+# with from inside a function, and the callback form of
 # crypto.generateKeyPair(), taint crossing neither a closure nor a callback
-# parameter; ECDH and crypto.subtle; the dsaEncoding option, which names DSA as
-# readily as ECDSA; and renamed imports - the ESM form always, the require()
-# form unless a plain require of crypto sits beside it.
+# parameter; a Sign or Verify created inside a try with the update() or the
+# terminating sign() / verify() after the block, the ellipsis not jumping from
+# an inner statement block to an outer one; an intervening variable taking
+# anything but the context or one chained call off it - a wrapper's return
+# value, a destructuring, two chained calls off the variable (except in the
+# -update rules, where the second may be the update()), a second intervening
+# variable - a deep-expression form would reach those but reaches every
+# expression the context appears in with them;
+# ECDH and crypto.subtle; the dsaEncoding option, which names DSA as readily
+# as ECDSA; and renamed imports - the ESM form always, the require() form
+# unless a plain require of crypto sits beside it.
 
 rules:
   - id: javascript.crypto.ecdsa.sign-update
@@ -43,7 +60,7 @@ rules:
           - pattern: $CURVE
           - metavariable-regex:
               metavariable: $CURVE
-              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+              regex: '^["''](?:prime256v1|secp(?:256k1|384r1|521r1)|P-(?:256|384|521))["'']$'
 
     pattern-sinks:
       - patterns:
@@ -69,7 +86,15 @@ rules:
                       - pattern: |
                           $CTX = <... $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.update(...)
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.update(...)
                           ...
@@ -81,13 +106,25 @@ rules:
                       - pattern: |
                           $CTX = <... $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
                           ...
                           <... <... $CTX2 ...>.update(...) ...>.sign($KEY, ...)
                       - pattern: |
                           $CTX = <... $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... <... $CTX ...>.update(...) ...>
+                          $CTX2 = $CTX.$M(...)
+                          ...
+                          <... <... $CTX2 ...>.update(...) ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.update(...)
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...).update(...)
                           ...
                           <... $CTX2 ...>.sign($KEY, ...)
                       - pattern: <... <... $C.$MAKE($ALGO, ...) ...>.update(...) ...>.sign($KEY, ...)
@@ -100,7 +137,15 @@ rules:
                       - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.update(...)
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.update(...)
                           ...
@@ -112,13 +157,25 @@ rules:
                       - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
                           ...
                           <... <... $CTX2 ...>.update(...) ...>.sign($KEY, ...)
                       - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... <... $CTX ...>.update(...) ...>
+                          $CTX2 = $CTX.$M(...)
+                          ...
+                          <... <... $CTX2 ...>.update(...) ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.update(...)
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...).update(...)
                           ...
                           <... $CTX2 ...>.sign($KEY, ...)
                       - pattern: <... <... new $C.$MAKE($ALGO, ...) ...>.update(...) ...>.sign($KEY, ...)
@@ -140,7 +197,15 @@ rules:
                       - pattern: |
                           $CTX = <... $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.update(...)
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.update(...)
                           ...
@@ -152,13 +217,25 @@ rules:
                       - pattern: |
                           $CTX = <... $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
                           ...
                           <... <... $CTX2 ...>.update(...) ...>.sign($KEY, ...)
                       - pattern: |
                           $CTX = <... $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... <... $CTX ...>.update(...) ...>
+                          $CTX2 = $CTX.$M(...)
+                          ...
+                          <... <... $CTX2 ...>.update(...) ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.update(...)
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...).update(...)
                           ...
                           <... $CTX2 ...>.sign($KEY, ...)
                       - pattern: <... <... $MAKE($ALGO, ...) ...>.update(...) ...>.sign($KEY, ...)
@@ -171,7 +248,15 @@ rules:
                       - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.update(...)
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.update(...)
                           ...
@@ -183,13 +268,25 @@ rules:
                       - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
                           ...
                           <... <... $CTX2 ...>.update(...) ...>.sign($KEY, ...)
                       - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... <... $CTX ...>.update(...) ...>
+                          $CTX2 = $CTX.$M(...)
+                          ...
+                          <... <... $CTX2 ...>.update(...) ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.update(...)
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...).update(...)
                           ...
                           <... $CTX2 ...>.sign($KEY, ...)
                       - pattern: <... <... new $MAKE($ALGO, ...) ...>.update(...) ...>.sign($KEY, ...)
@@ -227,7 +324,7 @@ rules:
           - pattern: $CURVE
           - metavariable-regex:
               metavariable: $CURVE
-              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+              regex: '^["''](?:prime256v1|secp(?:256k1|384r1|521r1)|P-(?:256|384|521))["'']$'
 
     pattern-sinks:
       - patterns:
@@ -251,7 +348,13 @@ rules:
                       - pattern: |
                           $CTX = <... $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.sign($KEY, ...)
                       - pattern: <... $C.$MAKE($ALGO, ...) ...>.sign($KEY, ...)
@@ -262,7 +365,13 @@ rules:
                       - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.sign($KEY, ...)
                       - pattern: <... new $C.$MAKE($ALGO, ...) ...>.sign($KEY, ...)
@@ -282,7 +391,13 @@ rules:
                       - pattern: |
                           $CTX = <... $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.sign($KEY, ...)
                       - pattern: <... $MAKE($ALGO, ...) ...>.sign($KEY, ...)
@@ -293,7 +408,13 @@ rules:
                       - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.sign($KEY, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.sign($KEY, ...)
                       - pattern: <... new $MAKE($ALGO, ...) ...>.sign($KEY, ...)
@@ -331,7 +452,7 @@ rules:
           - pattern: $CURVE
           - metavariable-regex:
               metavariable: $CURVE
-              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+              regex: '^["''](?:prime256v1|secp(?:256k1|384r1|521r1)|P-(?:256|384|521))["'']$'
 
     pattern-sinks:
       - patterns:
@@ -357,7 +478,15 @@ rules:
                       - pattern: |
                           $CTX = <... $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.update(...)
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.update(...)
                           ...
@@ -369,13 +498,25 @@ rules:
                       - pattern: |
                           $CTX = <... $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
                           ...
                           <... <... $CTX2 ...>.update(...) ...>.verify($KEY, $SIG, ...)
                       - pattern: |
                           $CTX = <... $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... <... $CTX ...>.update(...) ...>
+                          $CTX2 = $CTX.$M(...)
+                          ...
+                          <... <... $CTX2 ...>.update(...) ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.update(...)
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...).update(...)
                           ...
                           <... $CTX2 ...>.verify($KEY, $SIG, ...)
                       - pattern: <... <... $C.$MAKE($ALGO, ...) ...>.update(...) ...>.verify($KEY, $SIG, ...)
@@ -388,7 +529,15 @@ rules:
                       - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.update(...)
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.update(...)
                           ...
@@ -400,13 +549,25 @@ rules:
                       - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
                           ...
                           <... <... $CTX2 ...>.update(...) ...>.verify($KEY, $SIG, ...)
                       - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... <... $CTX ...>.update(...) ...>
+                          $CTX2 = $CTX.$M(...)
+                          ...
+                          <... <... $CTX2 ...>.update(...) ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.update(...)
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...).update(...)
                           ...
                           <... $CTX2 ...>.verify($KEY, $SIG, ...)
                       - pattern: <... <... new $C.$MAKE($ALGO, ...) ...>.update(...) ...>.verify($KEY, $SIG, ...)
@@ -428,7 +589,15 @@ rules:
                       - pattern: |
                           $CTX = <... $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.update(...)
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.update(...)
                           ...
@@ -440,13 +609,25 @@ rules:
                       - pattern: |
                           $CTX = <... $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
                           ...
                           <... <... $CTX2 ...>.update(...) ...>.verify($KEY, $SIG, ...)
                       - pattern: |
                           $CTX = <... $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... <... $CTX ...>.update(...) ...>
+                          $CTX2 = $CTX.$M(...)
+                          ...
+                          <... <... $CTX2 ...>.update(...) ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.update(...)
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...).update(...)
                           ...
                           <... $CTX2 ...>.verify($KEY, $SIG, ...)
                       - pattern: <... <... $MAKE($ALGO, ...) ...>.update(...) ...>.verify($KEY, $SIG, ...)
@@ -459,7 +640,15 @@ rules:
                       - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.update(...)
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.update(...)
                           ...
@@ -471,13 +660,25 @@ rules:
                       - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
                           ...
                           <... <... $CTX2 ...>.update(...) ...>.verify($KEY, $SIG, ...)
                       - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... <... $CTX ...>.update(...) ...>
+                          $CTX2 = $CTX.$M(...)
+                          ...
+                          <... <... $CTX2 ...>.update(...) ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.update(...)
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...).update(...)
                           ...
                           <... $CTX2 ...>.verify($KEY, $SIG, ...)
                       - pattern: <... <... new $MAKE($ALGO, ...) ...>.update(...) ...>.verify($KEY, $SIG, ...)
@@ -515,7 +716,7 @@ rules:
           - pattern: $CURVE
           - metavariable-regex:
               metavariable: $CURVE
-              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+              regex: '^["''](?:prime256v1|secp(?:256k1|384r1|521r1)|P-(?:256|384|521))["'']$'
 
     pattern-sinks:
       - patterns:
@@ -539,7 +740,13 @@ rules:
                       - pattern: |
                           $CTX = <... $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.verify($KEY, $SIG, ...)
                       - pattern: <... $C.$MAKE($ALGO, ...) ...>.verify($KEY, $SIG, ...)
@@ -550,7 +757,13 @@ rules:
                       - pattern: |
                           $CTX = <... new $C.$MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $C.$MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.verify($KEY, $SIG, ...)
                       - pattern: <... new $C.$MAKE($ALGO, ...) ...>.verify($KEY, $SIG, ...)
@@ -570,7 +783,13 @@ rules:
                       - pattern: |
                           $CTX = <... $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.verify($KEY, $SIG, ...)
                       - pattern: <... $MAKE($ALGO, ...) ...>.verify($KEY, $SIG, ...)
@@ -581,7 +800,13 @@ rules:
                       - pattern: |
                           $CTX = <... new $MAKE($ALGO, ...) ...>
                           ...
-                          $CTX2 = <... $CTX ...>
+                          $CTX2 = $CTX
+                          ...
+                          <... $CTX2 ...>.verify($KEY, $SIG, ...)
+                      - pattern: |
+                          $CTX = <... new $MAKE($ALGO, ...) ...>
+                          ...
+                          $CTX2 = $CTX.$M(...)
                           ...
                           <... $CTX2 ...>.verify($KEY, $SIG, ...)
                       - pattern: <... new $MAKE($ALGO, ...) ...>.verify($KEY, $SIG, ...)
@@ -619,7 +844,7 @@ rules:
           - pattern: $CURVE
           - metavariable-regex:
               metavariable: $CURVE
-              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+              regex: '^["''](?:prime256v1|secp(?:256k1|384r1|521r1)|P-(?:256|384|521))["'']$'
 
     pattern-sinks:
       - patterns:
@@ -677,7 +902,7 @@ rules:
           - pattern: $CURVE
           - metavariable-regex:
               metavariable: $CURVE
-              regex: '(?i)^["''](?:prime256v1|secp(?:256[kr]1|384r1|521r1)|P-(?:256|384|521))["'']$'
+              regex: '^["''](?:prime256v1|secp(?:256k1|384r1|521r1)|P-(?:256|384|521))["'']$'
 
     pattern-sinks:
       - patterns:
